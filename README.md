@@ -1,46 +1,102 @@
-# Getting Started with Create React App
+# ThrowDown - Darts Scoring App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+ThrowDown is a modern darts scoring application designed to enhance the experience of playing darts. With a clean, intuitive interface, ThrowDown helps track scores, suggest checkouts, and manage player statistics for 501, 301, and 701 darts games.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **Player Management**: Add, remove, and randomize player order
+- **Game Modes**: Play standard 501, quick 301, or advanced 701 games
+- **Game Options**: Configure double in/out rules according to your preferences
+- **Score Tracking**: Easy and fast score entry with validation
+- **Checkout Suggestions**: Get recommendations for efficient checkouts
+- **Game Statistics**: Track player averages, highest scores, and wins
+- **Session Stats**: Keep track of wins across multiple games in a session
+- **Responsive Design**: Works on desktop, tablet, and mobile devices
 
-### `npm start`
+## Tech Stack
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- React 18+ with TypeScript
+- Vite for fast development and optimized builds
+- Styled Components for styling
+- React Router for navigation
+- Framer Motion for animations
+- React Context API for state management
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Getting Started
 
-### `npm test`
+### Prerequisites
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Node.js 16.0 or higher
+- npm or yarn package manager
 
-### `npm run build`
+### Installation
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. Clone the repository:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+   ```
+   git clone https://github.com/yourusername/throwdown.git
+   cd throwdown
+   ```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+2. Install dependencies:
+   ```
+   npm install
+   ```
 
-### `npm run eject`
+### Development
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+To start the development server:
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
+npm run dev
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+This will start the application at `http://localhost:5173`
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### Building for Production
 
-## Learn More
+To create a production build:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```
+npm run build
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+The built files will be in the `dist` directory.
+
+## Usage
+
+1. **Home Screen**: Start by adding players or quick start a game
+2. **Player Setup**: Add player names and customize the player order
+3. **Game Hub**: Select a game type and configure game options
+4. **Game**: Enter scores for each player's throw
+5. **Summary**: View detailed game statistics after a winner is declared
+
+## Project Structure
+
+```
+src/
+├── assets/          # Images and static files
+├── components/      # UI components
+│   ├── home/        # Home screen components
+│   ├── playerSetup/ # Player management components
+│   ├── gameHub/     # Game selection components
+│   ├── game501/     # 501 game implementation
+│   ├── gameSummary/ # Game statistics and summary
+│   └── shared/      # Shared UI components
+├── context/         # React Context for state management
+├── hooks/           # Custom React hooks
+├── theme/           # Theme configuration
+├── utils/           # Utility functions
+├── App.tsx          # Main App component with routing
+└── main.tsx         # Entry point
+```
+
+## License
+
+[MIT License](LICENSE)
+
+## Acknowledgments
+
+- Design inspiration from modern gaming applications
+- Built with a focus on user experience and performance
+- Created for darts enthusiasts by darts enthusiasts

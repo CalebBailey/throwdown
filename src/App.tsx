@@ -1,25 +1,79 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import HomeScreen from './components/home/HomeScreen';
+import PlayerSetupScreen from './components/playerSetup/PlayerSetupScreen';
+import GameHubScreen from './components/gameHub/GameHubScreen';
+import Game501Screen from './components/game501/Game501Screen';
+import GameSummaryScreen from './components/gameSummary/GameSummaryScreen';
+import { useGameContext } from './context/GameContext';
+
+// Protected route component to check if we have players before allowing access
+const GameProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
+  const { state } = useGameContext();
+  
+  // Navigate to player setup if there are no players
+  if (state.players.length === 0) {
+    return <Navigate to="/players" replace />;
+  }
+  
+  return element;
+};
+
+// Protected route component to check if a game is active
+const GameActiveRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
+  const { state } = useGameContext();
+  
+  // Navigate to game hub if there is no active game
+  if (state.gameStatus !== 'active') {
+    return <Navigate to="/games" replace />;
+  }
+  
+  return element;
+};
+
+// Protected route component to check if we have a winner
+const GameSummaryRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
+  const { state } = useGameContext();
+  
+  // Navigate to game hub if there is no winner
+  if (!state.winner) {
+    return <Navigate to="/games" replace />;
+  }
+  
+  return element;
+};
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        {/* Home route */}
+        <Route path="/" element={<HomeScreen />} />
+        
+        {/* Player Setup route */}
+        <Route path="/players" element={<PlayerSetupScreen />} />
+        
+        {/* Game Hub route - requires players to exist */}
+        <Route 
+          path="/games" 
+          element={<GameProtectedRoute element={<GameHubScreen />} />} 
+        />
+        
+        {/* Game 501 route - requires an active game */}
+        <Route 
+          path="/games/501" 
+          element={<GameActiveRoute element={<Game501Screen />} />} 
+        />
+        
+        {/* Game Summary route - requires a winner */}
+        <Route 
+          path="/summary" 
+          element={<GameSummaryRoute element={<GameSummaryScreen />} />} 
+        />
+        
+        {/* Redirect any other paths to home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   );
 }
 
