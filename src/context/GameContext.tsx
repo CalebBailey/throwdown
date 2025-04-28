@@ -276,26 +276,40 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       
       // Check for winner
       if (!isBust && newScore === 0) {
-        // Increment player legs
+        // Player has hit a checkout
         const updatedPlayer = {
           ...updatedPlayers[state.currentPlayerIndex],
           legs: updatedPlayers[state.currentPlayerIndex].legs + 1
         };
         updatedPlayers[state.currentPlayerIndex] = updatedPlayer;
         
+        // For "Best of" format
+        const totalLegsNeeded = Math.ceil(state.gameOptions.legs / 2);
+        // For "First to" format
+        const firstToLegsNeeded = state.gameOptions.legs;
+        
+        const legsNeeded = state.gameOptions.format === 'bestOf' ? totalLegsNeeded : firstToLegsNeeded;
+        
         // Check if player has won enough legs to win a set
-        if (updatedPlayer.legs >= state.gameOptions.legs) {
+        if (updatedPlayer.legs >= legsNeeded) {
           // Player wins a set
           updatedPlayer.sets += 1;
           
-          // Reset legs for all players
+          // Reset legs for all players for the next set
           updatedPlayers = updatedPlayers.map(player => ({
             ...player,
             legs: 0
           }));
           
+          // For "Best of" format
+          const totalSetsNeeded = Math.ceil(state.gameOptions.sets / 2);
+          // For "First to" format
+          const firstToSetsNeeded = state.gameOptions.sets;
+          
+          const setsNeeded = state.gameOptions.format === 'bestOf' ? totalSetsNeeded : firstToSetsNeeded;
+          
           // Check if player has won enough sets to win the game
-          if (state.gameOptions.sets > 1 && updatedPlayer.sets >= state.gameOptions.sets) {
+          if (state.gameOptions.sets > 1 && updatedPlayer.sets >= setsNeeded) {
             // Player wins the game
             const winningPlayer = {
               ...updatedPlayer,
@@ -319,15 +333,15 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
                 gamesPlayed: state.sessionStats.gamesPlayed + 1
               }
             };
-          } else {
-            // Reset scores for all players for the next set
+          } else if (state.gameOptions.sets > 1) {
+            // Not enough sets won yet, reset scores for next leg in the set
             updatedPlayers = updatedPlayers.map(player => ({
               ...player,
               score: state.gameOptions.startingScore,
               throws: []
             }));
             
-            // Continue to next set
+            // Continue to next leg
             return {
               ...state,
               players: updatedPlayers,
@@ -335,27 +349,47 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
               currentThrow: { darts: [], isComplete: false },
               currentRound: 1
             };
+          } else {
+            // No sets in play (sets = 1), this is a direct win
+            const winningPlayer = {
+              ...updatedPlayer,
+              wins: updatedPlayer.wins + 1
+            };
+            updatedPlayers[state.currentPlayerIndex] = winningPlayer;
+            
+            // Update session stats
+            const newPlayerWins = { ...state.sessionStats.playerWins };
+            newPlayerWins[winningPlayer.id] = (newPlayerWins[winningPlayer.id] || 0) + 1;
+            
+            return {
+              ...state,
+              players: updatedPlayers,
+              currentThrow: { darts: [], isComplete: false },
+              gameStatus: 'complete',
+              winner: winningPlayer,
+              sessionStats: {
+                ...state.sessionStats,
+                playerWins: newPlayerWins,
+                gamesPlayed: state.sessionStats.gamesPlayed + 1
+              }
+            };
           }
         } else {
-          // Player has won a leg but not enough to win a set
-          // Increment player wins
-          updatedPlayer.wins += 1;
+          // Player has won a leg but not enough to win a set/game
+          // Reset scores for next leg
+          updatedPlayers = updatedPlayers.map(player => ({
+            ...player,
+            score: state.gameOptions.startingScore,
+            throws: []
+          }));
           
-          // Update session stats
-          const newPlayerWins = { ...state.sessionStats.playerWins };
-          newPlayerWins[updatedPlayer.id] = (newPlayerWins[updatedPlayer.id] || 0) + 1;
-          
+          // Continue to next leg
           return {
             ...state,
             players: updatedPlayers,
+            currentPlayerIndex: 0,
             currentThrow: { darts: [], isComplete: false },
-            gameStatus: 'complete',
-            winner: updatedPlayer,
-            sessionStats: {
-              ...state.sessionStats,
-              playerWins: newPlayerWins,
-              gamesPlayed: state.sessionStats.gamesPlayed + 1
-            }
+            currentRound: 1
           };
         }
       }

@@ -286,7 +286,7 @@ const StatValue = styled.div`
 const CurrentPlayerTurn = styled.div`
   font-size: ${props => props.theme.fontSizes.xxxl};
   font-weight: bold;
-  color: ${props => props.theme.colors.accent};
+  color: ${props => props.theme.colors.highlight};
   text-align: center;
   margin-top: ${props => props.theme.space.lg};
 `;
@@ -579,7 +579,7 @@ const Game501Screen: React.FC = () => {
               </OptionsTag>
               <OptionsTag $enabled={true}>
                 {state.gameOptions.format === 'bestOf' ? 'Best of' : 'First to'} {state.gameOptions.legs} 
-                {state.gameOptions.sets > 1 ? ` (${state.gameOptions.sets} sets)` : ''}
+                {state.gameOptions.sets > 1 ? ` (${state.gameOptions.sets} sets)` : ' legs'}
               </OptionsTag>
             </GameOptionsInfo>
           </div>
@@ -598,8 +598,8 @@ const Game501Screen: React.FC = () => {
               <Card.Title>Scoreboard</Card.Title>
               <Card.Subtitle>
                 Round {state.currentRound} | 
-                {state.gameOptions.format === 'bestOf' ? 'Best of' : 'First to'} {state.gameOptions.legs} 
-                {state.gameOptions.sets > 1 ? ` (${state.gameOptions.sets} sets)` : ''}
+                {state.gameOptions.format === 'bestOf' ? ' Best of' : ' First to'} {state.gameOptions.legs} 
+                {state.gameOptions.sets > 1 ? ` (${state.gameOptions.sets} sets)` : ' legs'}
               </Card.Subtitle>
             </Card.Header>
             
@@ -616,9 +616,10 @@ const Game501Screen: React.FC = () => {
                       <PlayerName>{player.name}</PlayerName>
                       <PlayerStats>
                         Avg: {player.averageScore.toFixed(1)} | 
-                        High: {player.highestScore}
-                        {state.gameOptions.sets > 1 && ` | Sets: ${player.sets}`}
-                        {` | Legs: ${player.legs}`}
+                        High: {player.highestScore} <br />
+                        {state.gameOptions.sets > 1 
+                          ? `Sets: ${player.sets} | Legs: ${player.legs}`
+                          : `Legs: ${player.legs}`}
                       </PlayerStats>
                     </PlayerInfo>
                     <PlayerScore $winner={state.winner?.id === player.id}>
@@ -668,22 +669,15 @@ const Game501Screen: React.FC = () => {
                       ))}
                     </DartSlots>
                     
-                    <Button
-                      variant="outline"
-                      startIcon={<FiDelete />}
-                      onClick={handleRemoveLastDart}
-                      disabled={state.currentThrow.darts.length === 0}
-                    >
-                      Undo
-                    </Button>
+                    {currentThrowScore > 0 && (
+                    <CurrentPlayerTurn>
+                      Throw Total: {currentThrowScore}
+                    </CurrentPlayerTurn>
+                    )}
+
                   </DartThrowDisplay>
                   
-                  {currentThrowScore > 0 && (
-                    <CurrentPlayerTurn>
-                      {currentThrowScore}
-                    </CurrentPlayerTurn>
-                  )}
-                  
+                  {/* Dartboard controls */}
                   <DartScoreControls>
                     <ScoreTabs>
                       <ScoreTab 
@@ -704,42 +698,36 @@ const Game501Screen: React.FC = () => {
                       >
                         Treble
                       </ScoreTab>
-                      <ScoreTab 
-                        $active={activeScoreTab === 'special'} 
-                        onClick={() => handleTabChange('special')}
+                      <NumberButton 
+                        onClick={() => handleAddDart('Outer')}
                       >
-                        Special
-                      </ScoreTab>
+                        Outer<br />(25)
+                      </NumberButton>
+                      <NumberButton 
+                        onClick={() => handleAddDart('Bull')}
+                      >
+                        Bull<br />(50)
+                      </NumberButton>
                     </ScoreTabs>
                     
-                    {activeScoreTab !== 'special' ? (
-                      <NumberGrid>
-                        {renderNumberButtons()}
-                      </NumberGrid>
-                    ) : (
-                      <>
-                        <NumberGrid>
-                          <SpecialButton 
-                            $color="#e74c3c" 
-                            onClick={() => handleAddDart('Miss')}
-                          >
-                            MISS
-                          </SpecialButton>
-                          <SpecialButton 
-                            $color="#f39c12" 
-                            onClick={() => handleAddDart('Outer')}
-                          >
-                            25
-                          </SpecialButton>
-                          <SpecialButton 
-                            $color="#2ecc71" 
-                            onClick={() => handleAddDart('Bull')}
-                          >
-                            BULL
-                          </SpecialButton>
-                        </NumberGrid>
-                      </>
-                    )}
+                    <NumberGrid>
+                      {renderNumberButtons()}
+                    </NumberGrid>
+                    
+                    {/* Bottom row with Miss and Undo/Back buttons */}
+                    <BottomControlRow>
+                      <MissButton
+                      onClick={handleRemoveLastDart}
+                      disabled={state.currentThrow.darts.length === 0}
+                      >
+                        UNDO
+                      </MissButton>
+                      <MissButton
+                        onClick={() => handleAddDart('Miss')}
+                      >
+                        MISS
+                      </MissButton>
+                    </BottomControlRow>
                     
                     {error && (
                       <motion.div 
@@ -756,7 +744,7 @@ const Game501Screen: React.FC = () => {
                     )}
                     
                     <ActionButtons>
-                      <Button
+                      {/* <Button
                         variant="outline"
                         startIcon={<FiX />}
                         onClick={handleUndoScore}
@@ -767,7 +755,7 @@ const Game501Screen: React.FC = () => {
                         fullWidth
                       >
                         Undo Turn
-                      </Button>
+                      </Button> */}
                       <Button 
                         onClick={handleSubmitThrow}
                         startIcon={<FiCheck />}
@@ -1017,22 +1005,25 @@ const DartScoreControls = styled.div`
 const ScoreTabs = styled.div`
   display: flex;
   background-color: rgba(0, 0, 0, 0.2);
-  border-radius: ${props => props.theme.borderRadius.md};
   overflow: hidden;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: ${props => props.theme.space.xs};
 `;
 
 const ScoreTab = styled.button<{ $active: boolean }>`
   flex: 1;
   padding: ${props => props.theme.space.md};
-  background-color: ${props => props.$active ? props.theme.colors.primary : 'transparent'};
+  background-color: ${props => props.$active ? props.theme.colors.highlight : 'rgba(0, 0, 0, 0.2)'};
   border: none;
+  border-radius: ${props => props.theme.borderRadius.sm};
   color: ${props => props.theme.colors.text};
   font-weight: ${props => props.$active ? 'bold' : 'normal'};
   cursor: pointer;
   transition: all 0.2s ease;
   
   &:hover {
-    background-color: ${props => props.$active ? props.theme.colors.primary : 'rgba(255, 255, 255, 0.1)'};
+    background-color: ${props => props.$active ? props.theme.colors.highlight : 'rgba(255, 255, 255, 0.1)'};
   }
 `;
 
@@ -1049,7 +1040,7 @@ const NumberButton = styled.button`
   border: none;
   border-radius: ${props => props.theme.borderRadius.sm};
   color: ${props => props.theme.colors.text};
-  font-size: ${props => props.theme.fontSizes.lg};
+  font-size: ${props => props.theme.fontSizes.md};
   cursor: pointer;
   transition: all 0.2s ease;
   
@@ -1062,22 +1053,36 @@ const NumberButton = styled.button`
   }
 `;
 
-const SpecialButtonsRow = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: ${props => props.theme.space.xs};
+
+const BottomControlRow = styled.div`
+  display: flex;
+  justify-content: space-between;
   margin-top: ${props => props.theme.space.md};
+  gap: ${props => props.theme.space.xs};
+
 `;
 
-const SpecialButton = styled(NumberButton)<{ $color?: string }>`
-  background-color: ${props => props.$color || 'rgba(255, 255, 255, 0.1)'};
-  grid-column: span 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
+const BackButton = styled.button`
+  background-color: transparent;
+  border: none;
+  color: ${props => props.theme.colors.text};
+  cursor: pointer;
+  transition: all 0.2s ease;
   
   &:hover {
-    background-color: ${props => props.$color ? props.$color + '90' : 'rgba(255, 255, 255, 0.2)'};
+    color: ${props => props.theme.colors.highlight};
+  }
+`;
+
+const MissButton = styled(BackButton)`
+  flex: 1;
+  height: 50px;
+  text-align: center;
+  font-weight: bold;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: ${props => props.theme.borderRadius.sm};
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.2);
   }
 `;

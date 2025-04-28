@@ -79,8 +79,8 @@ const HomeScreen: React.FC = () => {
   };
   
   const handleQuickStart = () => {
-    // Navigate to 501 game with default settings
-    navigate('/games/501');
+    // Navigate to X01 game with default settings
+    navigate('/games/X01');
   };
   
   // Animation variants

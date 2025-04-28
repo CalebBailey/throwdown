@@ -58,9 +58,9 @@ function App() {
           element={<GameProtectedRoute element={<GameHubScreen />} />} 
         />
         
-        {/* Game 501 route - requires an active game */}
+        {/* Game X01 route - requires an active game */}
         <Route 
-          path="/games/501" 
+          path="/games/X01" 
           element={<GameActiveRoute element={<Game501Screen />} />} 
         />
         

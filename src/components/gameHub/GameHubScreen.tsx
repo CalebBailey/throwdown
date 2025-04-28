@@ -177,17 +177,23 @@ const GameHubScreen: React.FC = () => {
   const { state, dispatch } = useGameContext();
   const [selectedGameType, setSelectedGameType] = useState<GameType>("501");
   const [customScore, setCustomScore] = useState<string>("170");
+  const [sharedLegsSetValue, setSharedLegsSetValue] = useState<number>(5);
   const [gameOptions, setGameOptions] = useState<GameOptions>({
     startingScore: 501,
     entryMode: 'straight',
     outMode: 'double',
     format: 'bestOf',
     legs: 5,
-    sets: 3
+    sets: 5,
   });
   const [checkoutRate, setCheckoutRate] = useState<boolean>(true);
   const [twoLegsDifference, setTwoLegsDifference] = useState<boolean>(false);
   const [activeInput, setActiveInput] = useState<'legs' | 'sets'>('legs');
+  
+  // Add handler to safely switch active input without resetting values
+  const handleSwitchActiveInput = (input: 'legs' | 'sets') => {
+    setActiveInput(input);
+  };
   
   const handleGameTypeSelect = (gameType: GameType) => {
     setSelectedGameType(gameType);
@@ -231,15 +237,23 @@ const GameHubScreen: React.FC = () => {
   };
   
   const handleStartGame = () => {
+    // Apply the shared value based on which tab is active
+    const finalGameOptions = {
+      ...gameOptions,
+      // Only use the active option's value
+      legs: activeInput === 'legs' ? sharedLegsSetValue : 1,
+      sets: activeInput === 'sets' ? sharedLegsSetValue : 1
+    };
+    
     // Start the game with selected options
     dispatch({
       type: 'START_GAME',
       gameType: selectedGameType === "custom" ? "501" : selectedGameType, // Use 501 gameType for custom scoring
-      gameOptions: gameOptions,
+      gameOptions: finalGameOptions,
     });
     
     // Navigate to the appropriate game screen
-    navigate("/games/501"); // Always navigate to 501 game screen (the logic handles different starting scores)
+    navigate("/games/X01"); // Use generic X01 route (the logic handles different starting scores)
   };
   
   const handleAddMorePlayers = () => {
@@ -298,21 +312,27 @@ const GameHubScreen: React.FC = () => {
                     type="number"
                     min="1"
                     max="20"
-                    value={activeInput === 'legs' ? gameOptions.legs : gameOptions.sets}
+                    value={sharedLegsSetValue}
                     onChange={(e) => {
                       const value = parseInt(e.target.value) || 1;
-                      handleSelectOption(activeInput, value);
+                      setSharedLegsSetValue(value);
+                      // Update both legs and sets with the same value
+                      setGameOptions(prev => ({
+                        ...prev,
+                        legs: value,
+                        sets: value
+                      }));
                     }}
                   />
                   <GameOptionButton
                     $active={activeInput === 'legs'}
-                    onClick={() => setActiveInput('legs')}
+                    onClick={() => handleSwitchActiveInput('legs')}
                   >
                     LEGS
                   </GameOptionButton>
                   <GameOptionButton
                     $active={activeInput === 'sets'}
-                    onClick={() => setActiveInput('sets')}
+                    onClick={() => handleSwitchActiveInput('sets')}
                   >
                     SETS
                   </GameOptionButton>
