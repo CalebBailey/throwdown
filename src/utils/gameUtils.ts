@@ -387,6 +387,11 @@ export const dartNotationToScore = (notation: string): number => {
   if (notation === 'Bull') return 50;
   if (notation === 'Outer') return 25;
   
+  // Handle plain numbers (without prefix) first
+  if (!isNaN(parseInt(notation, 10))) {
+    return parseInt(notation, 10); // Just a number
+  }
+  
   const prefix = notation.charAt(0);
   const number = parseInt(notation.substring(1), 10);
   
@@ -397,9 +402,6 @@ export const dartNotationToScore = (notation: string): number => {
     case 'D': return number * 2; // Double
     case 'T': return number * 3; // Triple
     default:
-      if (!isNaN(parseInt(notation, 10))) {
-        return parseInt(notation, 10); // Just a number
-      }
       return 0;
   }
 };
@@ -453,31 +455,68 @@ export const calculatePlayerStats = (player: Player): {
   highest: number;
   dartsThrown: number;
   checkoutPercentage: number;
+  threeDartAverage: number;
+  first9Average: number;
+  checkoutsCompleted: number;
+  checkoutsAttempted: number;
+  highestFinish: number;
+  bestLeg: number;
+  worstLeg: number;
+  lastScore: number;
 } => {
   const { throws } = player;
   const dartsThrown = throws.flat().length;
   
-  // Calculate average per throw instead of per dart
-  // Each array in throws represents one turn (up to 3 darts)
+  // Calculate total score from all darts
   const totalScore = throws.reduce((sum, turn) => {
     return sum + calculateScore(turn);
   }, 0);
   
+  // Calculate 3 dart average (based on actual darts thrown)
+  const threeDartAverage = dartsThrown > 0 ? (totalScore / dartsThrown) * 3 : 0;
+  
+  // Calculate average per throw (for backward compatibility)
   const turnCount = throws.length;
   const average = turnCount > 0 ? totalScore / turnCount : 0;
-    
-  // Calculate highest throw (not just highest dart)
-  const highest = turnCount > 0 
-    ? Math.max(...throws.map(turn => calculateScore(turn)))
-    : 0;
   
-  // This is simplified - in a real app, you'd track checkout attempts
-  const checkoutPercentage = 0;
+  // Calculate first 9 dart average (first 3 turns)
+  const first9Darts = throws.slice(0, 3).flat();
+  const first9Score = first9Darts.reduce((sum, dart) => sum + dartNotationToScore(dart), 0);
+  const first9Average = first9Darts.length > 0 ? (first9Score / first9Darts.length) * 3 : 0;
+  
+  // Calculate highest throw (not just highest dart)
+  const turnScores = throws.map(turn => calculateScore(turn));
+  const highest = turnScores.length > 0 ? Math.max(...turnScores) : 0;
+  
+  // Get the last score (most recent throw)
+  const lastScore = turnScores.length > 0 ? turnScores[turnScores.length - 1] : 0;
+  
+  // Checkouts statistics
+  // In a real implementation, we'd track actual checkout attempts
+  // For now, we'll estimate based on available data
+  const checkoutsCompleted = player.checkoutsCompleted || 0;
+  const checkoutsAttempted = player.checkoutAttempts || 0;
+  const checkoutPercentage = checkoutsAttempted > 0 ? (checkoutsCompleted / checkoutsAttempted) * 100 : 0;
+  
+  // Highest finish (in a real app, you'd track the actual checkout value)
+  const highestFinish = player.highestFinish || 0;
+  
+  // Leg statistics (in darts)
+  const bestLeg = player.bestLeg || 0;
+  const worstLeg = player.worstLeg || 0;
   
   return {
     average,
     highest,
     dartsThrown,
-    checkoutPercentage
+    checkoutPercentage,
+    threeDartAverage,
+    first9Average,
+    checkoutsCompleted,
+    checkoutsAttempted,
+    highestFinish,
+    bestLeg,
+    worstLeg,
+    lastScore
   };
 };

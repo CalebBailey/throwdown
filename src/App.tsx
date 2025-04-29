@@ -1,9 +1,11 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useState } from 'react';
 import HomeScreen from './components/home/HomeScreen';
 import PlayerSetupScreen from './components/playerSetup/PlayerSetupScreen';
 import GameHubScreen from './components/gameHub/GameHubScreen';
 import Game501Screen from './components/game501/Game501Screen';
 import GameSummaryScreen from './components/gameSummary/GameSummaryScreen';
+import SplashScreen from './components/splash/SplashScreen';
 import { useGameContext } from './context/GameContext';
 
 // Protected route component to check if we have players before allowing access
@@ -18,12 +20,12 @@ const GameProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element
   return element;
 };
 
-// Protected route component to check if a game is active
-const GameActiveRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
+// Protected route component to check if a game exists (either active or completed with winner)
+const GameExistsRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
   const { state } = useGameContext();
   
-  // Navigate to game hub if there is no active game
-  if (state.gameStatus !== 'active') {
+  // Navigate to game hub if there is no active game or completed game with winner
+  if (state.gameStatus !== 'active' && !(state.gameStatus === 'complete' && state.winner)) {
     return <Navigate to="/games" replace />;
   }
   
@@ -42,12 +44,31 @@ const GameSummaryRoute: React.FC<{ element: React.ReactElement }> = ({ element }
   return element;
 };
 
+// Home route component that shows splash screen before HomeScreen
+const HomeRouteWithSplash: React.FC = () => {
+  const [showSplash, setShowSplash] = useState<boolean>(true);
+  
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+  };
+  
+  return (
+    <>
+      {showSplash ? (
+        <SplashScreen onComplete={handleSplashComplete} />
+      ) : (
+        <HomeScreen />
+      )}
+    </>
+  );
+};
+
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Home route */}
-        <Route path="/" element={<HomeScreen />} />
+        {/* Home route with splash screen */}
+        <Route path="/" element={<HomeRouteWithSplash />} />
         
         {/* Player Setup route */}
         <Route path="/players" element={<PlayerSetupScreen />} />
@@ -58,10 +79,16 @@ function App() {
           element={<GameProtectedRoute element={<GameHubScreen />} />} 
         />
         
-        {/* Game X01 route - requires an active game */}
+        {/* Game Routes - require an active game or complete game with winner */}
+        <Route 
+          path="/games/501" 
+          element={<GameExistsRoute element={<Game501Screen />} />} 
+        />
+        
+        {/* Backward compatibility for X01 route */}
         <Route 
           path="/games/X01" 
-          element={<GameActiveRoute element={<Game501Screen />} />} 
+          element={<GameExistsRoute element={<Game501Screen />} />} 
         />
         
         {/* Game Summary route - requires a winner */}

@@ -332,120 +332,42 @@ const WinnerCard = styled(motion.div)`
   padding: ${props => props.theme.space.xl};
   width: 100%;
   max-width: 600px;
+  max-height: 90vh;
   text-align: center;
   box-shadow: ${props => props.theme.shadows.lg};
   position: relative;
   overflow: hidden;
-`;
-
-const ConfettiOverlay = styled(motion.div)`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-`;
-
-const WinnerTitle = styled(motion.h1)`
-  color: ${props => props.theme.colors.highlight};
-  font-size: ${props => props.theme.fontSizes.huge};
-  margin-bottom: ${props => props.theme.space.xl};
-`;
-
-const WinnerAvatar = styled(motion.div)<{ color: string }>`
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background-color: ${props => props.color};
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: ${props => props.theme.fontSizes.huge};
-  color: white;
-  font-weight: bold;
-  position: relative;
-`;
-
-const Medal = styled(motion.div)<{ position: number }>`
-  position: absolute;
-  top: -15px;
-  right: -15px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-color: ${props => 
-    props.position === 1 ? '#FFD700' : // Gold
-    props.position === 2 ? '#C0C0C0' : // Silver
-    '#CD7F32' // Bronze
-  };
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: ${props => props.theme.fontSizes.lg};
-  color: #000;
-  font-weight: bold;
-  box-shadow: ${props => props.theme.shadows.md};
-  border: 2px solid white;
-`;
-
-const StatsContainer = styled(motion.div)`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: ${props => props.theme.space.md};
-  margin: ${props => props.theme.space.xl} 0;
-`;
-
-const PlayerScoreTally = styled(motion.div)`
-  margin-top: ${props => props.theme.space.xl};
-  overflow: hidden;
-  width: 100%;
-`;
-
-const ScoreScroller = styled(motion.div)`
-  display: flex;
-  gap: ${props => props.theme.space.md};
-  overflow-x: auto;
-  padding: ${props => props.theme.space.md} 0;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`;
-
-const PlayerScoreBox = styled.div<{ $winner: boolean }>`
-  min-width: 100px;
-  background-color: ${props => props.$winner ? 'rgba(76, 175, 80, 0.2)' : 'rgba(255, 255, 255, 0.1)'};
-  border-radius: ${props => props.theme.borderRadius.md};
-  padding: ${props => props.theme.space.md};
-  text-align: center;
   display: flex;
   flex-direction: column;
-  gap: ${props => props.theme.space.xs};
-  border: 2px solid ${props => props.$winner ? props.theme.colors.success : 'transparent'};
 `;
 
-const PlayerScoreAvatar = styled.div<{ color: string }>`
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background-color: ${props => props.color};
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
-  font-size: ${props => props.theme.fontSizes.md};
+const WinnerHeader = styled.div`
+  flex-shrink: 0;
+  margin-bottom: ${props => props.theme.space.md};
 `;
 
-const WinCount = styled.div`
-  font-family: ${props => props.theme.fonts.monospace};
-  font-size: ${props => props.theme.fontSizes.xl};
-  font-weight: bold;
+const WinnerStatsScrollable = styled.div`
+  overflow-y: auto;
+  flex-grow: 1;
+  padding-right: ${props => props.theme.space.sm}; /* Add padding for scrollbar */
+  margin-right: -${props => props.theme.space.sm}; /* Offset margin to maintain alignment */
+  
+  /* Custom scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: ${props => props.theme.colors.accent} transparent;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: ${props => props.theme.colors.accent};
+    border-radius: 10px;
+  }
 `;
 
 const Game501Screen: React.FC = () => {
@@ -456,21 +378,6 @@ const Game501Screen: React.FC = () => {
   
   // Get the current player
   const currentPlayer = state.players[state.currentPlayerIndex];
-  
-  // Check if game is in progress or redirect to summary page if complete
-  useEffect(() => {
-    if (state.gameStatus === 'complete' && state.winner) {
-      // Navigate to summary screen after a brief delay
-      const timer = setTimeout(() => {
-        navigate('/summary');
-      }, 2000);
-      
-      return () => clearTimeout(timer);
-    } else if (state.gameStatus !== 'active') {
-      // If not active and not complete, go to games screen
-      navigate('/games');
-    }
-  }, [state.gameStatus, state.winner, navigate]);
   
   // Get the current throw score total
   const currentThrowScore = state.currentThrow.darts.reduce(
@@ -620,7 +527,7 @@ const Game501Screen: React.FC = () => {
             <Card.Header>
               <Card.Title>Scoreboard</Card.Title>
               <Card.Subtitle>
-                Round {state.currentRound} | 
+                Turn {state.currentTurn} | 
                 {state.gameOptions.format === 'bestOf' ? ' Best of' : ' First to'} {state.gameOptions.legs} 
                 {state.gameOptions.sets > 1 ? ` (${state.gameOptions.sets} sets)` : ' legs'}
               </Card.Subtitle>
@@ -638,8 +545,9 @@ const Game501Screen: React.FC = () => {
                     <PlayerInfo>
                       <PlayerName>{player.name}</PlayerName>
                       <PlayerStats>
-                        Avg: {player.averageScore.toFixed(1)} | 
+                        Avg: {player.threeDartAverage.toFixed(1)} | 
                         High: {player.highestScore} <br />
+                        {player.lastScore > 0 && `Last: ${player.lastScore} | `}
                         {state.gameOptions.sets > 1 
                           ? `Sets: ${player.sets} | Legs: ${player.legs}`
                           : `Legs: ${player.legs}`}
@@ -666,7 +574,7 @@ const Game501Screen: React.FC = () => {
               <ScoreSection>
                 <AnimatePresence mode="wait">
                   <CurrentScore
-                    key={`score-${currentPlayer?.id}-${liveRemainingScore}`}
+                    key={`score-${currentPlayer?.id}-${liveRemainingScore}-${state.currentThrow.darts.join('-')}`}
                     initial="initial"
                     animate="animate"
                     exit="exit"
@@ -815,6 +723,13 @@ const Game501Screen: React.FC = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ type: 'spring', duration: 0.8 }}
               >
+                <ContinueButton
+                  startIcon={<FiArrowRight />}
+                  onClick={() => navigate('/summary')}
+                >
+                  Continue
+                </ContinueButton>
+                
                 <ConfettiOverlay
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -823,123 +738,127 @@ const Game501Screen: React.FC = () => {
                   {/* Fancy confetti effect would be implemented here */}
                 </ConfettiOverlay>
                 
-                <WinnerTitle
-                  initial={{ y: -50, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ type: 'spring', delay: 0.2, stiffness: 300 }}
-                >
-                  WINNER!
-                </WinnerTitle>
-                
-                <WinnerAvatar 
-                  color={state.winner.color}
-                  initial={{ scale: 0.5, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.4, type: 'spring' }}
-                >
-                  {state.winner.name.charAt(0).toUpperCase()}
-                  <Medal 
-                    position={1}
-                    initial={{ scale: 0, opacity: 0, rotate: -30 }}
-                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                    transition={{ delay: 1.0, type: 'spring', stiffness: 300 }}
+                <WinnerHeader>
+                  <WinnerTitle
+                    initial={{ y: -50, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ type: 'spring', delay: 0.2, stiffness: 300 }}
                   >
-                    <FiAward />
-                  </Medal>
-                </WinnerAvatar>
-                
-                <motion.h2
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.6 }}
-                  style={{ 
-                    color: '#fff', 
-                    fontSize: '2.5rem', 
-                    marginTop: '1rem',
-                    marginBottom: '0.5rem'
-                  }}
-                >
-                  {state.winner.name}
-                </motion.h2>
-                
-                <StatsContainer
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.8 }}
-                >
-                  <StatBox>
-                    <StatLabel>Average Score</StatLabel>
-                    <StatValue>{state.winner.averageScore.toFixed(1)}</StatValue>
-                  </StatBox>
-                  <StatBox>
-                    <StatLabel>Highest Score</StatLabel>
-                    <StatValue>{state.winner.highestScore}</StatValue>
-                  </StatBox>
-                  <StatBox>
-                    <StatLabel>Rounds</StatLabel>
-                    <StatValue>{state.currentRound}</StatValue>
-                  </StatBox>
-                  <StatBox>
-                    <StatLabel>Total Wins</StatLabel>
-                    <StatValue>{state.winner.wins}</StatValue>
-                  </StatBox>
-                </StatsContainer>
-                
-                <PlayerScoreTally
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1.0 }}
-                >
-                  <motion.h3 style={{ marginBottom: '0.5rem' }}>Player Win Tallies</motion.h3>
-                  <ScoreScroller
-                    initial={{ x: 300 }}
-                    animate={{ x: 0 }}
-                    transition={{ 
-                      delay: 1.2, 
-                      duration: 1,
-                      type: 'spring',
-                      stiffness: 100 
+                    WINNER!
+                  </WinnerTitle>
+                  
+                  <WinnerAvatar 
+                    color={state.winner.color}
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.4, type: 'spring' }}
+                  >
+                    {state.winner.name.charAt(0).toUpperCase()}
+                    <Medal 
+                      position={1}
+                      initial={{ scale: 0, opacity: 0, rotate: -30 }}
+                      animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                      transition={{ delay: 1.0, type: 'spring', stiffness: 300 }}
+                    >
+                      <FiAward />
+                    </Medal>
+                  </WinnerAvatar>
+                  
+                  <motion.h2
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                    style={{ 
+                      color: '#fff', 
+                      fontSize: '2.5rem', 
+                      marginTop: '1rem',
+                      marginBottom: '0.5rem'
                     }}
                   >
-                    {state.players.map(player => (
-                      <PlayerScoreBox key={player.id} $winner={player.id === state.winner?.id}>
-                        <PlayerScoreAvatar color={player.color}>
-                          {player.name.charAt(0).toUpperCase()}
-                        </PlayerScoreAvatar>
-                        <div>{player.name}</div>
-                        <WinCount>{player.wins}</WinCount>
-                        <div>wins</div>
-                      </PlayerScoreBox>
-                    ))}
-                  </ScoreScroller>
-                </PlayerScoreTally>
+                    {state.winner.name}
+                  </motion.h2>
+                </WinnerHeader>
                 
-                <ButtonGroup style={{ marginTop: '2rem' }}>
-                  <Button
-                    variant="outline"
-                    startIcon={<FiArrowLeft />}
-                    onClick={() => {
-                      dispatch({ type: 'RESET_GAME' });
-                      navigate('/games');
-                    }}
-                    fullWidth
+                <WinnerStatsScrollable>
+                  <StatsContainer
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.8 }}
                   >
-                    Game Hub
-                  </Button>
-                  <Button
-                    startIcon={<FiTarget />}
-                    onClick={() => {
-                      dispatch({
-                        type: 'START_GAME',
-                        gameType: state.gameType,
-                        gameOptions: state.gameOptions
-                      });
-                    }}
-                    fullWidth
+                    <StatBox>
+                      <StatLabel>Average Score</StatLabel>
+                      <StatValue>{state.winner.averageScore.toFixed(1)}</StatValue>
+                    </StatBox>
+                    <StatBox>
+                      <StatLabel>Highest Score</StatLabel>
+                      <StatValue>{state.winner.highestScore}</StatValue>
+                    </StatBox>
+                    <StatBox>
+                      <StatLabel>Turns</StatLabel>
+                      <StatValue>{state.currentTurn}</StatValue>
+                    </StatBox>
+                    <StatBox>
+                      <StatLabel>Total Wins</StatLabel>
+                      <StatValue>{state.winner.wins}</StatValue>
+                    </StatBox>
+                  </StatsContainer>
+                  
+                  <PlayerScoreTally
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1.0 }}
                   >
-                    Play Again
-                  </Button>
-                </ButtonGroup>
+                    <motion.h3 style={{ marginBottom: '0.5rem' }}>Player Win Tallies</motion.h3>
+                    <ScoreScroller
+                      initial={{ x: 300 }}
+                      animate={{ x: 0 }}
+                      transition={{ 
+                        delay: 1.2, 
+                        duration: 1,
+                        type: 'spring',
+                        stiffness: 100 
+                      }}
+                    >
+                      {state.players.map(player => (
+                        <PlayerScoreBox key={player.id} $winner={player.id === state.winner?.id}>
+                          <PlayerScoreAvatar color={player.color}>
+                            {player.name.charAt(0).toUpperCase()}
+                          </PlayerScoreAvatar>
+                          <div>{player.name}</div>
+                          <WinCount>{player.wins}</WinCount>
+                          <div>wins</div>
+                        </PlayerScoreBox>
+                      ))}
+                    </ScoreScroller>
+                  </PlayerScoreTally>
+                  
+                  <ButtonGroup style={{ marginTop: '2rem' }}>
+                    <Button
+                      variant="outline"
+                      startIcon={<FiArrowLeft />}
+                      onClick={() => {
+                        dispatch({ type: 'RESET_GAME' });
+                        navigate('/games');
+                      }}
+                      fullWidth
+                    >
+                      Game Hub
+                    </Button>
+                    <Button
+                      startIcon={<FiTarget />}
+                      onClick={() => {
+                        dispatch({
+                          type: 'START_GAME',
+                          gameType: state.gameType,
+                          gameOptions: state.gameOptions
+                        });
+                      }}
+                      fullWidth
+                    >
+                      Play Again
+                    </Button>
+                  </ButtonGroup>
+                </WinnerStatsScrollable>
               </WinnerCard>
             </WinnerOverlay>
           )}
@@ -1100,4 +1019,123 @@ const MissButton = styled(BackButton)`
   &:hover {
     background-color: rgba(255, 255, 255, 0.2);
   }
+`;
+
+const WinnerTitle = styled(motion.h1)`
+  color: ${props => props.theme.colors.highlight};
+  font-size: ${props => props.theme.fontSizes.huge};
+  margin-bottom: ${props => props.theme.space.xl};
+`;
+
+const WinnerAvatar = styled(motion.div)<{ color: string }>`
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: ${props => props.color};
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: ${props => props.theme.fontSizes.huge};
+  color: white;
+  font-weight: bold;
+  position: relative;
+`;
+
+const ContinueButton = styled(Button)`
+  position: absolute;
+  top: ${props => props.theme.space.md};
+  right: ${props => props.theme.space.md};
+  z-index: 10;
+`;
+
+// Winner screen styled components
+const ConfettiOverlay = styled(motion.div)`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+`;
+
+const Medal = styled(motion.div)<{ position: number }>`
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  background-color: ${props => props.theme.colors.gold};
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: ${props => props.theme.fontSizes.xl};
+  border: 2px solid ${props => props.theme.colors.text};
+`;
+
+const StatsContainer = styled(motion.div)`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: ${props => props.theme.space.md};
+  margin-bottom: ${props => props.theme.space.xl};
+`;
+
+const PlayerScoreTally = styled(motion.div)`
+  margin-bottom: ${props => props.theme.space.xl};
+`;
+
+const ScoreScroller = styled(motion.div)`
+  display: flex;
+  gap: ${props => props.theme.space.md};
+  overflow-x: auto;
+  padding: ${props => props.theme.space.md} 0;
+  scrollbar-width: thin;
+  scrollbar-color: ${props => props.theme.colors.accent} transparent;
+  
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: ${props => props.theme.colors.accent};
+    border-radius: 10px;
+  }
+`;
+
+const PlayerScoreBox = styled.div<{ $winner: boolean }>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: ${props => props.theme.space.md};
+  background-color: ${props => props.$winner ? `${props.theme.colors.highlight}40` : 'rgba(255, 255, 255, 0.05)'};
+  border-radius: ${props => props.theme.borderRadius.md};
+  min-width: 100px;
+`;
+
+const PlayerScoreAvatar = styled.div<{ color: string }>`
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: ${props => props.color};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${props => props.theme.colors.text};
+  font-weight: bold;
+  font-size: ${props => props.theme.fontSizes.md};
+  margin-bottom: ${props => props.theme.space.sm};
+`;
+
+const WinCount = styled.div`
+  font-size: ${props => props.theme.fontSizes.xl};
+  font-weight: bold;
+  color: ${props => props.theme.colors.highlight};
+  margin: ${props => props.theme.space.xs} 0;
 `;

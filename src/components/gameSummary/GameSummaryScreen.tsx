@@ -61,7 +61,7 @@ const WinnerAvatar = styled.div<{ color: string }>`
 
 const StatsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(2, minmax(250px, 1fr));
   gap: ${props => props.theme.space.lg};
   margin: ${props => props.theme.space.xl} 0;
 `;
@@ -209,7 +209,7 @@ const GameSummaryScreen: React.FC = () => {
               {state.winner.name.charAt(0).toUpperCase()}
             </WinnerAvatar>
             <WinnerName>{state.winner.name} Wins!</WinnerName>
-            <p>{state.gameType} game completed in {state.currentRound} rounds</p>
+            <p>{state.gameType} game completed in {state.currentTurn} turns</p>
           </WinnerSection>
           
           <motion.div variants={childVariants}>
@@ -227,14 +227,14 @@ const GameSummaryScreen: React.FC = () => {
                   <p>
                     {state.gameOptions.entryMode === 'double' ? 'Double In' : 
                      state.gameOptions.entryMode === 'master' ? 'Master In' : 'Straight In'} | 
-                    {state.gameOptions.outMode === 'double' ? 'Double Out' : 
-                     state.gameOptions.outMode === 'master' ? 'Master Out' : 'Straight Out'}
+                    {state.gameOptions.outMode === 'double' ? ' Double Out' : 
+                     state.gameOptions.outMode === 'master' ? ' Master Out' : ' Straight Out'}
                   </p>
                 </StatCard>
                 <StatCard>
-                  <h3>Rounds</h3>
-                  <StatValue>{state.currentRound}</StatValue>
-                  <p>Total rounds played</p>
+                  <h3>Turns</h3>
+                  <StatValue>{state.currentTurn}</StatValue>
+                  <p>Total turns played</p>
                 </StatCard>
                 <StatCard>
                   <h3>Winner</h3>
@@ -252,10 +252,15 @@ const GameSummaryScreen: React.FC = () => {
                 <StatHeader>
                   <div></div>
                   <div>Player</div>
-                  <StatCell>Final Score</StatCell>
-                  <StatCell>Average</StatCell>
+                  {/* <StatCell>Final Score</StatCell> */}
+                  <StatCell>3 Dart Avg</StatCell>
+                  <StatCell>First 9 Avg</StatCell>
                   <StatCell>Highest</StatCell>
-                  <StatCell>Darts Thrown</StatCell>
+                  <StatCell>Checkout %</StatCell>
+                  <StatCell>Checkouts</StatCell>
+                  <StatCell>Highest Finish</StatCell>
+                  <StatCell>Best Leg</StatCell>
+                  <StatCell>Darts</StatCell>
                 </StatHeader>
                 
                 {state.players.map(player => {
@@ -266,9 +271,14 @@ const GameSummaryScreen: React.FC = () => {
                     <PlayerRow key={player.id} $winner={isWinner}>
                       <PlayerColor color={player.color} />
                       <PlayerName>{player.name} {isWinner && '🏆'}</PlayerName>
-                      <StatCell>{player.score}</StatCell>
-                      <StatCell>{stats.average.toFixed(1)}</StatCell>
+                      {/* <StatCell>{player.score}</StatCell> */}
+                      <StatCell>{stats.threeDartAverage.toFixed(1)}</StatCell>
+                      <StatCell>{stats.first9Average.toFixed(1)}</StatCell>
                       <StatCell>{stats.highest}</StatCell>
+                      <StatCell>{stats.checkoutPercentage.toFixed(1)}%</StatCell>
+                      <StatCell>{stats.checkoutsCompleted}/{stats.checkoutsAttempted}</StatCell>
+                      <StatCell>{stats.highestFinish > 0 ? stats.highestFinish : '-'}</StatCell>
+                      <StatCell>{stats.bestLeg > 0 ? stats.bestLeg : '-'}</StatCell>
                       <StatCell>{stats.dartsThrown}</StatCell>
                     </PlayerRow>
                   );

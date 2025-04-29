@@ -10,9 +10,19 @@ export interface Player {
   throws: string[][]; // Changed from number[][] to string[][] for dart notations
   averageScore: number;
   highestScore: number;
+  lastScore: number; // Last score thrown
   wins: number;
   legs: number;
   sets: number;
+  // Additional statistics
+  threeDartAverage: number; // Average based on darts thrown
+  first9Average: number; // First 9 darts average
+  checkoutRate: number; // Percentage of successful checkouts
+  checkoutsCompleted: number; // Number of successful checkouts
+  checkoutAttempts: number; // Number of checkout opportunities
+  highestFinish: number; // Highest checkout completed
+  bestLeg: number; // Best leg in darts
+  worstLeg: number; // Worst leg in darts
 }
 
 export type EntryMode = 'straight' | 'double' | 'master';
@@ -37,7 +47,7 @@ export interface GameState {
   gameType: GameType;
   gameOptions: GameOptions;
   gameStatus: GameStatus;
-  currentRound: number;
+  currentTurn: number;
   winner: Player | null;
   sessionStats: {
     playerWins: Record<string, number>;
@@ -47,6 +57,8 @@ export interface GameState {
     darts: string[];
     isComplete: boolean;
   };
+  // Track which player starts each leg (advances after each leg)
+  legStarterIndex: number;
 }
 
 // Actions
@@ -79,7 +91,7 @@ const initialState: GameState = {
     sets: 1,
   },
   gameStatus: "setup",
-  currentRound: 1,
+  currentTurn: 1,
   winner: null,
   sessionStats: {
     playerWins: {},
@@ -88,7 +100,8 @@ const initialState: GameState = {
   currentThrow: {
     darts: [],
     isComplete: false
-  }
+  },
+  legStarterIndex: 0,
 };
 
 // Load session data from localStorage if available
@@ -120,9 +133,18 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         throws: [],
         averageScore: 0,
         highestScore: 0,
+        lastScore: 0,
         wins: state.sessionStats.playerWins[player.id] || 0,
         legs: 0,
         sets: 0,
+        threeDartAverage: 0,
+        first9Average: 0,
+        checkoutRate: 0,
+        checkoutsCompleted: 0,
+        checkoutAttempts: 0,
+        highestFinish: 0,
+        bestLeg: 0,
+        worstLeg: 0,
       };
       return { ...state, players: [...state.players, newPlayer] };
     }
@@ -145,14 +167,17 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         gameType,
         gameOptions,
         gameStatus: "active",
-        currentRound: 1,
+        currentTurn: 1,
         currentPlayerIndex: 0,
+        legStarterIndex: 0,
         players: state.players.map(player => ({
           ...player,
           score: gameOptions.startingScore,
           throws: [],
           averageScore: 0,
-          highestScore: 0
+          highestScore: 0,
+          legs: 0,
+          sets: 0
         })),
         winner: null,
         currentThrow: {
@@ -243,35 +268,95 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       
       // Clone and update the throws
       const newThrows = [...currentPlayer.throws];
-      if (!newThrows[state.currentRound - 1]) {
-        newThrows[state.currentRound - 1] = [];
+      if (!newThrows[state.currentTurn - 1]) {
+        newThrows[state.currentTurn - 1] = [];
       }
-      newThrows[state.currentRound - 1] = dartsThrown;
+      newThrows[state.currentTurn - 1] = dartsThrown;
       
-      // Calculate stats
-      const allThrows = newThrows.flat();
-      const dartsCount = allThrows.length;
+      // Calculate total darts thrown in all legs
+      const allDarts = newThrows.flat();
+      const dartsCount = allDarts.length;
       
-      // Calculate average per throw (turn) instead of per dart
-      const totalTurnScores = newThrows.reduce((sum, turn) => {
+      // Calculate scores for various statistics
+      const totalScore = newThrows.reduce((sum, turn) => {
         return sum + turn.reduce((turnSum, dart) => turnSum + dartNotationToScore(dart), 0);
       }, 0);
+      
+      // Calculate averages
       const turnCount = newThrows.length;
-      const averageScore = turnCount > 0 ? totalTurnScores / turnCount : 0;
+      const averageScore = turnCount > 0 ? totalScore / turnCount : 0;
+      const threeDartAverage = dartsCount > 0 ? (totalScore / dartsCount) * 3 : 0;
+      
+      // Calculate first 9 dart average
+      const first9Darts = newThrows.slice(0, 3).flat();
+      const first9Score = first9Darts.reduce((sum, dart) => sum + dartNotationToScore(dart), 0);
+      const first9Average = first9Darts.length > 0 ? (first9Score / first9Darts.length) * 3 : 0;
       
       // Find the highest score in a single turn
-      const highScores = newThrows.map(turnDarts => 
+      const turnScores = newThrows.map(turnDarts => 
         turnDarts.reduce((sum, dart) => sum + dartNotationToScore(dart), 0)
       );
-      const highestScore = highScores.length > 0 ? Math.max(...highScores, 0) : 0;
+      const highestScore = turnScores.length > 0 ? Math.max(...turnScores, 0) : 0;
+      const lastScore = score; // Current throw score
       
-      // Update the player
+      // Track checkout statistics
+      let checkoutsCompleted = currentPlayer.checkoutsCompleted || 0;
+      let highestFinish = currentPlayer.highestFinish || 0;
+      
+      // If this was a checkout, update the statistics
+      if (!isBust && newScore === 0) {
+        checkoutsCompleted++;
+        // Track highest finish - the score before this throw
+        if (currentPlayer.score > highestFinish) {
+          highestFinish = currentPlayer.score;
+        }
+      }
+      
+      // Track checkout attempts - when player could potentially check out
+      const wasCheckoutAttempt = currentPlayer.score <= 170;
+      const checkoutAttempts = wasCheckoutAttempt ? 
+        (currentPlayer.checkoutAttempts || 0) + 1 : 
+        (currentPlayer.checkoutAttempts || 0);
+      
+      // Calculate checkout rate
+      const checkoutRate = checkoutAttempts > 0 ? 
+        (checkoutsCompleted / checkoutAttempts) * 100 : 0;
+      
+      // Track leg statistics (in darts)
+      let bestLeg = currentPlayer.bestLeg || 0;
+      let worstLeg = currentPlayer.worstLeg || 0;
+      
+      // If this was a checkout, update leg statistics
+      if (!isBust && newScore === 0) {
+        const currentLegDarts = dartsCount;
+        
+        // Update best leg
+        if (bestLeg === 0 || currentLegDarts < bestLeg) {
+          bestLeg = currentLegDarts;
+        }
+        
+        // Update worst leg
+        if (worstLeg === 0 || currentLegDarts > worstLeg) {
+          worstLeg = currentLegDarts;
+        }
+      }
+      
+      // Update the player with all statistics
       const updatedPlayer = {
         ...currentPlayer,
         throws: newThrows,
         score: isBust ? currentPlayer.score : Math.max(0, newScore),
         averageScore,
-        highestScore
+        highestScore,
+        lastScore,
+        threeDartAverage,
+        first9Average,
+        checkoutRate,
+        checkoutsCompleted,
+        checkoutAttempts,
+        highestFinish,
+        bestLeg,
+        worstLeg
       };
       
       // Create new players array with updated player
@@ -345,13 +430,19 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
               throws: []
             }));
             
+            // For next leg, advance the leg starter index according to standard darts rules
+            const nextLegStarterIndex = (state.legStarterIndex + 1) % state.players.length;
+            
             // Continue to next leg
             return {
               ...state,
               players: updatedPlayers,
-              currentPlayerIndex: 0,
+              // Set the current player to the next leg's starter
+              currentPlayerIndex: nextLegStarterIndex,
+              // Update the leg starter for the next leg
+              legStarterIndex: nextLegStarterIndex,
               currentThrow: { darts: [], isComplete: false },
-              currentRound: 1
+              currentTurn: 1
             };
           } else {
             // No sets in play (sets = 1), this is a direct win
@@ -387,26 +478,32 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
             throws: []
           }));
           
+          // For next leg, advance the leg starter index according to standard darts rules
+          const nextLegStarterIndex = (state.legStarterIndex + 1) % state.players.length;
+          
           // Continue to next leg
           return {
             ...state,
             players: updatedPlayers,
-            currentPlayerIndex: 0,
+            // Set the current player to the next leg's starter
+            currentPlayerIndex: nextLegStarterIndex,
+            // Update the leg starter for the next leg
+            legStarterIndex: nextLegStarterIndex,
             currentThrow: { darts: [], isComplete: false },
-            currentRound: 1
+            currentTurn: 1
           };
         }
       }
       
       // Move to next player
       const nextPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
-      const newRound = nextPlayerIndex === 0 ? state.currentRound + 1 : state.currentRound;
+      const newRound = nextPlayerIndex === 0 ? state.currentTurn + 1 : state.currentTurn;
       
       return {
         ...state,
         players: updatedPlayers,
         currentPlayerIndex: nextPlayerIndex,
-        currentRound: newRound,
+        currentTurn: newRound,
         currentThrow: { darts: [], isComplete: false }
       };
     }
@@ -423,10 +520,10 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       const simulatedDarts = [`S${score}`]; // Just a simple approximation
       
       const newThrows = [...player.throws];
-      if (!newThrows[state.currentRound - 1]) {
-        newThrows[state.currentRound - 1] = [];
+      if (!newThrows[state.currentTurn - 1]) {
+        newThrows[state.currentTurn - 1] = [];
       }
-      newThrows[state.currentRound - 1] = simulatedDarts;
+      newThrows[state.currentTurn - 1] = simulatedDarts;
       
       // Calculate new player score
       const newScore = player.score - score;
@@ -476,7 +573,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       if (playerIndex === -1) return state;
       
       const player = state.players[playerIndex];
-      const currentRoundIndex = state.currentRound - 1;
+      const currentRoundIndex = state.currentTurn - 1;
       
       // Check if there are any throws to undo
       if (!player.throws[currentRoundIndex] || player.throws[currentRoundIndex].length === 0) {
@@ -530,13 +627,13 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       
       // If we've gone through all players, increment the round
       const newRound = nextPlayerIndex === 0 
-        ? state.currentRound + 1 
-        : state.currentRound;
+        ? state.currentTurn + 1 
+        : state.currentTurn;
       
       return {
         ...state,
         currentPlayerIndex: nextPlayerIndex,
-        currentRound: newRound,
+        currentTurn: newRound,
         currentThrow: { darts: [], isComplete: false }
       };
     }

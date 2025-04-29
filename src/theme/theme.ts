@@ -12,7 +12,10 @@ export const theme = {
     darkText: '#333333',
     lightAccent: '#1F4B8E',
     error: '#FF4C4C',
-    success: '#4CAF50'
+    success: '#4CAF50',
+    gold: '#FFD700',
+    silver: '#C0C0C0',
+    bronze: '#CD7F32'
   },
   fonts: {
     primary: "'Inter', sans-serif",
