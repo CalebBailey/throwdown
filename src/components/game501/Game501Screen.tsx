@@ -165,7 +165,26 @@ const CurrentScore = styled(motion.div)`
   font-weight: bold;
   text-align: center;
   color: ${props => props.theme.colors.text};
-  margin-bottom: ${props => props.theme.space.lg};
+  margin-bottom: 0; /* Changed from lg to 0 to position suggestion box directly below */
+`;
+
+const SimplifiedCheckout = styled.div<{ $hasCheckout: boolean }>`
+  height: 40px; /* Fixed height to prevent layout shifts */
+  width: 100%;
+  max-width: 200px;
+  margin: 4px auto ${props => props.theme.space.lg};
+  background-color: ${props => props.$hasCheckout 
+    ? `${props.theme.colors.highlight}40` /* 40 adds transparency - equivalent to 25% opacity */
+    : 'rgba(255, 255, 255, 0.05)'};
+  border-radius: ${props => props.theme.borderRadius.sm};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: ${props => props.theme.fonts.monospace};
+  font-size: ${props => props.theme.fontSizes.md};
+  font-weight: 500;
+  color: ${props => props.$hasCheckout ? props.theme.colors.highlight : 'rgba(255, 255, 255, 0.3)'};
+  transition: all 0.2s ease;
 `;
 
 const ScoreEntryContainer = styled.div`
@@ -453,10 +472,19 @@ const Game501Screen: React.FC = () => {
     }
   }, [state.gameStatus, state.winner, navigate]);
   
-  // Checkout suggestions for the current player
+  // Get the current throw score total
+  const currentThrowScore = state.currentThrow.darts.reduce(
+    (sum, dart) => sum + dartNotationToScore(dart), 0
+  );
+  
+  // Calculate the live remaining score (taking into account current throw)
+  const liveRemainingScore = Math.max(0, currentPlayer ? currentPlayer.score - currentThrowScore : 0);
+
+  // Get checkout suggestions based on the live score and remaining darts
   const checkoutSuggestions = getCheckoutSuggestions(
-    currentPlayer?.score || 0, 
-    state.gameOptions.outMode
+    liveRemainingScore, 
+    state.gameOptions.outMode,
+    3 - state.currentThrow.darts.length // Calculate darts remaining
   );
   
   // Handle adding a dart to the current throw
@@ -506,11 +534,6 @@ const Game501Screen: React.FC = () => {
       navigate('/games');
     }
   };
-  
-  // Get the current throw score total
-  const currentThrowScore = state.currentThrow.darts.reduce(
-    (sum, dart) => sum + dartNotationToScore(dart), 0
-  );
   
   // Generate number buttons based on active tab
   const renderNumberButtons = () => {
@@ -643,15 +666,22 @@ const Game501Screen: React.FC = () => {
               <ScoreSection>
                 <AnimatePresence mode="wait">
                   <CurrentScore
-                    key={`score-${currentPlayer?.id}-${currentPlayer?.score}`}
+                    key={`score-${currentPlayer?.id}-${liveRemainingScore}`}
                     initial="initial"
                     animate="animate"
                     exit="exit"
                     variants={scoreAnimation}
                   >
-                    {currentPlayer?.score}
+                    {liveRemainingScore}
                   </CurrentScore>
                 </AnimatePresence>
+                
+                {/* New simplified checkout suggestion */}
+                <SimplifiedCheckout $hasCheckout={liveRemainingScore <= 170 && checkoutSuggestions[0] !== 'NO OUTSHOT' && checkoutSuggestions[0] !== 'No checkout'}>
+                  {liveRemainingScore <= 170 && checkoutSuggestions[0] !== 'NO OUTSHOT' && checkoutSuggestions[0] !== 'No checkout' 
+                    ? checkoutSuggestions.join(', ')
+                    : ''}
+                </SimplifiedCheckout>
                 
                 <DartboardUI>
                   <DartThrowDisplay>
@@ -767,21 +797,6 @@ const Game501Screen: React.FC = () => {
                     </ActionButtons>
                   </DartScoreControls>
                 </DartboardUI>
-                
-                {currentPlayer?.score <= 170 && (
-                  <CheckoutSuggestion>
-                    <SuggestionTitle>
-                      {currentPlayer?.score <= 170 
-                        ? 'Checkout Suggestion' 
-                        : 'No checkout available yet'}
-                    </SuggestionTitle>
-                    <SuggestionPath>
-                      {checkoutSuggestions.map((suggestion, index) => (
-                        <DartThrow key={index}>{suggestion}</DartThrow>
-                      ))}
-                    </SuggestionPath>
-                  </CheckoutSuggestion>
-                )}
               </ScoreSection>
             </Card.Content>
           </MainGameCard>

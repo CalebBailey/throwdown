@@ -250,10 +250,14 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       
       // Calculate stats
       const allThrows = newThrows.flat();
-      const totalScore = allThrows.reduce((sum, dart) => sum + dartNotationToScore(dart), 0);
       const dartsCount = allThrows.length;
       
-      const averageScore = dartsCount > 0 ? totalScore / dartsCount : 0;
+      // Calculate average per throw (turn) instead of per dart
+      const totalTurnScores = newThrows.reduce((sum, turn) => {
+        return sum + turn.reduce((turnSum, dart) => turnSum + dartNotationToScore(dart), 0);
+      }, 0);
+      const turnCount = newThrows.length;
+      const averageScore = turnCount > 0 ? totalTurnScores / turnCount : 0;
       
       // Find the highest score in a single turn
       const highScores = newThrows.map(turnDarts => 
@@ -434,16 +438,20 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       
       // Calculate stats
       const allDarts = newThrows.flat();
-      const totalScore = allDarts.reduce((sum, dart) => sum + dartNotationToScore(dart), 0);
       const dartsCount = allDarts.length;
       
-      const averageScore = dartsCount > 0 ? totalScore / dartsCount : 0;
+      // Calculate average per throw (turn) instead of per dart
+      const totalTurnScores = newThrows.reduce((sum, turn) => {
+        return sum + turn.reduce((turnSum, dart) => turnSum + dartNotationToScore(dart), 0);
+      }, 0);
+      const turnCount = newThrows.length;
+      const averageScore = turnCount > 0 ? totalTurnScores / turnCount : 0;
       
       // Find the highest score in a single turn
       const highScores = newThrows.map(turnDarts => 
         turnDarts.reduce((sum, dart) => sum + dartNotationToScore(dart), 0)
       );
-      const highestScore = highScores.length > 0 ? Math.max(...highScores) : 0;
+      const highestScore = highScores.length > 0 ? Math.max(...highScores, 0) : 0;
       
       // Update the player
       const updatedPlayer = {
@@ -485,10 +493,14 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       
       // Calculate stats
       const allDarts = newThrows.flat();
-      const totalScore = allDarts.reduce((sum, dart) => sum + dartNotationToScore(dart), 0);
       const dartsCount = allDarts.length;
       
-      const averageScore = dartsCount > 0 ? totalScore / dartsCount : 0;
+      // Calculate average per throw (turn) instead of per dart
+      const totalTurnScores = newThrows.reduce((sum, turn) => {
+        return sum + turn.reduce((turnSum, dart) => turnSum + dartNotationToScore(dart), 0);
+      }, 0);
+      const turnCount = newThrows.length;
+      const averageScore = turnCount > 0 ? totalTurnScores / turnCount : 0;
       
       // Find the highest score in a single turn
       const highScores = newThrows.map(turnDarts => 

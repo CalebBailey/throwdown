@@ -204,9 +204,9 @@ export const shuffleArray = <T>(array: T[]): T[] => {
 };
 
 // Function to calculate checkout suggestions for 501
-export const getCheckoutSuggestions = (remainingScore: number, outMode: string): string[] => {
+export const getCheckoutSuggestions = (remainingScore: number, outMode: string, dartsRemaining: number = 3): string[] => {
   if (remainingScore > 170) {
-    return ['No checkout available yet'];
+    return ['No checkout'];
   }
   
   if (remainingScore <= 0) {
@@ -219,11 +219,79 @@ export const getCheckoutSuggestions = (remainingScore: number, outMode: string):
   // Handle cases where no checkout is possible (e.g., score of 1, 159, etc.)
   if (remainingScore === 1 || remainingScore === 159 || remainingScore === 162 || 
       remainingScore === 163 || remainingScore === 165 || remainingScore === 166 || 
-      remainingScore === 168 || remainingScore === 169 || !doubleOutRequired) {
-    return ['No checkout'];
+      remainingScore === 168 || remainingScore === 169) {
+    return ['NO OUTSHOT'];
   }
   
-  // Use our detailed checkout data
+  // If player only has 1 dart left
+  if (dartsRemaining === 1) {
+    // Can only check out with 1 dart if it's a double and the number is ≤ 40
+    if (doubleOutRequired) {
+      if (remainingScore <= 40 && remainingScore % 2 === 0) {
+        return [`D${remainingScore / 2}`];
+      } else if (remainingScore === 50) {
+        return ['Bull']; // Special case for Bull (counts as a double)
+      } else {
+        // Strategic suggestions for 1-dart no checkout
+        return getStrategicTarget(remainingScore, 1);
+      }
+    } else {
+      // For straight out (less common), can check out with any number
+      if (remainingScore <= 20) {
+        return [remainingScore.toString()];
+      } else if (remainingScore === 25) {
+        return ['Outer'];
+      } else if (remainingScore === 50) {
+        return ['Bull'];
+      } else {
+        // Strategic suggestions for 1-dart no checkout
+        return getStrategicTarget(remainingScore, 1);
+      }
+    }
+  }
+  
+  // If player only has 2 darts left
+  if (dartsRemaining === 2) {
+    // Check if we have a 2-dart checkout in our data
+    const possibleCheckout = checkoutData[remainingScore];
+    if (possibleCheckout && possibleCheckout.length <= 2) {
+      return possibleCheckout;
+    }
+    
+    // For scores <= 101, we might have 2-dart checkouts
+    if (remainingScore <= 101) {
+      if (doubleOutRequired) {
+        // Handle common 2-dart checkouts
+        if (remainingScore % 2 === 0 && remainingScore <= 40) {
+          return [`D${remainingScore / 2}`];
+        } else if (remainingScore <= 40) {
+          // If odd and <= 40, need to hit a single first
+          return [`1`, `D${(remainingScore - 1) / 2}`];
+        } else if (remainingScore <= 60 && remainingScore % 2 === 0) {
+          // For even numbers <= 60, can use a single 20 + double
+          return [`20`, `D${(remainingScore - 20) / 2}`];
+        } else if (remainingScore <= 60) {
+          // For odd numbers <= 60, use 19 + double
+          return [`19`, `D${(remainingScore - 19) / 2}`];
+        } else if (remainingScore <= 90) {
+          // Use a triple to get to a checkout
+          const bestSingle = Math.min(20, Math.floor(remainingScore / 3));
+          const remaining = remainingScore - (bestSingle * 3);
+          if (remaining % 2 === 0 && remaining <= 40) {
+            return [`T${bestSingle}`, `D${remaining / 2}`];
+          }
+        }
+      }
+      
+      // Strategic suggestions for 2-dart no checkout
+      return getStrategicTarget(remainingScore, 2);
+    }
+    
+    // Strategic suggestions for scores > 101 with 2 darts
+    return getStrategicTarget(remainingScore, 2);
+  }
+  
+  // For 3 darts remaining, use our detailed checkout data
   if (checkoutData[remainingScore]) {
     return checkoutData[remainingScore];
   }
@@ -232,18 +300,83 @@ export const getCheckoutSuggestions = (remainingScore: number, outMode: string):
   if (doubleOutRequired) {
     if (remainingScore % 2 === 1) {
       // Odd number with double out required
-      return ['Odd number - not possible'];
+      return getStrategicTarget(remainingScore, 3);
     } else {
       // Even number
       if (remainingScore <= 40) {
         return [`D${remainingScore / 2}`];
       } else {
-        return ['Try to leave a known checkout'];
+        return getStrategicTarget(remainingScore, 3);
       }
     }
   } else {
     // No double out required
-    return ['Reduce to a smaller number'];
+    return getStrategicTarget(remainingScore, 3);
+  }
+};
+
+// Strategic target suggestions based on standard dart strategies
+const getStrategicTarget = (remainingScore: number, dartsRemaining: number): string[] => {
+  // If no outshot is available, suggest the best target to set up for next throw
+  
+  // For single dart remaining, suggest the best setup for next throw
+  if (dartsRemaining === 1) {
+    // Try to leave a preferred double out
+    if (remainingScore > 40 && remainingScore <= 60) {
+      const target = remainingScore - 40; // Leave 40 (D20)
+      return [target.toString()];
+    } else if (remainingScore > 60 && remainingScore <= 82) {
+      const target = remainingScore - 32; // Leave 32 (D16)
+      return [target.toString()];
+    } else if (remainingScore > 82 && remainingScore <= 90) {
+      const target = remainingScore - 36; // Leave 36 (D18)
+      return [target.toString()];
+    } else {
+      // Default to T20 or T19 for highest score reduction
+      return ['T20'];
+    }
+  }
+  
+  // For two darts remaining
+  if (dartsRemaining === 2) {
+    if (remainingScore > 90 && remainingScore <= 130) {
+      // Try to leave a good finish with 1 dart (40 or 32)
+      return ['T20'];
+    } else if (remainingScore > 70 && remainingScore <= 90) {
+      // Try to leave D20
+      const target = Math.floor((remainingScore - 40) / 2);
+      if (target <= 20) {
+        return [`T${target}`];
+      } else {
+        return ['T16']; // Leave 32 (D16)
+      }
+    } else {
+      return ['T20']; // Default to T20 for highest score reduction
+    }
+  }
+  
+  // For three darts remaining
+  if (remainingScore > 170) {
+    return ['T20']; // Default to T20 for highest score reduction
+  } else if (remainingScore % 2 === 1) {
+    // For odd scores, hit a single first to get to an even score
+    return ['1'];
+  } else {
+    // Aim for favorite doubles: D16, D20, D8
+    const preferredDoubles = [40, 32, 16];
+    
+    for (const double of preferredDoubles) {
+      if (remainingScore > double) {
+        const diff = remainingScore - double;
+        if (diff <= 60) {
+          return [diff.toString()];
+        } else if (diff <= 120) {
+          return [`T${Math.floor(diff/3)}`];
+        }
+      }
+    }
+    
+    return ['T20']; // Default to T20 for highest score reduction
   }
 };
 
@@ -321,15 +454,21 @@ export const calculatePlayerStats = (player: Player): {
   dartsThrown: number;
   checkoutPercentage: number;
 } => {
-  const allThrows = player.throws.flat();
-  const dartsThrown = allThrows.length;
+  const { throws } = player;
+  const dartsThrown = throws.flat().length;
   
-  const average = dartsThrown > 0
-    ? allThrows.reduce((sum, score) => sum + Number(score), 0) / dartsThrown
-    : 0;
+  // Calculate average per throw instead of per dart
+  // Each array in throws represents one turn (up to 3 darts)
+  const totalScore = throws.reduce((sum, turn) => {
+    return sum + calculateScore(turn);
+  }, 0);
+  
+  const turnCount = throws.length;
+  const average = turnCount > 0 ? totalScore / turnCount : 0;
     
-  const highest = dartsThrown > 0 
-    ? Math.max(...allThrows.map(Number))
+  // Calculate highest throw (not just highest dart)
+  const highest = turnCount > 0 
+    ? Math.max(...throws.map(turn => calculateScore(turn)))
     : 0;
   
   // This is simplified - in a real app, you'd track checkout attempts
