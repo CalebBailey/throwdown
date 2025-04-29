@@ -1,176 +1,178 @@
 import { Player } from '../context/GameContext';
 
 // Checkout data from checkouts.txt
-const checkoutData: Record<number, string[]> = {
-  2: ['D1'],
-  3: ['1', 'D1'],
-  4: ['D2'],
-  5: ['3', 'D1'],
-  6: ['D3'],
-  7: ['5', 'D1'],
-  8: ['D4'],
-  9: ['5', 'D2'],
-  10: ['D5'],
-  11: ['3', 'D4'],
-  12: ['D6'],
-  13: ['3', 'D5'],
-  14: ['D7'],
-  15: ['3', 'D6'],
-  16: ['D8'],
-  17: ['3', 'D7'],
-  18: ['D9'],
-  19: ['3', 'D8'],
-  20: ['D10'],
-  21: ['1', 'D10'],
-  22: ['D11'],
-  23: ['5', 'D9'],
-  24: ['D12'],
-  25: ['3', 'D11'],
-  26: ['D13'],
-  27: ['3', 'D12'],
-  28: ['D14'],
-  29: ['1', 'D14'],
-  30: ['D15'],
-  31: ['3', 'D14'],
-  32: ['D16'],
-  33: ['3', 'D15'],
-  34: ['D17'],
-  35: ['7', 'D14'],
-  36: ['D18'],
-  37: ['5', 'D16'],
-  38: ['D19'],
-  39: ['1', 'D19'],
-  40: ['D20'],
-  41: ['3', 'D19'],
-  42: ['4', 'D19'],
-  43: ['5', 'D19'],
-  44: ['6', 'D19'],
-  45: ['7', 'D19'],
-  46: ['8', 'D19'],
-  47: ['9', 'D19'],
-  48: ['10', 'D19'],
-  49: ['11', 'D19'],
-  50: ['12', 'D19'],
-  51: ['13', 'D19'],
-  52: ['12', 'D20'],
-  53: ['15', 'D19'],
-  54: ['14', 'D20'],
-  55: ['15', 'D20'],
-  56: ['16', 'D20'],
-  57: ['17', 'D20'],
-  58: ['18', 'D20'],
-  59: ['19', 'D20'],
-  60: ['20', 'D20'],
-  61: ['3', '20', 'D19'],
-  62: ['16', '8', 'D19'],
-  63: ['14', '9', 'D20'],
-  64: ['9', '15', 'D20'],
-  65: ['7', '18', 'D20'],
-  66: ['6', '20', 'D20'],
-  67: ['13', '16', 'D19'],
-  68: ['11', '19', 'D19'],
-  69: ['10', '19', 'D20'],
-  70: ['10', '20', 'D20'],
-  71: ['14', '19', 'D19'],
-  72: ['18', '16', 'D19'],
-  73: ['17', '18', 'D19'],
-  74: ['16', '18', 'D20'],
-  75: ['15', '20', 'D20'],
-  76: ['20', '16', 'D20'],
-  77: ['17', '20', 'D20'],
-  78: ['18', '20', 'D20'],
-  79: ['19', '20', 'D20'],
-  80: ['20', '20', 'D20'],
-  81: ['D19', '3', 'D20'],
-  82: ['D19', '4', 'D20'],
-  83: ['5', 'D20', 'D19'],
-  84: ['6', 'D20', 'D19'],
-  85: ['7', 'D19', 'D20'],
-  86: ['D20', '8', 'D19'],
-  87: ['9', 'D19', 'D20'],
-  88: ['D20', '10', 'D19'],
-  89: ['11', 'D19', 'D20'],
-  90: ['12', 'D19', 'D20'],
-  91: ['13', 'D19', 'D20'],
-  92: ['D19', '14', 'D20'],
-  93: ['15', 'D19', 'D20'],
-  94: ['16', 'D20', 'D19'],
-  95: ['17', 'D20', 'D19'],
-  96: ['D20', '18', 'D19'],
-  97: ['19', 'D20', 'D19'],
-  98: ['D20', '20', 'D19'],
-  99: ['19', 'D20', 'D20'],
-  100: ['20', 'D20', 'D20'],
-  101: ['6', 'T19', 'D19'],
-  102: ['D20', 'D12', 'D19'],
-  103: ['5', 'T20', 'D19'],
-  104: ['9', 'T19', 'D19'],
-  105: ['T20', '5', 'D20'],
-  106: ['D14', 'D19', 'D20'],
-  107: ['T19', '12', 'D19'],
-  108: ['D19', 'D20', 'D15'],
-  109: ['T20', '9', 'D20'],
-  110: ['T19', '13', 'D20'],
-  111: ['16', 'T19', 'D19'],
-  112: ['D19', 'D20', 'D17'],
-  113: ['T19', '18', 'D19'],
-  114: ['T19', '19', 'D19'],
-  115: ['T19', '18', 'D20'],
-  116: ['16', 'T20', 'D20'],
-  117: ['19', 'T20', 'D19'],
-  118: ['18', 'T20', 'D20'],
-  119: ['19', 'T20', 'D20'],
-  120: ['T20', '20', 'D20'],
-  121: ['T19', 'D19', 'D13'],
-  122: ['D20', 'T20', 'D11'],
-  123: ['T19', 'D19', 'D14'],
-  124: ['D20', 'T20', 'D12'],
-  125: ['D15', 'T19', 'D19'],
-  126: ['T20', 'D19', 'D14'],
-  127: ['D15', 'T19', 'D20'],
-  128: ['D15', 'T20', 'D19'],
-  129: ['D17', 'T19', 'D19'],
-  130: ['T20', 'D15', 'D20'],
-  131: ['T19', 'D17', 'D20'],
-  132: ['T20', 'D17', 'D19'],
-  133: ['D18', 'T19', 'D20'],
-  134: ['D18', 'T20', 'D19'],
-  135: ['T19', 'D20', 'D19'],
-  136: ['D18', 'T20', 'D20'],
-  137: ['T19', 'D20', 'D20'],
-  138: ['T20', 'D19', 'D20'],
-  139: ['T19', 'T14', 'D20'],
-  140: ['T20', 'D20', 'D20'],
-  141: ['T19', 'T20', 'D12'],
-  142: ['T20', 'T14', 'D20'],
-  143: ['T15', 'T20', 'D19'],
-  144: ['T20', 'T18', 'D15'],
-  145: ['T15', 'T20', 'D20'],
-  146: ['T16', 'T20', 'D19'],
-  147: ['T20', 'T19', 'D15'],
-  148: ['T20', 'T16', 'D20'],
-  149: ['T20', 'T19', 'D16'],
-  150: ['T20', 'T18', 'D18'],
-  151: ['T20', 'T19', 'D17'],
-  152: ['T20', 'T18', 'D19'],
-  153: ['T20', 'T19', 'D18'],
-  154: ['T20', 'T18', 'D20'],
-  155: ['T20', 'T19', 'D19'],
-  156: ['T20', 'T20', 'D18'],
-  157: ['T20', 'T19', 'D20'],
-  158: ['T20', 'T20', 'D19'],
-  159: ['No checkout'],
-  160: ['T20', 'T20', 'D20'],
-  161: ['T20', 'T17', 'Bull'],
-  162: ['No checkout'],
-  163: ['No checkout'],
-  164: ['T20', 'T18', 'Bull'],
-  165: ['No checkout'],
-  166: ['No checkout'],
-  167: ['T20', 'T19', 'Bull'],
-  168: ['No checkout'],
-  169: ['No checkout'],
-  170: ['T20', 'T20', 'Bull']
+// Format: [primaryRoute, backupRoute]
+// Where each route is an array of dart notations
+const checkoutData: Record<number, { primary: string[], backup: string[] | null }> = {
+  170: { primary: ['T20', 'T20', 'Bull'], backup: null },
+  169: { primary: ['NO OUTSHOT'], backup: null },
+  168: { primary: ['NO OUTSHOT'], backup: null },
+  167: { primary: ['T20', 'T19', 'Bull'], backup: null },
+  166: { primary: ['NO OUTSHOT'], backup: null },
+  165: { primary: ['NO OUTSHOT'], backup: null },
+  164: { primary: ['T20', 'T18', 'Bull'], backup: null },
+  163: { primary: ['NO OUTSHOT'], backup: null },
+  162: { primary: ['NO OUTSHOT'], backup: null },
+  161: { primary: ['T20', 'T17', 'Bull'], backup: null },
+  160: { primary: ['T20', 'T20', 'D20'], backup: null },
+  159: { primary: ['NO OUTSHOT'], backup: null },
+  158: { primary: ['T20', 'T20', 'D19'], backup: null },
+  157: { primary: ['T20', 'T19', 'D20'], backup: null },
+  156: { primary: ['T20', 'T20', 'D18'], backup: null },
+  155: { primary: ['T20', 'T19', 'D19'], backup: null },
+  154: { primary: ['T20', 'T18', 'D20'], backup: null },
+  153: { primary: ['T20', 'T19', 'D18'], backup: null },
+  152: { primary: ['T20', 'T20', 'D16'], backup: null },
+  151: { primary: ['T20', 'T17', 'D20'], backup: null },
+  150: { primary: ['T20', 'T18', 'D18'], backup: null },
+  149: { primary: ['T20', 'T19', 'D16'], backup: null },
+  148: { primary: ['T20', 'T16', 'D20'], backup: null },
+  147: { primary: ['T20', 'T17', 'D18'], backup: null },
+  146: { primary: ['T20', 'T18', 'D16'], backup: null },
+  145: { primary: ['T20', 'T15', 'D20'], backup: null },
+  144: { primary: ['T20', 'T20', 'D12'], backup: null },
+  143: { primary: ['T20', 'T17', 'D16'], backup: null },
+  142: { primary: ['T20', 'T14', 'D20'], backup: null },
+  141: { primary: ['T20', 'T19', 'D12'], backup: null },
+  140: { primary: ['T20', 'T16', 'D16'], backup: null },
+  139: { primary: ['T20', 'T13', 'D20'], backup: null },
+  138: { primary: ['T20', 'T18', 'D12'], backup: null },
+  137: { primary: ['T20', 'T15', 'D16'], backup: null },
+  136: { primary: ['T20', 'T20', 'D8'], backup: null },
+  135: { primary: ['T20', 'T17', 'D12'], backup: null },
+  134: { primary: ['T20', 'T14', 'D16'], backup: null },
+  133: { primary: ['T20', 'T19', 'D8'], backup: null },
+  132: { primary: ['T20', 'T16', 'D12'], backup: null },
+  131: { primary: ['T20', 'T13', 'D16'], backup: null },
+  130: { primary: ['T20', 'T20', 'D5'], backup: null },
+  129: { primary: ['T19', 'T16', 'D12'], backup: null },
+  128: { primary: ['T18', 'T14', 'D16'], backup: null },
+  127: { primary: ['T20', 'T17', 'D8'], backup: null },
+  126: { primary: ['T19', 'T19', 'D6'], backup: null },
+  125: { primary: ['T20', 'T15', 'D10'], backup: null },
+  124: { primary: ['T20', 'T16', 'D8'], backup: null },
+  123: { primary: ['T19', 'T16', 'D9'], backup: null },
+  122: { primary: ['T18', 'T20', 'D4'], backup: null },
+  121: { primary: ['T20', 'T11', 'D14'], backup: null },
+  120: { primary: ['T20', 'S20', 'D20'], backup: null },
+  119: { primary: ['T19', 'S12', 'D16'], backup: null },
+  118: { primary: ['T20', 'S18', 'D20'], backup: null },
+  117: { primary: ['T20', 'S17', 'D20'], backup: null },
+  116: { primary: ['T20', 'S16', 'D20'], backup: null },
+  115: { primary: ['T20', 'S15', 'D20'], backup: null },
+  114: { primary: ['T20', 'S14', 'D20'], backup: null },
+  113: { primary: ['T20', 'S13', 'D20'], backup: null },
+  112: { primary: ['T20', 'S12', 'D20'], backup: null },
+  111: { primary: ['T20', 'S11', 'D20'], backup: null },
+  110: { primary: ['T20', 'S10', 'D20'], backup: null },
+  109: { primary: ['T20', 'S9', 'D20'], backup: null },
+  108: { primary: ['T20', 'S8', 'D20'], backup: null },
+  107: { primary: ['T19', 'S10', 'D20'], backup: null },
+  106: { primary: ['T20', 'S6', 'D20'], backup: null },
+  105: { primary: ['T19', 'S8', 'D20'], backup: null },
+  104: { primary: ['T18', 'S10', 'D20'], backup: null },
+  103: { primary: ['T17', 'S12', 'D20'], backup: null },
+  102: { primary: ['T20', 'S10', 'D16'], backup: null },
+  101: { primary: ['T17', 'S10', 'D20'], backup: null },
+  100: { primary: ['T20', 'D20'], backup: null },
+  99: { primary: ['T19', '10', 'D16'], backup: null },
+  98: { primary: ['T20', 'D19'], backup: null },
+  97: { primary: ['T19', 'D20'], backup: null },
+  96: { primary: ['T20', 'D18'], backup: null },
+  95: { primary: ['T19', 'D19'], backup: null },
+  94: { primary: ['T18', 'D20'], backup: null },
+  93: { primary: ['T19', 'D18'], backup: null },
+  92: { primary: ['T20', 'D16'], backup: null },
+  91: { primary: ['T17', 'D20'], backup: null },
+  90: { primary: ['T18', 'D18'], backup: null },
+  89: { primary: ['T19', 'D16'], backup: null },
+  88: { primary: ['T20', 'D14'], backup: ['T16', 'D20'] },
+  87: { primary: ['T17', 'D18'], backup: ['T13', 'D18'] },
+  86: { primary: ['T18', 'D16'], backup: ['T20', 'D13'] },
+  85: { primary: ['T15', 'D20'], backup: ['T19', 'D14'] },
+  84: { primary: ['T20', 'D12'], backup: ['T16', 'D18'] },
+  83: { primary: ['T17', 'D16'], backup: ['T13', 'D22'] },
+  82: { primary: ['Bull', 'D16'], backup: ['T14', 'D20'] },
+  81: { primary: ['T19', 'D12'], backup: ['T15', 'D18'] },
+  80: { primary: ['T20', 'D10'], backup: ['S20', 'D20'] },
+  79: { primary: ['T13', 'D20'], backup: ['T19', 'D11'] },
+  78: { primary: ['T18', 'D12'], backup: ['T14', 'D18'] },
+  77: { primary: ['T19', 'D10'], backup: ['T15', 'D16'] },
+  76: { primary: ['T20', 'D8'], backup: ['T16', 'D14'] },
+  75: { primary: ['T17', 'D12'], backup: ['T13', 'D18'] },
+  74: { primary: ['T14', 'D16'], backup: ['T18', 'D10'] },
+  73: { primary: ['T19', 'D8'], backup: ['T11', 'D20'] },
+  72: { primary: ['T16', 'D12'], backup: ['S20', 'D16'] },
+  71: { primary: ['T13', 'D16'], backup: ['T17', 'D10'] },
+  70: { primary: ['T18', 'D8'], backup: ['S20', 'Bull'] },
+  69: { primary: ['T19', 'D6'], backup: ['S19', 'Bull'] },
+  68: { primary: ['T20', 'D4'], backup: ['S20', 'D4', 'D2'] },
+  67: { primary: ['T17', 'D8'], backup: ['T9', 'D20'] },
+  66: { primary: ['T10', 'D18'], backup: ['T14', 'D12'] },
+  65: { primary: ['T19', 'D4'], backup: ['T11', 'D16'] },
+  64: { primary: ['T16', 'D8'], backup: ['S14', 'Bull'] },
+  63: { primary: ['T13', 'D12'], backup: ['S13', 'Bull'] },
+  62: { primary: ['T10', 'D16'], backup: ['S12', 'Bull'] },
+  61: { primary: ['T15', 'D8'], backup: ['S11', 'Bull'] },
+  60: { primary: ['S20', 'D20'], backup: ['T20', 'D10'] },
+  59: { primary: ['S19', 'D20'], backup: ['T17', 'D4'] },
+  58: { primary: ['S18', 'D20'], backup: ['T16', 'D5'] },
+  57: { primary: ['S17', 'D20'], backup: ['T17', 'D3'] },
+  56: { primary: ['S16', 'D20'], backup: ['T20', 'D8'] },
+  55: { primary: ['S15', 'D20'], backup: ['T15', 'D5'] },
+  54: { primary: ['S14', 'D20'], backup: ['T14', 'D6'] },
+  53: { primary: ['S13', 'D20'], backup: ['T13', 'D7'] },
+  52: { primary: ['S12', 'D20'], backup: ['T12', 'D8'] },
+  51: { primary: ['S11', 'D20'], backup: ['T13', 'D6'] },
+  50: { primary: ['S10', 'D20'], backup: ['Bull'] },
+  49: { primary: ['S9', 'D20'], backup: ['S17', 'D16'] },
+  48: { primary: ['S16', 'D16'], backup: null },
+  47: { primary: ['S15', 'D16'], backup: null },
+  46: { primary: ['S14', 'D16'], backup: null },
+  45: { primary: ['S13', 'D16'], backup: null },
+  44: { primary: ['S12', 'D16'], backup: null },
+  43: { primary: ['S11', 'D16'], backup: null },
+  42: { primary: ['S10', 'D16'], backup: null },
+  41: { primary: ['S9', 'D16'], backup: null },
+  40: { primary: ['D20'], backup: null },
+  39: { primary: ['S7', 'D16'], backup: null },
+  38: { primary: ['D19'], backup: null },
+  37: { primary: ['S5', 'D16'], backup: null },
+  36: { primary: ['D18'], backup: null },
+  35: { primary: ['S3', 'D16'], backup: null },
+  34: { primary: ['D17'], backup: null },
+  33: { primary: ['S1', 'D16'], backup: null },
+  32: { primary: ['D16'], backup: null },
+  31: { primary: ['S15', 'D8'], backup: null },
+  30: { primary: ['D15'], backup: null },
+  29: { primary: ['S13', 'D8'], backup: null },
+  28: { primary: ['D14'], backup: null },
+  27: { primary: ['S11', 'D8'], backup: null },
+  26: { primary: ['D13'], backup: null },
+  25: { primary: ['S9', 'D8'], backup: null },
+  24: { primary: ['D12'], backup: null },
+  23: { primary: ['S7', 'D8'], backup: null },
+  22: { primary: ['D11'], backup: null },
+  21: { primary: ['S5', 'D8'], backup: null },
+  20: { primary: ['D10'], backup: null },
+  19: { primary: ['S3', 'D8'], backup: null },
+  18: { primary: ['D9'], backup: null },
+  17: { primary: ['S1', 'D8'], backup: null },
+  16: { primary: ['D8'], backup: null },
+  15: { primary: ['S7', 'D4'], backup: null },
+  14: { primary: ['D7'], backup: null },
+  13: { primary: ['S5', 'D4'], backup: null },
+  12: { primary: ['D6'], backup: null },
+  11: { primary: ['S3', 'D4'], backup: null },
+  10: { primary: ['D5'], backup: null },
+  9: { primary: ['S1', 'D4'], backup: null },
+  8: { primary: ['D4'], backup: null },
+  7: { primary: ['S3', 'D2'], backup: null },
+  6: { primary: ['D3'], backup: null },
+  5: { primary: ['S1', 'D2'], backup: null },
+  4: { primary: ['D2'], backup: null },
+  3: { primary: ['S1', 'D1'], backup: null },
+  2: { primary: ['D1'], backup: null }
 };
 
 // Generate a unique ID
@@ -205,179 +207,120 @@ export const shuffleArray = <T>(array: T[]): T[] => {
 
 // Function to calculate checkout suggestions for 501
 export const getCheckoutSuggestions = (remainingScore: number, outMode: string, dartsRemaining: number = 3): string[] => {
+  // Check for out of range scores
   if (remainingScore > 170) {
-    return ['No checkout'];
+    return ["NO OUTSHOT"];
   }
   
   if (remainingScore <= 0) {
-    return ['Game shot!'];
+    return ["Game shot!"];
   }
   
-  // Double out is required
-  const doubleOutRequired = outMode === 'double' || outMode === 'master';
-  
-  // Handle cases where no checkout is possible (e.g., score of 1, 159, etc.)
-  if (remainingScore === 1 || remainingScore === 159 || remainingScore === 162 || 
-      remainingScore === 163 || remainingScore === 165 || remainingScore === 166 || 
-      remainingScore === 168 || remainingScore === 169) {
-    return ['NO OUTSHOT'];
+  // Check for impossible checkouts with a double out
+  if ((outMode === 'double' || outMode === 'master') && 
+      (remainingScore === 169 || remainingScore === 168 || remainingScore === 166 || 
+       remainingScore === 165 || remainingScore === 163 || remainingScore === 162 || 
+       remainingScore === 159 || remainingScore === 1)) {
+    return ["NO OUTSHOT"];
   }
-  
-  // If player only has 1 dart left
-  if (dartsRemaining === 1) {
-    // Can only check out with 1 dart if it's a double and the number is ≤ 40
-    if (doubleOutRequired) {
-      if (remainingScore <= 40 && remainingScore % 2 === 0) {
-        return [`D${remainingScore / 2}`];
-      } else if (remainingScore === 50) {
-        return ['Bull']; // Special case for Bull (counts as a double)
-      } else {
-        // Strategic suggestions for 1-dart no checkout
-        return getStrategicTarget(remainingScore, 1);
+
+  // Straight out mode (no double required to finish)
+  if (outMode !== 'double' && outMode !== 'master') {
+    if (remainingScore <= dartsRemaining * 60) { // Maximum possible score per dart
+      // For straight out, we can just hit any combinations that add up to the score
+      if (remainingScore <= 20 || remainingScore === 25 || remainingScore === 50) {
+        // Direct checkout possible with one dart
+        if (remainingScore === 25) return ["Outer"];
+        if (remainingScore === 50) return ["Bull"];
+        if (remainingScore <= 20) return [remainingScore.toString()];
       }
-    } else {
-      // For straight out (less common), can check out with any number
-      if (remainingScore <= 20) {
-        return [remainingScore.toString()];
-      } else if (remainingScore === 25) {
-        return ['Outer'];
-      } else if (remainingScore === 50) {
-        return ['Bull'];
-      } else {
-        // Strategic suggestions for 1-dart no checkout
-        return getStrategicTarget(remainingScore, 1);
-      }
+      // For multi-dart checkouts, use strategic targeting
+      return getStrategicTarget(remainingScore, dartsRemaining);
     }
+    return ["NO OUTSHOT"];
   }
   
-  // If player only has 2 darts left
-  if (dartsRemaining === 2) {
-    // Check if we have a 2-dart checkout in our data
-    const possibleCheckout = checkoutData[remainingScore];
-    if (possibleCheckout && possibleCheckout.length <= 2) {
-      return possibleCheckout;
-    }
-    
-    // For scores <= 101, we might have 2-dart checkouts
-    if (remainingScore <= 101) {
-      if (doubleOutRequired) {
-        // Handle common 2-dart checkouts
-        if (remainingScore % 2 === 0 && remainingScore <= 40) {
-          return [`D${remainingScore / 2}`];
-        } else if (remainingScore <= 40) {
-          // If odd and <= 40, need to hit a single first
-          return [`1`, `D${(remainingScore - 1) / 2}`];
-        } else if (remainingScore <= 60 && remainingScore % 2 === 0) {
-          // For even numbers <= 60, can use a single 20 + double
-          return [`20`, `D${(remainingScore - 20) / 2}`];
-        } else if (remainingScore <= 60) {
-          // For odd numbers <= 60, use 19 + double
-          return [`19`, `D${(remainingScore - 19) / 2}`];
-        } else if (remainingScore <= 90) {
-          // Use a triple to get to a checkout
-          const bestSingle = Math.min(20, Math.floor(remainingScore / 3));
-          const remaining = remainingScore - (bestSingle * 3);
-          if (remaining % 2 === 0 && remaining <= 40) {
-            return [`T${bestSingle}`, `D${remaining / 2}`];
-          }
-        }
-      }
-      
-      // Strategic suggestions for 2-dart no checkout
-      return getStrategicTarget(remainingScore, 2);
-    }
-    
-    // Strategic suggestions for scores > 101 with 2 darts
-    return getStrategicTarget(remainingScore, 2);
-  }
-  
-  // For 3 darts remaining, use our detailed checkout data
+  // Check if we have the checkout data for this score
   if (checkoutData[remainingScore]) {
-    return checkoutData[remainingScore];
+    const suggestedCheckout = checkoutData[remainingScore];
+    
+    // If primary route says "NO OUTSHOT"
+    if (suggestedCheckout.primary.length === 1 && suggestedCheckout.primary[0] === "NO OUTSHOT") {
+      return ["NO OUTSHOT"];
+    }
+    
+    // If we have enough darts for the complete checkout via primary route
+    if (suggestedCheckout.primary.length <= dartsRemaining) {
+      return suggestedCheckout.primary;
+    }
+
+    // If we have a backup route and exactly enough darts for it
+    // This is for special cases when we have 1 or 2 darts remaining
+    if (suggestedCheckout.backup && suggestedCheckout.backup.length === dartsRemaining) {
+      return suggestedCheckout.backup;
+    }
+    
+    // If we only have 1 or 2 darts left, check if backup route is better
+    if (dartsRemaining < 3 && suggestedCheckout.backup && suggestedCheckout.backup.length <= dartsRemaining) {
+      return suggestedCheckout.backup;
+    }
+    
+    // If we don't have enough darts for the complete checkout,
+    // but we have partial checkout data, show what we should aim for first
+    if (dartsRemaining > 0 && dartsRemaining < suggestedCheckout.primary.length) {
+      // Return just the first N darts where N is dartsRemaining
+      return suggestedCheckout.primary.slice(0, dartsRemaining);
+    }
   }
   
-  // For any score not in our table but still potentially checkout-able
-  if (doubleOutRequired) {
-    if (remainingScore % 2 === 1) {
-      // Odd number with double out required
-      return getStrategicTarget(remainingScore, 3);
-    } else {
-      // Even number
-      if (remainingScore <= 40) {
-        return [`D${remainingScore / 2}`];
-      } else {
-        return getStrategicTarget(remainingScore, 3);
-      }
-    }
-  } else {
-    // No double out required
-    return getStrategicTarget(remainingScore, 3);
-  }
+  // If we get here, either:
+  // 1. We don't have checkout data for this score, or
+  // 2. We don't have enough darts to complete the checkout
+  
+  // In either case, suggest a strategic target to set up for next turn
+  return getStrategicTarget(remainingScore, dartsRemaining);
 };
 
-// Strategic target suggestions based on standard dart strategies
+// Strategic target suggestions for when checkout isn't possible this turn
 const getStrategicTarget = (remainingScore: number, dartsRemaining: number): string[] => {
-  // If no outshot is available, suggest the best target to set up for next throw
-  
-  // For single dart remaining, suggest the best setup for next throw
+  // For any score > 170 or when we don't have enough darts
   if (dartsRemaining === 1) {
-    // Try to leave a preferred double out
+    // With 1 dart left, try to leave a finish-able score for next turn
+    if (remainingScore > 60) {
+      // With scores over 60, aim for a big number to reduce the score
+      return ["T20"];
+    }
+    // With scores under 60, aim to leave a nice finish
     if (remainingScore > 40 && remainingScore <= 60) {
-      const target = remainingScore - 40; // Leave 40 (D20)
-      return [target.toString()];
-    } else if (remainingScore > 60 && remainingScore <= 82) {
-      const target = remainingScore - 32; // Leave 32 (D16)
-      return [target.toString()];
-    } else if (remainingScore > 82 && remainingScore <= 90) {
-      const target = remainingScore - 36; // Leave 36 (D18)
-      return [target.toString()];
-    } else {
-      // Default to T20 or T19 for highest score reduction
-      return ['T20'];
+      return [`${remainingScore - 40}`]; // Leave D20
     }
+    return [`${remainingScore % 2 === 0 ? remainingScore / 2 : remainingScore - 32}`]; // Leave D16
   }
   
-  // For two darts remaining
   if (dartsRemaining === 2) {
-    if (remainingScore > 90 && remainingScore <= 130) {
-      // Try to leave a good finish with 1 dart (40 or 32)
-      return ['T20'];
-    } else if (remainingScore > 70 && remainingScore <= 90) {
-      // Try to leave D20
-      const target = Math.floor((remainingScore - 40) / 2);
-      if (target <= 20) {
-        return [`T${target}`];
-      } else {
-        return ['T16']; // Leave 32 (D16)
-      }
-    } else {
-      return ['T20']; // Default to T20 for highest score reduction
+    if (remainingScore > 110) {
+      // With scores over 110, aim for T20
+      return ["T20"];
     }
+    if (remainingScore > 70 && remainingScore <= 110) {
+      // Try to set up a finish
+      return ["T20", "T16"];
+    }
+    // Try to leave a common double
+    return ["T19"];
   }
   
-  // For three darts remaining
-  if (remainingScore > 170) {
-    return ['T20']; // Default to T20 for highest score reduction
-  } else if (remainingScore % 2 === 1) {
-    // For odd scores, hit a single first to get to an even score
-    return ['1'];
-  } else {
-    // Aim for favorite doubles: D16, D20, D8
-    const preferredDoubles = [40, 32, 16];
-    
-    for (const double of preferredDoubles) {
-      if (remainingScore > double) {
-        const diff = remainingScore - double;
-        if (diff <= 60) {
-          return [diff.toString()];
-        } else if (diff <= 120) {
-          return [`T${Math.floor(diff/3)}`];
-        }
-      }
-    }
-    
-    return ['T20']; // Default to T20 for highest score reduction
+  // Default strategic targets for 3+ darts
+  if (remainingScore > 180) {
+    return ["T20"]; // Maximum score reduction
   }
+  
+  if (remainingScore > 130 && remainingScore <= 170) {
+    // Within range but need all 3 darts
+    return ["T20"]; // Start with T20
+  }
+  
+  return ["T20"]; // Default to highest scoring dart
 };
 
 // Parse a dart notation to score value

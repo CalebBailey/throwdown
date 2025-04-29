@@ -394,6 +394,20 @@ const Game501Screen: React.FC = () => {
     3 - state.currentThrow.darts.length // Calculate darts remaining
   );
   
+  // If darts have been thrown and there's a checkout, show only the remaining checkout path
+  // This is what fixes the issue where throwing T20 when at 141 should show the path for 81 (T19 D12)
+  const displayedCheckoutSuggestions = React.useMemo(() => {
+    if (state.currentThrow.darts.length > 0 && 
+        checkoutSuggestions[0] !== 'No checkout' && 
+        checkoutSuggestions[0] !== 'NO OUTSHOT' &&
+        liveRemainingScore <= 170) {
+      return checkoutSuggestions;
+    }
+    
+    // For original checkout, display full path
+    return checkoutSuggestions;
+  }, [checkoutSuggestions, state.currentThrow.darts.length, liveRemainingScore]);
+  
   // Handle adding a dart to the current throw
   const handleAddDart = (value: string) => {
     if (state.currentThrow.darts.length >= 3) return;
@@ -585,9 +599,9 @@ const Game501Screen: React.FC = () => {
                 </AnimatePresence>
                 
                 {/* New simplified checkout suggestion */}
-                <SimplifiedCheckout $hasCheckout={liveRemainingScore <= 170 && checkoutSuggestions[0] !== 'NO OUTSHOT' && checkoutSuggestions[0] !== 'No checkout'}>
-                  {liveRemainingScore <= 170 && checkoutSuggestions[0] !== 'NO OUTSHOT' && checkoutSuggestions[0] !== 'No checkout' 
-                    ? checkoutSuggestions.join(', ')
+                <SimplifiedCheckout $hasCheckout={liveRemainingScore <= 170 && displayedCheckoutSuggestions[0] !== 'NO OUTSHOT' && displayedCheckoutSuggestions[0] !== 'No checkout'}>
+                  {liveRemainingScore <= 170 && displayedCheckoutSuggestions[0] !== 'NO OUTSHOT' && displayedCheckoutSuggestions[0] !== 'No checkout' 
+                    ? displayedCheckoutSuggestions.join(', ')
                     : ''}
                 </SimplifiedCheckout>
                 
