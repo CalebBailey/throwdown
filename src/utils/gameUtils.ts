@@ -190,9 +190,73 @@ export const getRandomColor = (): string => {
     '#9C27B0', // Purple
     '#00BCD4', // Cyan
     '#FFEB3B', // Yellow
-    '#795548', // Brown
+    '#FF4081', // Pink (replacing Brown)
+    '#7986CB', // Indigo
+    '#43A047', // Emerald
+    '#FB8C00', // Dark Orange
+    '#9575CD', // Light Purple
   ];
   return colors[Math.floor(Math.random() * colors.length)];
+};
+
+// Get a unique color not used by any existing players
+export const getUniquePlayerColor = (existingPlayers: Array<{color: string}>): string => {
+  const colors = [
+    '#E94560', // Red
+    '#4CAF50', // Green
+    '#2196F3', // Blue
+    '#FF9800', // Orange
+    '#9C27B0', // Purple
+    '#00BCD4', // Cyan
+    '#FFEB3B', // Yellow
+    '#FF4081', // Pink (replacing Brown)
+    '#7986CB', // Indigo
+    '#43A047', // Emerald
+    '#FB8C00', // Dark Orange
+    '#9575CD', // Light Purple
+  ];
+  
+  // Get colors already in use
+  const usedColors = new Set(existingPlayers.map(player => player.color));
+  
+  // Find available colors
+  const availableColors = colors.filter(color => !usedColors.has(color));
+  
+  // If we have available colors, pick one randomly
+  if (availableColors.length > 0) {
+    return availableColors[Math.floor(Math.random() * availableColors.length)];
+  }
+  
+  // If all colors are used, generate a random color with slight variation
+  const baseColor = colors[Math.floor(Math.random() * colors.length)];
+  // Create a slight variation of this color
+  return varyColor(baseColor);
+};
+
+// Helper function to create a variation of a color
+const varyColor = (baseColor: string): string => {
+  // Convert hex to RGB
+  const r = parseInt(baseColor.slice(1, 3), 16);
+  const g = parseInt(baseColor.slice(3, 5), 16);
+  const b = parseInt(baseColor.slice(5, 7), 16);
+  
+  // Add some random variation to each component
+  const varyComponent = (value: number) => {
+    const variation = Math.floor(Math.random() * 40) - 20; // -20 to +20 variation
+    return Math.max(0, Math.min(255, value + variation));
+  };
+  
+  const newR = varyComponent(r);
+  const newG = varyComponent(g);
+  const newB = varyComponent(b);
+  
+  // Convert back to hex
+  const toHex = (c: number) => {
+    const hex = c.toString(16);
+    return hex.length === 1 ? '0' + hex : hex;
+  };
+  
+  return `#${toHex(newR)}${toHex(newG)}${toHex(newB)}`;
 };
 
 // Shuffle array (for randomizing player order)

@@ -7,7 +7,7 @@ import Layout from '../shared/Layout';
 import Card from '../shared/Card';
 import Button from '../shared/Button';
 import { useGameContext } from '../../context/GameContext';
-import { generateId, getRandomColor, shuffleArray } from '../../utils/gameUtils';
+import { generateId, getUniquePlayerColor, shuffleArray } from '../../utils/gameUtils';
 
 const Container = styled.div`
   max-width: 800px;
@@ -122,7 +122,7 @@ const PlayerSetupScreen: React.FC = () => {
     const player = {
       id: generateId(),
       name: newPlayerName.trim(),
-      color: getRandomColor(),
+      color: getUniquePlayerColor(state.players),
       wins: 0,
     };
     

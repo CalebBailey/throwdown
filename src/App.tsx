@@ -6,6 +6,7 @@ import GameHubScreen from './components/gameHub/GameHubScreen';
 import Game501Screen from './components/game501/Game501Screen';
 import GameSummaryScreen from './components/gameSummary/GameSummaryScreen';
 import SplashScreen from './components/splash/SplashScreen';
+import KillerGameScreen from './components/killer/KillerGameScreen';
 import { useGameContext } from './context/GameContext';
 
 // Protected route component to check if we have players before allowing access
@@ -89,6 +90,12 @@ function App() {
         <Route 
           path="/games/X01" 
           element={<GameExistsRoute element={<Game501Screen />} />} 
+        />
+        
+        {/* Killer Game Route */}
+        <Route 
+          path="/games/killer" 
+          element={<GameExistsRoute element={<KillerGameScreen />} />} 
         />
         
         {/* Game Summary route - requires a winner */}

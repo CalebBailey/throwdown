@@ -23,6 +23,12 @@ export interface Player {
   highestFinish: number; // Highest checkout completed
   bestLeg: number; // Best leg in darts
   worstLeg: number; // Worst leg in darts
+  // Killer game specific properties
+  segment?: number; // Assigned segment in Killer game
+  isKiller?: boolean; // Whether player is a "killer" in Killer game
+  segmentHits?: number; // Number of times player has hit their segment (0-3)
+  lives?: number; // Lives remaining in Killer game (starting at segmentHits)
+  isEliminated?: boolean; // Whether player is eliminated in Killer game
 }
 
 export type EntryMode = 'straight' | 'double' | 'master';
@@ -38,7 +44,12 @@ export interface GameOptions {
   sets: number;
 }
 
-export type GameType = "501" | "301" | "701" | "custom";
+export interface KillerOptions {
+  maxHits: number; // Maximum segment hits needed to become a killer (3, 5, or 7)
+  lives?: number; // Optional number of lives for killer game
+}
+
+export type GameType = "501" | "301" | "701" | "custom" | "killer" | "shanghai" | "donkey_derby";
 export type GameStatus = "setup" | "active" | "complete";
 
 export interface GameState {
@@ -46,6 +57,7 @@ export interface GameState {
   currentPlayerIndex: number;
   gameType: GameType;
   gameOptions: GameOptions;
+  killerOptions?: KillerOptions;
   gameStatus: GameStatus;
   currentTurn: number;
   winner: Player | null;
@@ -66,16 +78,22 @@ export type GameAction =
   | { type: 'ADD_PLAYER'; player: Omit<Player, 'score' | 'throws' | 'averageScore' | 'highestScore'> }
   | { type: 'REMOVE_PLAYER'; id: string }
   | { type: 'SET_PLAYER_ORDER'; players: Player[] }
-  | { type: 'START_GAME'; gameType: GameType; gameOptions: GameOptions }
+  | { type: 'START_GAME'; gameType: GameType; gameOptions: GameOptions; killerOptions?: KillerOptions }
   | { type: 'ADD_DART'; dart: string }
   | { type: 'REMOVE_DART' }
+  | { type: 'REMOVE_KILLER_DART' }
+  | { type: 'PROCESS_KILLER_DART_HIT' } // New action to process darts immediately
   | { type: 'SUBMIT_THROW' }
   | { type: 'INPUT_SCORE'; playerId: string; score: number } // Keep for backward compatibility
   | { type: 'UNDO_SCORE'; playerId: string }
   | { type: 'END_TURN' }
   | { type: 'END_GAME'; winner: Player }
   | { type: 'RESET_GAME' }
-  | { type: 'UPDATE_SESSION_STATS' };
+  | { type: 'UPDATE_SESSION_STATS' }
+  | { type: 'ASSIGN_SEGMENTS' } // For Killer game
+  | { type: 'ADD_SEGMENT_HIT'; playerId: string; hits: number } // Add hit(s) to segment
+  | { type: 'REDUCE_LIFE'; playerId: string; hits: number } // Reduce player's life by # of hits
+  | { type: 'ELIMINATE_PLAYER'; playerId: string }; // Eliminate player from Killer game
 
 // Initial state
 const initialState: GameState = {
@@ -89,6 +107,9 @@ const initialState: GameState = {
     format: 'bestOf',
     legs: 1,
     sets: 1,
+  },
+  killerOptions: {
+    maxHits: 3, // Default to 3 hits to become a killer
   },
   gameStatus: "setup",
   currentTurn: 1,
@@ -120,6 +141,45 @@ const loadInitialState = (): GameState => {
     }
   }
   return initialState;
+};
+
+// Helper function to assign random segments to players for Killer game
+const assignRandomSegments = (players: Player[]): Player[] => {
+  // Create an array of numbers from 1 to 20
+  const availableSegments = Array.from({ length: 20 }, (_, i) => i + 1);
+  
+  // Shuffle the array to randomize segment assignments
+  const shuffledSegments = availableSegments.sort(() => Math.random() - 0.5);
+  
+  // Make sure we have enough segments for all players
+  const finalSegments = shuffledSegments.slice(0, players.length);
+  
+  // Assign segments to players
+  return players.map((player, index) => ({
+    ...player,
+    segment: finalSegments[index],
+    segmentHits: 0,
+    lives: 0,
+    isKiller: false,
+    isEliminated: false
+  }));
+};
+
+// Get number of hits based on dart notation
+const getHitsFromDart = (dart: string, targetSegment: number): number => {
+  if (!dart) return 0;
+  
+  const multiplier = dart[0];
+  const segment = parseInt(dart.substring(1));
+  
+  if (segment !== targetSegment) return 0;
+  
+  switch (multiplier) {
+    case 'S': return 1;
+    case 'D': return 2;
+    case 'T': return 3;
+    default: return 0;
+  }
 };
 
 // Game reducer
@@ -161,24 +221,34 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
     }
     
     case 'START_GAME': {
-      const { gameType, gameOptions } = action;
+      const { gameType, gameOptions, killerOptions } = action;
+      
+      // Initialize players based on game type
+      let updatedPlayers = state.players.map(player => ({
+        ...player,
+        score: gameOptions.startingScore,
+        throws: [],
+        averageScore: 0,
+        highestScore: 0,
+        legs: 0,
+        sets: 0
+      }));
+      
+      // For Killer game, assign random segments to players
+      if (gameType === 'killer') {
+        updatedPlayers = assignRandomSegments(updatedPlayers);
+      }
+      
       return {
         ...state,
         gameType,
         gameOptions,
+        killerOptions: killerOptions || state.killerOptions,
         gameStatus: "active",
         currentTurn: 1,
         currentPlayerIndex: 0,
         legStarterIndex: 0,
-        players: state.players.map(player => ({
-          ...player,
-          score: gameOptions.startingScore,
-          throws: [],
-          averageScore: 0,
-          highestScore: 0,
-          legs: 0,
-          sets: 0
-        })),
+        players: updatedPlayers,
         winner: null,
         currentThrow: {
           darts: [],
@@ -208,14 +278,225 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       }
       
       const newDarts = [...state.currentThrow.darts];
-      newDarts.pop();
+      const removedDart = newDarts.pop();
       
+      // If we're in a Killer game, we need to undo the segment hit
+      if (state.gameType === 'killer' && removedDart) {
+        const currentPlayer = state.players[state.currentPlayerIndex];
+        if (!currentPlayer) return state;
+        
+        // Get segment and hit value from the removed dart
+        const multiplier = removedDart[0];
+        const segment = parseInt(removedDart.substring(1));
+        
+        // Determine hit value based on multiplier
+        let hitValue = 1;
+        if (multiplier === 'D') hitValue = 2;
+        if (multiplier === 'T') hitValue = 3;
+        
+        const updatedPlayers = [...state.players];
+        
+        // Case 1: Player hit their own segment
+        if (segment === currentPlayer.segment) {
+          // Reduce segment hits
+          const currentHits = currentPlayer.segmentHits || 0;
+          const newHits = Math.max(0, currentHits - hitValue);
+          
+          // Update player status
+          updatedPlayers[state.currentPlayerIndex] = {
+            ...currentPlayer,
+            segmentHits: newHits,
+            isKiller: newHits >= (state.killerOptions?.maxHits || 3)
+          };
+        } 
+        // Case 2: Current player is a killer and hit another player's segment
+        else if (currentPlayer.isKiller) {
+          // Find target player with this segment
+          const targetPlayerIndex = updatedPlayers.findIndex(
+            p => p.segment === segment && !p.isEliminated
+          );
+          
+          if (targetPlayerIndex >= 0) {
+            const targetPlayer = updatedPlayers[targetPlayerIndex];
+            // Add back hit value to target player's lives
+            updatedPlayers[targetPlayerIndex] = {
+              ...targetPlayer,
+              segmentHits: (targetPlayer.segmentHits || 0) + hitValue,
+              isEliminated: false // Revive player since they got hits back
+            };
+          }
+        }
+        
+        return {
+          ...state,
+          players: updatedPlayers,
+          currentThrow: {
+            darts: newDarts,
+            isComplete: false
+          }
+        };
+      }
+      
+      // Standard case for non-Killer games or if no dart was removed
       return {
         ...state,
         currentThrow: {
           darts: newDarts,
           isComplete: false
         }
+      };
+    }
+
+    case 'REMOVE_KILLER_DART': {
+      if (state.currentThrow.darts.length === 0) {
+        return state;
+      }
+      
+      const newDarts = [...state.currentThrow.darts];
+      const removedDart = newDarts.pop();
+      
+      // If we're in a Killer game, we need to undo the segment hit
+      if (removedDart) {
+        const currentPlayer = state.players[state.currentPlayerIndex];
+        if (!currentPlayer) return state;
+        
+        // Get segment and hit value from the removed dart
+        const multiplier = removedDart[0];
+        const segment = parseInt(removedDart.substring(1));
+        
+        // Determine hit value based on multiplier
+        let hitValue = 1;
+        if (multiplier === 'D') hitValue = 2;
+        if (multiplier === 'T') hitValue = 3;
+        
+        const updatedPlayers = [...state.players];
+        
+        // Case 1: Player hit their own segment
+        if (segment === currentPlayer.segment) {
+          // Reduce segment hits
+          const currentHits = currentPlayer.segmentHits || 0;
+          const newHits = Math.max(0, currentHits - hitValue);
+          
+          // Update player status
+          updatedPlayers[state.currentPlayerIndex] = {
+            ...currentPlayer,
+            segmentHits: newHits,
+            isKiller: newHits >= (state.killerOptions?.maxHits || 3)
+          };
+        } 
+        // Case 2: Current player is a killer and hit another player's segment
+        else if (currentPlayer.isKiller) {
+          // Find target player with this segment
+          const targetPlayerIndex = updatedPlayers.findIndex(
+            p => p.segment === segment && !p.isEliminated
+          );
+          
+          if (targetPlayerIndex >= 0) {
+            const targetPlayer = updatedPlayers[targetPlayerIndex];
+            // Add back hit value to target player's lives
+            updatedPlayers[targetPlayerIndex] = {
+              ...targetPlayer,
+              segmentHits: (targetPlayer.segmentHits || 0) + hitValue,
+              isEliminated: false // Revive player since they got hits back
+            };
+          }
+        }
+        
+        return {
+          ...state,
+          players: updatedPlayers,
+          currentThrow: {
+            darts: newDarts,
+            isComplete: false
+          }
+        };
+      }
+      // If no dart was removed, just return the state
+      return state;
+    }
+    
+    case 'PROCESS_KILLER_DART_HIT': {
+      const currentPlayer = state.players[state.currentPlayerIndex];
+      if (!currentPlayer) return state;
+      
+      // Get the last dart thrown (the one we just added)
+      const lastDartIndex = state.currentThrow.darts.length - 1;
+      if (lastDartIndex < 0) return state;
+      
+      const lastDart = state.currentThrow.darts[lastDartIndex];
+      const updatedPlayers = [...state.players];
+      const maxHits = state.killerOptions?.maxHits || 3;
+      
+      // Process just the last dart thrown
+      const multiplier = lastDart[0];
+      const segment = parseInt(lastDart.substring(1));
+      
+      // Determine hit value based on multiplier
+      let hitValue = 1;
+      if (multiplier === 'D') hitValue = 2;
+      if (multiplier === 'T') hitValue = 3;
+      
+      // Case 1: Player hits their own segment
+      if (segment === currentPlayer.segment) {
+        // Add hits to become a killer
+        const currentHits = currentPlayer.segmentHits || 0;
+        const newHits = currentHits + hitValue;
+        
+        // Update player status
+        updatedPlayers[state.currentPlayerIndex] = {
+          ...currentPlayer,
+          segmentHits: newHits,
+          isKiller: newHits >= maxHits // Becomes killer when hits threshold reached
+        };
+      } 
+      // Case 2: Current player is a killer and hits another player's segment
+      else if (currentPlayer.isKiller) {
+        // Find target player with this segment
+        const targetPlayerIndex = updatedPlayers.findIndex(
+          p => p.segment === segment && !p.isEliminated
+        );
+        
+        if (targetPlayerIndex >= 0) {
+          const targetPlayer = updatedPlayers[targetPlayerIndex];
+          // Reduce target player's lives by hit value
+          updatedPlayers[targetPlayerIndex] = {
+            ...targetPlayer,
+            segmentHits: (targetPlayer.segmentHits || 0) - hitValue,
+            isEliminated: (targetPlayer.segmentHits || 0) - hitValue <= -1
+          };
+        }
+      }
+      // Case 3: Player hits another player's segment but isn't a killer yet
+      // No action needed in this case - player only impacts others once they're a killer
+      
+      // Check if there's only one player left (winner)
+      const playersStillIn = updatedPlayers.filter(player => !player.isEliminated);
+      
+      if (playersStillIn.length === 1 && updatedPlayers.some(p => p.isEliminated)) {
+        const winner = playersStillIn[0];
+        winner.wins = (winner.wins || 0) + 1;
+        
+        // Update session stats
+        const newPlayerWins = { ...state.sessionStats.playerWins };
+        newPlayerWins[winner.id] = (newPlayerWins[winner.id] || 0) + 1;
+        
+        return {
+          ...state,
+          players: updatedPlayers,
+          gameStatus: 'complete',
+          winner,
+          sessionStats: {
+            ...state.sessionStats,
+            playerWins: newPlayerWins,
+            gamesPlayed: state.sessionStats.gamesPlayed + 1
+          }
+        };
+      }
+      
+      // Return the updated state WITHOUT changing the current player
+      return {
+        ...state,
+        players: updatedPlayers
       };
     }
     
@@ -501,7 +782,6 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       
       return {
         ...state,
-        players: updatedPlayers,
         currentPlayerIndex: nextPlayerIndex,
         currentTurn: newRound,
         currentThrow: { darts: [], isComplete: false }
@@ -674,6 +954,113 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
     
     case 'UPDATE_SESSION_STATS': {
       return state; // This is handled automatically in other actions
+    }
+    
+    case 'ASSIGN_SEGMENTS': {
+      return {
+        ...state,
+        players: assignRandomSegments([...state.players])
+      };
+    }
+    
+    case 'ADD_SEGMENT_HIT': {
+      const { playerId, hits } = action;
+      const playerIndex = state.players.findIndex(p => p.id === playerId);
+      if (playerIndex === -1) return state;
+      
+      const player = state.players[playerIndex];
+      const maxHits = state.killerOptions?.maxHits || 3;
+      const currentHits = player.segmentHits || 0;
+      const newHits = Math.min(maxHits, currentHits + hits);
+      
+      const updatedPlayers = [...state.players];
+      updatedPlayers[playerIndex] = {
+        ...player,
+        segmentHits: newHits,
+        lives: newHits, // Lives equals segment hits
+        isKiller: newHits >= maxHits // Becomes killer when max hits reached
+      };
+      
+      return {
+        ...state,
+        players: updatedPlayers
+      };
+    }
+    
+    case 'REDUCE_LIFE': {
+      const { playerId, hits } = action;
+      const playerIndex = state.players.findIndex(p => p.id === playerId);
+      if (playerIndex === -1) return state;
+      
+      const player = state.players[playerIndex];
+      const currentLives = player.lives || 0;
+      const newLives = Math.max(0, currentLives - hits);
+      
+      const updatedPlayers = [...state.players];
+      updatedPlayers[playerIndex] = {
+        ...player,
+        lives: newLives,
+        isEliminated: newLives === 0
+      };
+      
+      // Check if there's only one player left (winner)
+      const playersStillIn = updatedPlayers.filter(player => !player.isEliminated);
+      
+      if (playersStillIn.length === 1 && updatedPlayers.some(p => p.isEliminated)) {
+        const winner = playersStillIn[0];
+        return {
+          ...state,
+          players: updatedPlayers,
+          gameStatus: 'complete',
+          winner
+        };
+      }
+      
+      return {
+        ...state,
+        players: updatedPlayers
+      };
+    }
+    
+    case 'ELIMINATE_PLAYER': {
+      const playerIndex = state.players.findIndex(p => p.id === action.playerId);
+      if (playerIndex === -1) return state;
+      
+      const updatedPlayers = [...state.players];
+      updatedPlayers[playerIndex] = {
+        ...updatedPlayers[playerIndex],
+        lives: 0,
+        isEliminated: true
+      };
+      
+      // Check if there's only one player left (winner)
+      const playersStillIn = updatedPlayers.filter(player => !player.isEliminated);
+      
+      if (playersStillIn.length === 1 && updatedPlayers.some(p => p.isEliminated)) {
+        const winner = playersStillIn[0];
+        winner.wins = (winner.wins || 0) + 1;
+        
+        // Update session stats
+        const newPlayerWins = { ...state.sessionStats.playerWins };
+        newPlayerWins[winner.id] = (newPlayerWins[winner.id] || 0) + 1;
+        
+        return {
+          ...state,
+          players: updatedPlayers,
+          gameStatus: 'complete',
+          winner,
+          sessionStats: {
+            ...state.sessionStats,
+            playerWins: newPlayerWins,
+            gamesPlayed: state.sessionStats.gamesPlayed + 1
+          }
+        };
+      }
+      
+      return {
+        ...state,
+        players: updatedPlayers
+      };
     }
     
     default:
