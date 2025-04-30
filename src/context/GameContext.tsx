@@ -29,6 +29,11 @@ export interface Player {
   segmentHits?: number; // Number of times player has hit their segment (0-3)
   lives?: number; // Lives remaining in Killer game (starting at segmentHits)
   isEliminated?: boolean; // Whether player is eliminated in Killer game
+  // New Killer game statistics
+  singlesHit?: number; // Number of singles hit in Killer game
+  doublesHit?: number; // Number of doubles hit in Killer game
+  triplesHit?: number; // Number of triples hit in Killer game
+  playersEliminated?: number; // Number of players eliminated by this player
 }
 
 export type EntryMode = 'straight' | 'double' | 'master';
@@ -436,6 +441,14 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       if (multiplier === 'D') hitValue = 2;
       if (multiplier === 'T') hitValue = 3;
       
+      // Update killer-specific statistics
+      let { singlesHit = 0, doublesHit = 0, triplesHit = 0, playersEliminated = 0 } = currentPlayer;
+      
+      // Increment the appropriate counter based on multiplier
+      if (multiplier === 'S') singlesHit++;
+      else if (multiplier === 'D') doublesHit++;
+      else if (multiplier === 'T') triplesHit++;
+      
       // Case 1: Player hits their own segment
       if (segment === currentPlayer.segment) {
         // Add hits to become a killer
@@ -446,7 +459,11 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         updatedPlayers[state.currentPlayerIndex] = {
           ...currentPlayer,
           segmentHits: newHits,
-          isKiller: newHits >= maxHits // Becomes killer when hits threshold reached
+          isKiller: newHits >= maxHits, // Becomes killer when hits threshold reached
+          singlesHit,
+          doublesHit,
+          triplesHit,
+          playersEliminated
         };
       } 
       // Case 2: Current player is a killer and hits another player's segment
@@ -458,16 +475,51 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         
         if (targetPlayerIndex >= 0) {
           const targetPlayer = updatedPlayers[targetPlayerIndex];
+          const newSegmentHits = (targetPlayer.segmentHits || 0) - hitValue;
+          const isNewlyEliminated = newSegmentHits <= -1 && !(targetPlayer.isEliminated || false);
+          
           // Reduce target player's lives by hit value
           updatedPlayers[targetPlayerIndex] = {
             ...targetPlayer,
-            segmentHits: (targetPlayer.segmentHits || 0) - hitValue,
-            isEliminated: (targetPlayer.segmentHits || 0) - hitValue <= -1
+            segmentHits: newSegmentHits,
+            isEliminated: newSegmentHits <= -1,
+            isKiller: false // Target player is no longer a killer
+          };
+          
+          // Increment players eliminated count if the target player was just eliminated
+          if (isNewlyEliminated) {
+            playersEliminated++;
+          }
+          
+          // Update current player with updated stats
+          updatedPlayers[state.currentPlayerIndex] = {
+            ...currentPlayer,
+            singlesHit,
+            doublesHit,
+            triplesHit,
+            playersEliminated
+          };
+        } else {
+          // Update current player with updated stats even if target wasn't found
+          updatedPlayers[state.currentPlayerIndex] = {
+            ...currentPlayer,
+            singlesHit,
+            doublesHit,
+            triplesHit,
+            playersEliminated
           };
         }
+      } else {
+        // Case 3: Player hits another player's segment but isn't a killer yet
+        // Just update statistics
+        updatedPlayers[state.currentPlayerIndex] = {
+          ...currentPlayer,
+          singlesHit,
+          doublesHit,
+          triplesHit,
+          playersEliminated
+        };
       }
-      // Case 3: Player hits another player's segment but isn't a killer yet
-      // No action needed in this case - player only impacts others once they're a killer
       
       // Check if there's only one player left (winner)
       const playersStillIn = updatedPlayers.filter(player => !player.isEliminated);
@@ -507,6 +559,37 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       const dartsThrown = [...state.currentThrow.darts];
       const score = calculateScore(dartsThrown);
       
+      // For Killer game, the score logic is different and already handled in PROCESS_KILLER_DART_HIT
+      // Just focus on turn management
+      if (state.gameType === 'killer') {
+        // Move to the next non-eliminated player
+        let nextPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
+        let attempts = 0; // To avoid infinite loop if all players are eliminated
+        
+        // Skip eliminated players
+        while (
+          state.players[nextPlayerIndex]?.isEliminated && 
+          attempts < state.players.length && 
+          state.players.filter(p => !p.isEliminated).length > 1 // More than 1 player still active
+        ) {
+          nextPlayerIndex = (nextPlayerIndex + 1) % state.players.length;
+          attempts++;
+        }
+        
+        // If we've gone through all players, increment the round
+        const newRound = nextPlayerIndex <= state.currentPlayerIndex 
+          ? state.currentTurn + 1 
+          : state.currentTurn;
+        
+        return {
+          ...state,
+          currentPlayerIndex: nextPlayerIndex,
+          currentTurn: newRound,
+          currentThrow: { darts: [], isComplete: false }
+        };
+      }
+      
+      // Regular X01 game logic continues below
       // Check entry requirements
       const isFirstThrow = currentPlayer.throws.length === 0;
       
@@ -777,7 +860,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       }
       
       // Move to next player
-      const nextPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
+      let nextPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
       const newRound = nextPlayerIndex === 0 ? state.currentTurn + 1 : state.currentTurn;
       
       return {

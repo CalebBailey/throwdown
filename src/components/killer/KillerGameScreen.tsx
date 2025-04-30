@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
-import { FiArrowLeft, FiChevronRight } from 'react-icons/fi';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FiArrowLeft, FiChevronRight, FiAward, FiTarget, FiArrowRight } from 'react-icons/fi';
 import Layout from '../shared/Layout';
 import Button from '../shared/Button';
 import KillerDartboard from './KillerDartboard';
@@ -108,11 +108,104 @@ const NextButton = styled(Button)`
   flex: 2;
 `;
 
+// Add new styled components for winner overlay
+const WinnerOverlay = styled(motion.div)`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.85);
+`;
+
+const WinnerCard = styled(motion.div)`
+  background-color: ${props => props.theme.colors.secondary};
+  border-radius: ${props => props.theme.borderRadius.lg};
+  padding: ${props => props.theme.space.xl};
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+  box-shadow: ${props => props.theme.shadows.lg};
+  position: relative;
+`;
+
+const WinnerAvatar = styled.div<{ color: string }>`
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: ${props => props.color};
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: ${props => props.theme.fontSizes.huge};
+  color: white;
+  font-weight: bold;
+  position: relative;
+`;
+
+const WinnerName = styled.h2`
+  font-size: ${props => props.theme.fontSizes.xxxl};
+  color: ${props => props.theme.colors.highlight};
+  margin: 1rem 0;
+`;
+
+const Medal = styled(motion.div)`
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  background-color: ${props => props.theme.colors.gold};
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: ${props => props.theme.fontSizes.xl};
+  border: 2px solid ${props => props.theme.colors.text};
+`;
+
+const StatBox = styled.div`
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: ${props => props.theme.space.md};
+  border-radius: ${props => props.theme.borderRadius.md};
+`;
+
+const StatLabel = styled.div`
+  font-size: ${props => props.theme.fontSizes.sm};
+  opacity: 0.7;
+  margin-bottom: ${props => props.theme.space.xs};
+`;
+
+const StatValue = styled.div`
+  font-size: ${props => props.theme.fontSizes.xl};
+  font-weight: bold;
+`;
+
+const StatsContainer = styled(motion.div)`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: ${props => props.theme.space.md};
+  margin: ${props => props.theme.space.xl} 0;
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: ${props => props.theme.space.md};
+  margin-top: ${props => props.theme.space.xl};
+`;
+
 const KillerGameScreen: React.FC = () => {
   const navigate = useNavigate();
   const { state, dispatch } = useGameContext();
   const [showSetup, setShowSetup] = useState(true);
   const [dartThrowCount, setDartThrowCount] = useState(0);
+  const [showWinnerScreen, setShowWinnerScreen] = useState(false);
   
   // Get current player
   const currentPlayer = state.players[state.currentPlayerIndex];
@@ -184,6 +277,22 @@ const KillerGameScreen: React.FC = () => {
     }
   };
   
+  // Handle starting a new game with same settings
+  const handlePlayAgain = () => {
+    dispatch({
+      type: 'START_GAME',
+      gameType: state.gameType,
+      gameOptions: state.gameOptions,
+      killerOptions: state.killerOptions
+    });
+    setShowWinnerScreen(false);
+  };
+  
+  // Handle navigating to the detailed summary screen
+  const handleGoToSummary = () => {
+    navigate('/killer/summary');
+  };
+  
   // Animations
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -201,12 +310,18 @@ const KillerGameScreen: React.FC = () => {
     visible: { y: 0, opacity: 1 }
   };
   
-  // If game is complete, navigate to summary
+  const overlayAnimation = {
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    exit: { opacity: 0 }
+  };
+  
+  // If game is complete, show winner screen
   useEffect(() => {
     if (state.gameStatus === 'complete' && state.winner) {
-      navigate('/summary');
+      setShowWinnerScreen(true);
     }
-  }, [state.gameStatus, state.winner, navigate]);
+  }, [state.gameStatus, state.winner]);
   
   // Get status message based on player state
   const getStatusMessage = () => {
@@ -217,6 +332,21 @@ const KillerGameScreen: React.FC = () => {
       return `Need ${hitsNeeded} more hit${hitsNeeded !== 1 ? 's' : ''} on segment ${currentPlayer.segment} to become a Killer`;
     }
   };
+  
+  // Calculate game statistics for winner screen
+  const calculateWinnerStats = () => {
+    if (!state.winner) return { totalDarts: 0, totalEliminated: 0 };
+    
+    const totalDarts = state.winner.throws.flat().length;
+    const totalEliminated = state.winner.playersEliminated || 0;
+    
+    return {
+      totalDarts,
+      totalEliminated
+    };
+  };
+  
+  const winnerStats = calculateWinnerStats();
   
   return (
     <Layout>
@@ -311,6 +441,80 @@ const KillerGameScreen: React.FC = () => {
             </motion.div>
           </Container>
         )}
+        
+        {/* Winner overlay screen */}
+        <AnimatePresence>
+          {showWinnerScreen && state.winner && (
+            <WinnerOverlay
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              variants={overlayAnimation}
+            >
+              <WinnerCard
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ type: 'spring', duration: 0.8 }}
+              >
+                <WinnerAvatar color={state.winner.color}>
+                  {state.winner.name.charAt(0).toUpperCase()}
+                  <Medal 
+                    position={1}
+                    initial={{ scale: 0, opacity: 0, rotate: -30 }}
+                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                    transition={{ delay: 0.5, type: 'spring', stiffness: 300 }}
+                  >
+                    <FiAward />
+                  </Medal>
+                </WinnerAvatar>
+                
+                <WinnerName>{state.winner.name} Wins!</WinnerName>
+                <p>Last player standing after {state.currentTurn} turns</p>
+                
+                <StatsContainer
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <StatBox>
+                    <StatLabel>Players Eliminated</StatLabel>
+                    <StatValue>{winnerStats.totalEliminated}</StatValue>
+                  </StatBox>
+                  <StatBox>
+                    <StatLabel>Darts Thrown</StatLabel>
+                    <StatValue>{winnerStats.totalDarts}</StatValue>
+                  </StatBox>
+                  <StatBox>
+                    <StatLabel>Segment</StatLabel>
+                    <StatValue>{state.winner.segment}</StatValue>
+                  </StatBox>
+                  <StatBox>
+                    <StatLabel>Killer Status</StatLabel>
+                    <StatValue>{state.winner.isKiller ? 'Killer' : 'Not a Killer'}</StatValue>
+                  </StatBox>
+                </StatsContainer>
+                
+                <ButtonGroup>
+                  <Button
+                    variant="outline"
+                    startIcon={<FiTarget />}
+                    onClick={handlePlayAgain}
+                    fullWidth
+                  >
+                    Play Again
+                  </Button>
+                  <Button
+                    startIcon={<FiArrowRight />}
+                    onClick={handleGoToSummary}
+                    fullWidth
+                  >
+                    Summary
+                  </Button>
+                </ButtonGroup>
+              </WinnerCard>
+            </WinnerOverlay>
+          )}
+        </AnimatePresence>
       </motion.div>
     </Layout>
   );
