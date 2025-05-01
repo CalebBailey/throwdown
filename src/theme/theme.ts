@@ -3,11 +3,12 @@ import { createGlobalStyle } from 'styled-components';
 // Color palette from design brief
 export const theme = {
   colors: {
-    primary: '#1A1A2E',      // Dark blue base
-    secondary: '#16213E',    // Slightly lighter blue
-    accent: '#0F3460',       // Highlight blue
-    highlight: '#E94560',    // Vibrant red for important elements
-    text: '#F5F5F5',         // Light for contrast
+    primary: '#1A1A2E',         // Dark blue base
+    secondary: '#16213E',       // Slightly lighter blue
+    accent: '#0F3460',          // Highlight blue
+    highlight: '#d93232',       // Vibrant red for important elements d93232 , E94560
+    lightHighlight: '#E94560',  // Lighter red for hover effects
+    text: '#F5F5F5',            // Light for contrast
     background: 'linear-gradient(to bottom, #1A1A2E, #16213E)',
     darkText: '#333333',
     lightAccent: '#1F4B8E',

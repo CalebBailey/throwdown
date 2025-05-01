@@ -28,8 +28,15 @@ const AppLogo = styled(motion.div)`
   gap: ${props => props.theme.space.sm};
 `;
 
-const LogoIcon = styled(FiTarget)`
+const LogoIcon = styled.div`
   font-size: 1.2em;
+`;
+
+const Logo = styled(motion.img)`
+  width: 200px;
+  height: auto;
+  margin-right: ${props => props.theme.space.sm};
+  filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
 `;
 
 const Tagline = styled(motion.h2)`
@@ -116,8 +123,20 @@ const HomeScreen: React.FC = () => {
         variants={containerVariants}
       >
         <HeroSection>
+          <Logo
+            src="/ThrowDownLogoNoBkgd.png"
+            alt="ThrowDown Logo"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ 
+              delay: 0.5, 
+              duration: 1, 
+              type: "spring",
+              stiffness: 120 
+            }}
+          />
           <AppLogo variants={itemVariants}>
-            <LogoIcon /> THROWDOWN
+            <LogoIcon /> 
           </AppLogo>
           <Tagline variants={itemVariants}>
             The ultimate darts scoring experience
@@ -131,18 +150,18 @@ const HomeScreen: React.FC = () => {
               >
                 Add Players
               </Button>
-              <Button 
+              {/* <Button 
                 variant="secondary" 
                 size="large" 
                 onClick={handleQuickStart}
                 startIcon={<FiArrowRight />}
               >
                 Quick Start 501
-              </Button>
+              </Button> */}
             </ButtonGroup>
           </motion.div>
         </HeroSection>
-        
+{/*         
         {state.sessionStats.gamesPlayed > 0 && (
           <SessionStats variants={itemVariants}>
             <Card>
@@ -172,7 +191,7 @@ const HomeScreen: React.FC = () => {
               </Card.Content>
             </Card>
           </SessionStats>
-        )}
+        )} */}
       </motion.div>
     </Layout>
   );
