@@ -279,13 +279,15 @@ const KillerGameScreen: React.FC = () => {
   
   // Handle starting a new game with same settings
   const handlePlayAgain = () => {
-    dispatch({
-      type: 'START_GAME',
-      gameType: state.gameType,
-      gameOptions: state.gameOptions,
-      killerOptions: state.killerOptions
-    });
+    dispatch({ type: 'RESET_GAME' });
     setShowWinnerScreen(false);
+    // dispatch({
+    //   type: 'START_GAME',
+    //   gameType: state.gameType,
+    //   gameOptions: state.gameOptions,
+    //   killerOptions: state.killerOptions
+    // });
+    // setShowWinnerScreen(false);
   };
   
   // Handle navigating to the detailed summary screen

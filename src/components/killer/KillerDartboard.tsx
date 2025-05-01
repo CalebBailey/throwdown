@@ -246,7 +246,9 @@ const KillerDartboard: React.FC<KillerDartboardProps> = ({ players, currentPlaye
           if (highlightSegment) {
             segmentFilter = 'url(#playerGlow)';
           } else if (canBeTargeted) {
-            segmentFilter = 'url(#targetGlow)';
+            // Use player-specific glow filter for targetable segments
+            const targetPlayer = segmentPlayerMap[segmentNumber];
+            segmentFilter = `url(#targetGlow-${targetPlayer.id})`;
           }
           
           // Calculate section boundaries - dividing the segment into maxHits equal parts
@@ -342,9 +344,9 @@ const KillerDartboard: React.FC<KillerDartboardProps> = ({ players, currentPlaye
         {/* Highlight effects for segments */}
         <defs>
           {/* Player segment glow */}
-          <filter id="playerGlow">
-            <feGaussianBlur stdDeviation="3" result="blur" />
-            <feFlood floodColor={currentPlayer?.color || '#FFFFFF'} floodOpacity="0.7" result="glow" />
+          <filter id="playerGlow" x="-30%" y="-30%" width="160%" height="160%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse">
+            <feGaussianBlur stdDeviation="5" result="blur" />
+            <feFlood floodColor={currentPlayer?.color || '#FFFFFF'} floodOpacity="0.9" result="glow" />
             <feComposite in="glow" in2="blur" operator="in" result="coloredBlur" />
             <feMerge>
               <feMergeNode in="coloredBlur" />
@@ -352,16 +354,27 @@ const KillerDartboard: React.FC<KillerDartboardProps> = ({ players, currentPlaye
             </feMerge>
           </filter>
           
-          {/* Targetable segment glow */}
-          <filter id="targetGlow">
-            <feGaussianBlur stdDeviation="2" result="blur" />
-            <feFlood floodColor="#E94560" floodOpacity="0.5" result="glow" />
-            <feComposite in="glow" in2="blur" operator="in" result="coloredBlur" />
-            <feMerge>
-              <feMergeNode in="coloredBlur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
+          {/* Create individual glow filters for each player's color */}
+          {players.map(player => (
+            <filter 
+              key={`targetGlow-${player.id}`} 
+              id={`targetGlow-${player.id}`} 
+              x="-30%" 
+              y="-30%" 
+              width="160%" 
+              height="160%" 
+              filterUnits="objectBoundingBox"
+              primitiveUnits="userSpaceOnUse"
+            >
+            <feGaussianBlur stdDeviation="5" result="blur" />
+            <feFlood floodColor={player.color} floodOpacity="0.9" result="glow" />
+              <feComposite in="glow" in2="blur" operator="in" result="coloredBlur" />
+              <feMerge>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          ))}
         </defs>
       </BoardSvg>
       
