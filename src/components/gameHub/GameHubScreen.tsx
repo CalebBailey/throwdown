@@ -621,7 +621,7 @@ const GameHubScreen: React.FC = () => {
                     </GameDescription>
                     
                     <div>
-                      <h4>Number of Lives</h4>
+                      <h4>Number of Hits to Become Killer</h4>
                       <LivesOptions>
                         {[3, 5, 7].map(lives => (
                           <LivesOption 

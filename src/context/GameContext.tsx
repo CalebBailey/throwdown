@@ -289,67 +289,9 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         return state;
       }
       
-      const newDarts = [...state.currentThrow.darts];
-      const removedDart = newDarts.pop();
+      const newDarts = [...state.currentThrow.darts];      
+      newDarts.pop(); // Remove the last dart
       
-      // If we're in a Killer game, we need to undo the segment hit
-      if (state.gameType === 'killer' && removedDart) {
-        const currentPlayer = state.players[state.currentPlayerIndex];
-        if (!currentPlayer) return state;
-        
-        // Get segment and hit value from the removed dart
-        const multiplier = removedDart[0];
-        const segment = parseInt(removedDart.substring(1));
-        
-        // Determine hit value based on multiplier
-        let hitValue = 1;
-        if (multiplier === 'D') hitValue = 2;
-        if (multiplier === 'T') hitValue = 3;
-        
-        const updatedPlayers = [...state.players];
-        
-        // Case 1: Player hit their own segment
-        if (segment === currentPlayer.segment) {
-          // Reduce segment hits
-          const currentHits = currentPlayer.segmentHits || 0;
-          const newHits = Math.max(0, currentHits - hitValue);
-          
-          // Update player status
-          updatedPlayers[state.currentPlayerIndex] = {
-            ...currentPlayer,
-            segmentHits: newHits,
-            isKiller: newHits >= (state.killerOptions?.maxHits || 3)
-          };
-        } 
-        // Case 2: Current player is a killer and hit another player's segment
-        else if (currentPlayer.isKiller) {
-          // Find target player with this segment
-          const targetPlayerIndex = updatedPlayers.findIndex(
-            p => p.segment === segment && !p.isEliminated
-          );
-          
-          if (targetPlayerIndex >= 0) {
-            const targetPlayer = updatedPlayers[targetPlayerIndex];
-            // Add back hit value to target player's lives
-            updatedPlayers[targetPlayerIndex] = {
-              ...targetPlayer,
-              segmentHits: (targetPlayer.segmentHits || 0) + hitValue,
-              isEliminated: false // Revive player since they got hits back
-            };
-          }
-        }
-        
-        return {
-          ...state,
-          players: updatedPlayers,
-          currentThrow: {
-            darts: newDarts,
-            isComplete: false
-          }
-        };
-      }
-      
-      // Standard case for non-Killer games or if no dart was removed
       return {
         ...state,
         currentThrow: {
@@ -367,7 +309,6 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       const newDarts = [...state.currentThrow.darts];
       const removedDart = newDarts.pop();
       
-      // If we're in a Killer game, we need to undo the segment hit
       if (removedDart) {
         const currentPlayer = state.players[state.currentPlayerIndex];
         if (!currentPlayer) return state;
@@ -558,46 +499,18 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         players: updatedPlayers
       };
     }
-    
+
     case 'SUBMIT_THROW': {
       const currentPlayer = state.players[state.currentPlayerIndex];
       if (!currentPlayer) return state;
       
       const dartsThrown = [...state.currentThrow.darts];
-      const score = calculateScore(dartsThrown);
+      if (dartsThrown.length === 0) return state; // Don't submit empty throws
       
-      // For Killer game, the score logic is different and already handled in PROCESS_KILLER_DART_HIT
-      // Just focus on turn management
-      if (state.gameType === 'killer') {
-        // Find the next active player by skipping all eliminated players
-        let nextPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
-        let loopCount = 0; // Prevent infinite loop
-        
-        // Loop until we find a non-eliminated player or we've gone through all players
-        while (
-          state.players[nextPlayerIndex].isEliminated && 
-          loopCount < state.players.length
-        ) {
-          nextPlayerIndex = (nextPlayerIndex + 1) % state.players.length;
-          loopCount++;
-        }
-        
-        // If we've completed a full round (back to current player or passed them)
-        const newTurn = nextPlayerIndex <= state.currentPlayerIndex 
-          ? state.currentTurn + 1 
-          : state.currentTurn;
-        
-        return {
-          ...state,
-          currentPlayerIndex: nextPlayerIndex,
-          currentTurn: newTurn,
-          currentThrow: { darts: [], isComplete: false }
-        };
-      }
+      const score = calculateScore(dartsThrown);
       
       console.log(`X01 game: Processing score ${score} for player ${currentPlayer.name}`);
       
-      // Regular X01 game logic continues below
       // Check entry requirements
       const isFirstThrow = currentPlayer.throws.length === 0;
       
@@ -733,17 +646,22 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       };
       
       // Create new players array with updated player
-      let updatedPlayers = [...state.players];
-      updatedPlayers[state.currentPlayerIndex] = updatedPlayer;
+      const updatedPlayers = state.players.map((p, idx) => 
+        idx === state.currentPlayerIndex ? updatedPlayer : p
+      );
       
       // Check for winner
       if (!isBust && newScore === 0) {
         // Player has hit a checkout
-        const updatedPlayer = {
-          ...updatedPlayers[state.currentPlayerIndex],
-          legs: updatedPlayers[state.currentPlayerIndex].legs + 1
+        const playerWithLegIncrement = {
+          ...updatedPlayer,
+          legs: updatedPlayer.legs + 1
         };
-        updatedPlayers[state.currentPlayerIndex] = updatedPlayer;
+        
+        // Update players array with leg increment
+        const playersWithLegUpdate = state.players.map((p, idx) => 
+          idx === state.currentPlayerIndex ? playerWithLegIncrement : p
+        );
         
         // For "Best of" format
         const totalLegsNeeded = Math.ceil(state.gameOptions.legs / 2);
@@ -753,12 +671,15 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         const legsNeeded = state.gameOptions.format === 'bestOf' ? totalLegsNeeded : firstToLegsNeeded;
         
         // Check if player has won enough legs to win a set
-        if (updatedPlayer.legs >= legsNeeded) {
+        if (playerWithLegIncrement.legs >= legsNeeded) {
           // Player wins a set
-          updatedPlayer.sets += 1;
+          const playerWithSetIncrement = {
+            ...playerWithLegIncrement,
+            sets: playerWithLegIncrement.sets + 1
+          };
           
           // Reset legs for all players for the next set
-          updatedPlayers = updatedPlayers.map(player => ({
+          const playersWithLegsReset = playersWithLegUpdate.map(player => ({
             ...player,
             legs: 0
           }));
@@ -771,13 +692,17 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
           const setsNeeded = state.gameOptions.format === 'bestOf' ? totalSetsNeeded : firstToSetsNeeded;
           
           // Check if player has won enough sets to win the game
-          if (state.gameOptions.sets > 1 && updatedPlayer.sets >= setsNeeded) {
+          if (state.gameOptions.sets > 1 && playerWithSetIncrement.sets >= setsNeeded) {
             // Player wins the game
             const winningPlayer = {
-              ...updatedPlayer,
-              wins: updatedPlayer.wins + 1
+              ...playerWithSetIncrement,
+              wins: playerWithSetIncrement.wins + 1
             };
-            updatedPlayers[state.currentPlayerIndex] = winningPlayer;
+            
+            // Final players array with winner updated
+            const finalPlayers = playersWithLegsReset.map((p, idx) => 
+              idx === state.currentPlayerIndex ? winningPlayer : p
+            );
             
             // Update session stats
             const newPlayerWins = { ...state.sessionStats.playerWins };
@@ -785,7 +710,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
             
             return {
               ...state,
-              players: updatedPlayers,
+              players: finalPlayers,
               currentThrow: { darts: [], isComplete: false },
               gameStatus: 'complete',
               winner: winningPlayer,
@@ -797,7 +722,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
             };
           } else if (state.gameOptions.sets > 1) {
             // Not enough sets won yet, reset scores for next leg in the set
-            updatedPlayers = updatedPlayers.map(player => ({
+            const playersWithScoresReset = playersWithLegsReset.map(player => ({
               ...player,
               score: state.gameOptions.startingScore,
               throws: []
@@ -809,7 +734,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
             // Continue to next leg
             return {
               ...state,
-              players: updatedPlayers,
+              players: playersWithScoresReset,
               // Set the current player to the next leg's starter
               currentPlayerIndex: nextLegStarterIndex,
               // Update the leg starter for the next leg
@@ -820,10 +745,14 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
           } else {
             // No sets in play (sets = 1), this is a direct win
             const winningPlayer = {
-              ...updatedPlayer,
-              wins: updatedPlayer.wins + 1
+              ...playerWithSetIncrement,
+              wins: playerWithSetIncrement.wins + 1
             };
-            updatedPlayers[state.currentPlayerIndex] = winningPlayer;
+            
+            // Final players array with winner updated
+            const finalPlayers = playersWithLegsReset.map((p, idx) => 
+              idx === state.currentPlayerIndex ? winningPlayer : p
+            );
             
             // Update session stats
             const newPlayerWins = { ...state.sessionStats.playerWins };
@@ -831,7 +760,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
             
             return {
               ...state,
-              players: updatedPlayers,
+              players: finalPlayers,
               currentThrow: { darts: [], isComplete: false },
               gameStatus: 'complete',
               winner: winningPlayer,
@@ -845,7 +774,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         } else {
           // Player has won a leg but not enough to win a set/game
           // Reset scores for next leg
-          updatedPlayers = updatedPlayers.map(player => ({
+          const playersWithScoresReset = playersWithLegUpdate.map(player => ({
             ...player,
             score: state.gameOptions.startingScore,
             throws: []
@@ -857,7 +786,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
           // Continue to next leg
           return {
             ...state,
-            players: updatedPlayers,
+            players: playersWithScoresReset,
             // Set the current player to the next leg's starter
             currentPlayerIndex: nextLegStarterIndex,
             // Update the leg starter for the next leg
@@ -874,6 +803,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       
       return {
         ...state,
+        players: updatedPlayers,
         currentPlayerIndex: nextPlayerIndex,
         currentTurn: newRound,
         currentThrow: { darts: [], isComplete: false }

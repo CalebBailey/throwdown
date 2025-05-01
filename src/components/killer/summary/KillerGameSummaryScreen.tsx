@@ -182,7 +182,7 @@ const KillerGameSummaryScreen: React.FC = () => {
   
   // Make sure we're showing this screen for a Killer game that's completed
   useEffect(() => {
-    if (state.gameType !== 'killer' || !state.winner) {
+    if (!state.winner) {
       navigate('/games');
     }
   }, [state.gameType, state.winner, navigate]);

@@ -7,7 +7,7 @@ import Layout from '../shared/Layout';
 import Button from '../shared/Button';
 import Card from '../shared/Card';
 import { useGameContext } from '../../context/GameContext';
-import { isScoreValid, getCheckoutSuggestions, dartNotationToScore } from '../../utils/gameUtils';
+import { isScoreValid, getCheckoutSuggestions, dartNotationToScore, calculateScore } from '../../utils/gameUtils';
 
 const Container = styled.div`
   max-width: 1000px;
