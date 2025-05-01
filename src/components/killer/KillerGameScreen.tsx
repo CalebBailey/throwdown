@@ -255,7 +255,7 @@ const KillerGameScreen: React.FC = () => {
   // Handle ending the turn
   const handleEndTurn = () => {
     // Submit the throw to calculate scores and advance to next player
-    dispatch({ type: 'SUBMIT_THROW' });
+    dispatch({ type: 'KILLER_SUBMIT_THROW' });
     
     // Reset dart count for next player
     setDartThrowCount(0);

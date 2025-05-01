@@ -361,6 +361,12 @@ const GameHubScreen: React.FC = () => {
       sets: activeInput === 'sets' ? sharedLegsSetValue : 1
     };
     
+    // Validate player count for Killer game
+    if (gameCategory === 'killer' && state.players.length < 2) {
+      alert('Killer game requires at least 2 players to start!');
+      return;
+    }
+    
     // Start the game with selected options
     dispatch({
       type: 'START_GAME',

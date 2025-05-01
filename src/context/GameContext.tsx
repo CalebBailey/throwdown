@@ -89,6 +89,7 @@ export type GameAction =
   | { type: 'REMOVE_KILLER_DART' }
   | { type: 'PROCESS_KILLER_DART_HIT' } // New action to process darts immediately
   | { type: 'SUBMIT_THROW' }
+  | { type: 'KILLER_SUBMIT_THROW' } // New action type for Killer game
   | { type: 'INPUT_SCORE'; playerId: string; score: number } // Keep for backward compatibility
   | { type: 'UNDO_SCORE'; playerId: string }
   | { type: 'END_TURN' }
@@ -227,6 +228,12 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
     
     case 'START_GAME': {
       const { gameType, gameOptions, killerOptions } = action;
+      
+      // Validate that Killer game must have at least 2 players
+      if (gameType === 'killer' && state.players.length < 2) {
+        console.error('Cannot start Killer game with less than 2 players');
+        return state; // Don't start the game
+      }
       
       // Initialize players based on game type
       let updatedPlayers = state.players.map(player => ({
@@ -562,32 +569,33 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       // For Killer game, the score logic is different and already handled in PROCESS_KILLER_DART_HIT
       // Just focus on turn management
       if (state.gameType === 'killer') {
-        // Move to the next non-eliminated player
+        // Find the next active player by skipping all eliminated players
         let nextPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
-        let attempts = 0; // To avoid infinite loop if all players are eliminated
+        let loopCount = 0; // Prevent infinite loop
         
-        // Skip eliminated players
+        // Loop until we find a non-eliminated player or we've gone through all players
         while (
-          state.players[nextPlayerIndex]?.isEliminated && 
-          attempts < state.players.length && 
-          state.players.filter(p => !p.isEliminated).length > 1 // More than 1 player still active
+          state.players[nextPlayerIndex].isEliminated && 
+          loopCount < state.players.length
         ) {
           nextPlayerIndex = (nextPlayerIndex + 1) % state.players.length;
-          attempts++;
+          loopCount++;
         }
         
-        // If we've gone through all players, increment the round
-        const newRound = nextPlayerIndex <= state.currentPlayerIndex 
+        // If we've completed a full round (back to current player or passed them)
+        const newTurn = nextPlayerIndex <= state.currentPlayerIndex 
           ? state.currentTurn + 1 
           : state.currentTurn;
         
         return {
           ...state,
           currentPlayerIndex: nextPlayerIndex,
-          currentTurn: newRound,
+          currentTurn: newTurn,
           currentThrow: { darts: [], isComplete: false }
         };
       }
+      
+      console.log(`X01 game: Processing score ${score} for player ${currentPlayer.name}`);
       
       // Regular X01 game logic continues below
       // Check entry requirements
@@ -616,8 +624,9 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         }
       }
       
-      // Calculate new score
+      // Calculate new score - IMPORTANT: This is where the score is subtracted
       const newScore = currentPlayer.score - score;
+      console.log(`X01 game: Player ${currentPlayer.name} score before: ${currentPlayer.score}, after: ${newScore}`);
       
       // Check for bust conditions based on out mode
       let isBust = newScore < 0 || newScore === 1;
@@ -867,6 +876,51 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         ...state,
         currentPlayerIndex: nextPlayerIndex,
         currentTurn: newRound,
+        currentThrow: { darts: [], isComplete: false }
+      };
+    }
+    
+    case 'KILLER_SUBMIT_THROW': {
+      const currentPlayer = state.players[state.currentPlayerIndex];
+      if (!currentPlayer) return state;
+      
+      // Get the darts thrown in this turn
+      const dartsThrown = [...state.currentThrow.darts];
+      
+      // Record the throws
+      const newThrows = [...currentPlayer.throws];
+      newThrows.push(dartsThrown);
+      
+      // Update the player with their latest throws
+      const updatedPlayers = [...state.players];
+      updatedPlayers[state.currentPlayerIndex] = {
+        ...currentPlayer,
+        throws: newThrows
+      };
+      
+      // Find the next active player by skipping all eliminated players
+      let nextPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
+      let loopCount = 0; // Prevent infinite loop
+      
+      // Loop until we find a non-eliminated player or we've gone through all players
+      while (
+        updatedPlayers[nextPlayerIndex].isEliminated && 
+        loopCount < updatedPlayers.length
+      ) {
+        nextPlayerIndex = (nextPlayerIndex + 1) % updatedPlayers.length;
+        loopCount++;
+      }
+      
+      // If we've completed a full round (back to current player or passed them)
+      const newTurn = nextPlayerIndex <= state.currentPlayerIndex 
+        ? state.currentTurn + 1 
+        : state.currentTurn;
+      
+      return {
+        ...state,
+        players: updatedPlayers,
+        currentPlayerIndex: nextPlayerIndex,
+        currentTurn: newTurn,
         currentThrow: { darts: [], isComplete: false }
       };
     }
