@@ -257,6 +257,7 @@ const GameDescription = styled.p`
 // Lives options for Killer game
 const LivesOptions = styled.div`
   display: flex;
+  justify-content: center;
   gap: ${props => props.theme.space.sm};
   margin-top: ${props => props.theme.space.md};
 `;
@@ -616,8 +617,8 @@ const GameHubScreen: React.FC = () => {
                     </GameIcon>
                     <GameTitle>Killer</GameTitle>
                     <GameDescription>
-                      Each player tries to hit their assigned double to become a "killer". Once a killer,
-                      you can target other players' doubles to eliminate them. Last player standing wins!
+                      Each player tries to hit their assigned segment to become a "killer". <br />Once a killer,
+                      you can target other players' segments to eliminate them. Last player standing wins!
                     </GameDescription>
                     
                     <div>

@@ -9,6 +9,7 @@ interface KillerDartboardProps {
   players: Player[];
   currentPlayerId?: string;
   onHitSegment: (segment: number, multiplier: string) => void;
+  maxHits?: number; // Add maxHits prop to control how many hits are needed
 }
 
 const DartboardContainer = styled.div`
@@ -112,7 +113,7 @@ const StyledMultiplierButton = ({ isActive, children, onClick, ...props }: Multi
   </MultiplierButton>
 );
 
-const KillerDartboard: React.FC<KillerDartboardProps> = ({ players, currentPlayerId, onHitSegment }) => {
+const KillerDartboard: React.FC<KillerDartboardProps> = ({ players, currentPlayerId, onHitSegment, maxHits = 3 }) => {
   const [selectedMultiplier, setSelectedMultiplier] = useState<'single' | 'double' | 'triple'>('single');
   
   // Get the current player
@@ -142,9 +143,6 @@ const KillerDartboard: React.FC<KillerDartboardProps> = ({ players, currentPlaye
   const segmentBaseColor = '#263d5a'; // Dark blue
   const bullseyeOuterColor = '#19304e'; // Lighter navy
   const bullseyeInnerColor = '#0c1e36'; // Dark navy
-  
-  // Get maxHits from game options 
-  const maxHits = 3;
   
   // Function to get segment subsections based on player hits
   const getSegmentSections = (segmentNumber: number): { sectionFills: string[], canBeTargeted: boolean } => {

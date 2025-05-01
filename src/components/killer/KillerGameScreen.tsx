@@ -409,6 +409,7 @@ const KillerGameScreen: React.FC = () => {
                   players={state.players}
                   currentPlayerId={currentPlayer?.id}
                   onHitSegment={handleHitSegment}
+                  maxHits={state.killerOptions?.maxHits || 3}
                 />
               </motion.div>
               
