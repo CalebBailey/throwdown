@@ -24,7 +24,6 @@ const Container = styled.div`
 const GameArea = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 20px;
 `;
 
 const HeaderBar = styled.div`
@@ -48,11 +47,10 @@ const Title = styled.h1`
 
 const PlayerTurnIndicator = styled.div`
   background: linear-gradient(to right, rgba(30, 30, 30, 0.7), rgba(40, 40, 40, 0.7));
-  padding: 12px 16px;
+  padding: 16px 16px;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 `;
 
@@ -544,7 +542,7 @@ const SegmentDisplay = styled.div`
   flex-wrap: wrap;
   justify-content: center;
   gap: 16px;
-  margin: 24px 0;
+  margin: 10px 0;
 `;
 
 const PlayerSegment = styled.div`

@@ -39,7 +39,7 @@ const MultiplierSelector = styled.div`
   display: flex;
   justify-content: center;
   gap: 16px;
-  margin-top: 24px;
+  margin-top: 12px;
   width: 100%;
 `;
 
@@ -48,7 +48,7 @@ const MultiplierButton = styled.button<{ isActive: boolean }>`
   color: ${props => props.theme.colors.text};
   border: none;
   padding: 12px 24px;
-  border-radius: 24px;
+  border-radius: 10px;
   cursor: pointer;
   font-weight: ${props => props.isActive ? 'bold' : 'normal'};
   flex: 1;
@@ -64,7 +64,7 @@ const PlayerSegmentInfo = styled.div`
   flex-wrap: wrap;
   justify-content: center;
   gap: 16px;
-  margin: 24px 0;
+  margin: 12px 0;
 `;
 
 const PlayerSegmentItem = styled.div<{ color: string; isActive: boolean }>`
@@ -73,7 +73,7 @@ const PlayerSegmentItem = styled.div<{ color: string; isActive: boolean }>`
   gap: 8px;
   background-color: rgba(30, 30, 30, 0.7);
   padding: 8px 16px;
-  border-radius: 16px;
+  border-radius: 10px;
   border: 2px solid ${props => props.isActive ? props.color : 'transparent'};
 `;
 

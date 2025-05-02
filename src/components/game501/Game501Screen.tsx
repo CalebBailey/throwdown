@@ -130,7 +130,7 @@ const CurrentPlayer = styled.div`
   display: flex;
   align-items: center;
   gap: ${props => props.theme.space.md};
-  margin-bottom: ${props => props.theme.space.lg};
+  margin-bottom: ${props => props.theme.space.sm};
 `;
 
 const CurrentPlayerName = styled.h2`
@@ -155,8 +155,8 @@ const ScoreSection = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: ${props => props.theme.space.lg};
-  margin-bottom: ${props => props.theme.space.xl};
+  margin-top: ${props => props.theme.space.sm}; /* Reduced from lg to sm */
+  margin-bottom: ${props => props.theme.space.md}; /* Reduced from xl to md */
 `;
 
 const CurrentScore = styled(motion.div)`
@@ -302,8 +302,8 @@ const StatValue = styled.div`
   font-weight: bold;
 `;
 
-const CurrentPlayerTurn = styled.div`
-  font-size: ${props => props.theme.fontSizes.xxxl};
+const CurrentThrowTotal = styled.div`
+  font-size: ${props => props.theme.fontSizes.xxl};
   font-weight: bold;
   color: ${props => props.theme.colors.highlight};
   text-align: center;
@@ -622,9 +622,9 @@ const Game501Screen: React.FC = () => {
                     </DartSlots>
                     
                     {currentThrowScore > 0 && (
-                    <CurrentPlayerTurn>
+                    <CurrentThrowTotal>
                       Throw Total: {currentThrowScore}
-                    </CurrentPlayerTurn>
+                    </CurrentThrowTotal>
                     )}
 
                   </DartThrowDisplay>
@@ -737,12 +737,6 @@ const Game501Screen: React.FC = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ type: 'spring', duration: 0.8 }}
               >
-                <ContinueButton
-                  startIcon={<FiArrowRight />}
-                  onClick={() => navigate('/summary')}
-                >
-                  Continue
-                </ContinueButton>
                 
                 <ConfettiOverlay
                   initial={{ opacity: 0 }}
@@ -847,7 +841,7 @@ const Game501Screen: React.FC = () => {
                   </PlayerScoreTally>
                   
                   <ButtonGroup style={{ marginTop: '2rem' }}>
-                    <Button
+                    {/* <Button
                       variant="outline"
                       startIcon={<FiArrowLeft />}
                       onClick={() => {
@@ -857,8 +851,10 @@ const Game501Screen: React.FC = () => {
                       fullWidth
                     >
                       Game Hub
-                    </Button>
+                    </Button> */}
+                    
                     <Button
+                      variant="outline"
                       startIcon={<FiTarget />}
                       onClick={() => {
                         dispatch({
@@ -870,6 +866,19 @@ const Game501Screen: React.FC = () => {
                       fullWidth
                     >
                       Play Again
+                    </Button>
+                    <Button
+                      startIcon={<FiArrowRight />}
+                      onClick={() => {
+                        dispatch({
+                          type: 'START_GAME',
+                          gameType: state.gameType,
+                          gameOptions: state.gameOptions
+                        });
+                      }}
+                      fullWidth
+                    >
+                      Summary
                     </Button>
                   </ButtonGroup>
                 </WinnerStatsScrollable>
@@ -915,7 +924,7 @@ const DartSlots = styled.div`
 
 const DartSlot = styled.div<{ $filled: boolean; $index: number }>`
   width: 70px;
-  height: 70px;
+  height: 60px; /* Reduced from 70px to 60px */
   border: 2px solid ${props => props.$filled ? props.theme.colors.highlight : 'rgba(255, 255, 255, 0.2)'};
   border-radius: ${props => props.theme.borderRadius.md};
   display: flex;
@@ -961,7 +970,7 @@ const ScoreTabs = styled.div`
 
 const ScoreTab = styled.button<{ $active: boolean }>`
   flex: 1;
-  padding: ${props => props.theme.space.md};
+  padding: ${props => props.theme.space.sm}; /* Reduced from md to sm */
   background-color: ${props => props.$active ? props.theme.colors.highlight : 'rgba(0, 0, 0, 0.2)'};
   border: none;
   border-radius: ${props => props.theme.borderRadius.sm};
@@ -979,11 +988,11 @@ const NumberGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: ${props => props.theme.space.xs};
-  margin-top: ${props => props.theme.space.md};
+  margin-top: ${props => props.theme.space.xs}; /* Reduced from md to xs */
 `;
 
 const NumberButton = styled.button`
-  padding: ${props => props.theme.space.md};
+  padding: ${props => props.theme.space.sm}; /* Reduced from md to sm */
   background-color: rgba(255, 255, 255, 0.1);
   border: none;
   border-radius: ${props => props.theme.borderRadius.sm};
@@ -1005,7 +1014,6 @@ const NumberButton = styled.button`
 const BottomControlRow = styled.div`
   display: flex;
   justify-content: space-between;
-  margin-top: ${props => props.theme.space.md};
   gap: ${props => props.theme.space.xs};
 
 `;
