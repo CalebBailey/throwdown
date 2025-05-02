@@ -869,15 +869,9 @@ const Game501Screen: React.FC = () => {
                     </Button>
                     <Button
                       startIcon={<FiArrowRight />}
-                      onClick={() => {
-                        dispatch({
-                          type: 'START_GAME',
-                          gameType: state.gameType,
-                          gameOptions: state.gameOptions
-                        });
-                      }}
+                      onClick={() => navigate('/summary')}
                       fullWidth
-                    >
+                      >
                       Summary
                     </Button>
                   </ButtonGroup>

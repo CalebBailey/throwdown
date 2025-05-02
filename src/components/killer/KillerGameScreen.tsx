@@ -106,7 +106,7 @@ const NextButton = styled(Button)`
   flex: 2;
 `;
 
-// Add new styled components for winner overlay
+// Add new styled components for winner overlay and player score tallies
 const WinnerOverlay = styled(motion.div)`
   position: fixed;
   top: 0;
@@ -129,6 +129,8 @@ const WinnerCard = styled(motion.div)`
   text-align: center;
   box-shadow: ${props => props.theme.shadows.lg};
   position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
 `;
 
 const WinnerAvatar = styled.div<{ color: string }>`
@@ -196,6 +198,64 @@ const ButtonGroup = styled.div`
   display: flex;
   gap: ${props => props.theme.space.md};
   margin-top: ${props => props.theme.space.xl};
+`;
+
+// New components for player score tallies
+const PlayerScoreTally = styled(motion.div)`
+  margin-bottom: ${props => props.theme.space.lg};
+`;
+
+const ScoreScroller = styled(motion.div)`
+  display: flex;
+  gap: ${props => props.theme.space.md};
+  overflow-x: auto;
+  padding: ${props => props.theme.space.md} 0;
+  scrollbar-width: thin;
+  scrollbar-color: ${props => props.theme.colors.accent} transparent;
+  
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: ${props => props.theme.colors.accent};
+    border-radius: 10px;
+  }
+`;
+
+const PlayerScoreBox = styled.div<{ $winner: boolean }>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: ${props => props.theme.space.md};
+  background-color: ${props => props.$winner ? `${props.theme.colors.highlight}40` : 'rgba(255, 255, 255, 0.05)' };
+  border-radius: ${props => props.theme.borderRadius.md};
+  min-width: 100px;
+`;
+
+const PlayerScoreAvatar = styled.div<{ color: string }>`
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: ${props => props.color};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${props => props.theme.colors.text};
+  font-weight: bold;
+  font-size: ${props => props.theme.fontSizes.md};
+  margin-bottom: ${props => props.theme.space.sm};
+`;
+
+const WinCount = styled.div`
+  font-size: ${props => props.theme.fontSizes.xl};
+  font-weight: bold;
+  color: ${props => props.theme.colors.highlight};
+  margin: ${props => props.theme.space.xs} 0;
 `;
 
 const KillerGameScreen: React.FC = () => {
@@ -479,21 +539,40 @@ const KillerGameScreen: React.FC = () => {
                 >
                   <StatBox>
                     <StatLabel>Players Eliminated</StatLabel>
-                    <StatValue>{winnerStats.totalEliminated}</StatValue>
+                    <StatValue>{winnerStats.totalEliminated - 1}</StatValue>
                   </StatBox>
                   <StatBox>
                     <StatLabel>Darts Thrown</StatLabel>
                     <StatValue>{winnerStats.totalDarts}</StatValue>
                   </StatBox>
                   <StatBox>
-                    <StatLabel>Segment</StatLabel>
-                    <StatValue>{state.winner.segment}</StatValue>
+                    <StatLabel>Segment Hits</StatLabel>
+                    <StatValue>{state.winner.segmentHits}</StatValue>
                   </StatBox>
                   <StatBox>
-                    <StatLabel>Killer Status</StatLabel>
-                    <StatValue>{state.winner.isKiller ? 'Killer' : 'Not a Killer'}</StatValue>
+                    <StatLabel>Triples Hit</StatLabel>
+                    <StatValue>{state.winner.triplesHit}</StatValue>
                   </StatBox>
                 </StatsContainer>
+
+                <PlayerScoreTally
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                >
+                  <h3>Player Win Tallies</h3>
+                  <ScoreScroller>
+                    {state.players.map(player => (
+                      <PlayerScoreBox key={player.id} $winner={player.id === state.winner.id}>
+                        <PlayerScoreAvatar color={player.color}>
+                          {player.name.charAt(0).toUpperCase()}
+                        </PlayerScoreAvatar>
+                        <div>{player.name}</div>
+                        <WinCount>{player.wins || 0}</WinCount>
+                      </PlayerScoreBox>
+                    ))}
+                  </ScoreScroller>
+                </PlayerScoreTally>
                 
                 <ButtonGroup>
                   <Button
