@@ -1,6 +1,6 @@
-# ThrowDown - Darts Scoring App
+# Throw-Down - Darts Scoring App
 
-ThrowDown is a modern darts scoring application designed to enhance the experience of playing darts. With a clean, intuitive interface, ThrowDown helps track scores, suggest checkouts, and manage player statistics for 501, 301, and 701 darts games.
+Throw-Down is a modern darts scoring application designed to enhance the experience of playing darts. With a clean, intuitive interface, Throw-Down helps track scores, suggest checkouts, and manage player statistics for 501, 301, and 701 darts games.
 
 ## Features
 
@@ -34,8 +34,8 @@ ThrowDown is a modern darts scoring application designed to enhance the experien
 1. Clone the repository:
 
    ```
-   git clone https://github.com/yourusername/throwdown.git
-   cd throwdown
+   git clone https://github.com/yourusername/Throw-Down.git
+   cd Throw-Down
    ```
 
 2. Install dependencies:
