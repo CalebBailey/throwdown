@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiAward, FiHome, FiRepeat, FiArrowRight, FiTarget, FiX, FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { FiAward, FiHome, FiRepeat, FiArrowRight, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import Layout from '../../shared/Layout';
 import Card from '../../shared/Card';
 import Button from '../../shared/Button';
@@ -47,11 +47,6 @@ const TrophyIcon = styled(FiAward)`
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
     font-size: 1.5rem;
   }
-`;
-
-const TargetIcon = styled(FiTarget)`
-  color: ${props => props.theme.colors.highlight};
-  margin-right: ${props => props.theme.space.sm};
 `;
 
 const WinnerSection = styled.div`
@@ -112,6 +107,7 @@ const StatsGrid = styled.div`
 const StatCard = styled(Card)`
   text-align: center;
   padding: ${props => props.theme.space.md};
+  margin-bottom: ${props => props.theme.space.sm};
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
     padding: ${props => props.theme.space.sm};
@@ -143,7 +139,7 @@ const PlayersStatsTable = styled.div`
 // Desktop version of the player row (used for larger screens)
 const PlayerRow = styled.div<{ $winner: boolean }>`
   display: grid;
-  grid-template-columns: auto 1fr repeat(7, auto);
+  grid-template-columns: auto 1fr repeat(6, auto);
   gap: ${props => props.theme.space.md};
   align-items: center;
   padding: ${props => props.theme.space.md};
@@ -238,20 +234,6 @@ const MobileStatValue = styled.div`
   font-weight: bold;
 `;
 
-const PlayerRowEliminated = styled(PlayerRow)`
-  opacity: 0.6;
-  position: relative;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 50%;
-    border-top: 1px solid rgba(255, 255, 255, 0.3);
-  }
-`;
-
 const PlayerColor = styled.div<{ color: string }>`
   width: 16px;
   height: 16px;
@@ -261,30 +243,11 @@ const PlayerColor = styled.div<{ color: string }>`
 
 const PlayerName = styled.div`
   font-weight: 500;
-  display: flex;
-  align-items: center;
-`;
-
-const PlayerStatus = styled.span<{ isKiller: boolean }>`
-  margin-left: ${props => props.theme.space.sm};
-  font-size: 0.8rem;
-  background-color: ${props => 
-    props.isKiller 
-      ? 'rgba(233, 69, 96, 0.2)' 
-      : 'rgba(0, 0, 0, 0.3)'
-  };
-  color: ${props => 
-    props.isKiller 
-      ? props.theme.colors.error 
-      : props.theme.colors.textSecondary
-  };
-  padding: 2px 6px;
-  border-radius: 4px;
 `;
 
 const StatHeader = styled.div`
   display: grid;
-  grid-template-columns: auto 1fr repeat(7, auto);
+  grid-template-columns: auto 1fr repeat(6, auto);
   gap: ${props => props.theme.space.md};
   align-items: center;
   padding: ${props => props.theme.space.sm} ${props => props.theme.space.md};
@@ -317,6 +280,115 @@ const ButtonGroup = styled.div`
   }
 `;
 
+const SegmentBadge = styled.span`
+  display: inline-block;
+  background-color: rgba(233, 69, 96, 0.2);
+  color: ${props => props.theme.colors.highlight};
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin-left: ${props => props.theme.space.sm};
+  font-size: 0.8rem;
+`;
+
+// Chart showing segments 1-9 with success indicators
+const SegmentChart = styled.div`
+  display: flex;
+  gap: 4px;
+  margin-top: ${props => props.theme.space.sm};
+  justify-content: center;
+`;
+
+const SegmentBlock = styled.div<{ $active: boolean; $score: number }>`
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  background-color: ${props => props.$active 
+    ? props.$score > 0 
+      ? `rgba(76, 175, 80, ${Math.min(1, props.$score / 20)})`
+      : 'rgba(255, 255, 255, 0.1)'
+    : 'rgba(255, 255, 255, 0.05)'
+  };
+  color: ${props => props.theme.colors.text};
+  
+  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+`;
+
+// Additional styled components for the segment scorecard
+const ScoreCardTitle = styled.h3`
+  margin: ${props => props.theme.space.md} 0;
+  color: ${props => props.theme.colors.text};
+`;
+
+const ScoreGrid = styled.div`
+  display: grid;
+  grid-template-columns: auto repeat(9, 1fr) auto;
+  gap: 4px;
+  margin: ${props => props.theme.space.md} 0 ${props => props.theme.space.xl};
+  overflow-x: auto;
+  padding-bottom: ${props => props.theme.space.sm};
+`;
+
+const HeaderCell = styled.div`
+  background-color: rgba(20, 20, 20, 0.5);
+  padding: 8px;
+  text-align: center;
+  border-radius: 4px;
+  font-weight: bold;
+  color: ${props => props.theme.colors.text};
+`;
+
+const SegmentCell = styled.div<{ isHighest?: boolean }>`
+  background-color: ${props => props.isHighest ? 'rgba(233, 69, 96, 0.2)' : 'rgba(20, 20, 20, 0.5)'};
+  padding: 8px;
+  text-align: center;
+  border-radius: 4px;
+  color: ${props => props.isHighest ? props.theme.colors.highlight : props.theme.colors.text};
+  font-weight: ${props => props.isHighest ? 'bold' : 'normal'};
+`;
+
+const PlayerCell = styled.div<{ isActive?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background-color: ${props => props.isActive ? 'rgba(76, 175, 80, 0.1)' : 'rgba(20, 20, 20, 0.3)'};
+  border-radius: 4px;
+`;
+
+const PlayerDot = styled.div<{ color: string }>`
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: ${props => props.color};
+`;
+
+const ScoreCell = styled.div<{ isHighest?: boolean }>`
+  background-color: ${props => props.isHighest ? 'rgba(76, 175, 80, 0.2)' : 'rgba(20, 20, 20, 0.2)'};
+  padding: 8px 4px;
+  text-align: center;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 20px;
+  font-weight: ${props => props.isHighest ? 'bold' : 'normal'};
+`;
+
+const TotalScoreCell = styled(ScoreCell)`
+  font-weight: bold;
+  background-color: rgba(20, 20, 20, 0.5);
+`;
+
 // Component for Mobile Player Row with expandable details
 interface MobilePlayerRowProps {
   player: any;
@@ -325,7 +397,36 @@ interface MobilePlayerRowProps {
 
 const MobilePlayerRowComponent: React.FC<MobilePlayerRowProps> = ({ player, isWinner }) => {
   const [expanded, setExpanded] = useState(false);
-  const { state } = useGameContext();
+  
+  // Get the player's best segment
+  const getBestSegment = (): number => {
+    if (!player.shanghaiSegmentScores) return 0;
+    
+    let bestSegment = 0;
+    let highestScore = 0;
+    
+    Object.entries(player.shanghaiSegmentScores).forEach(([segment, score]) => {
+      if (Number(score) > highestScore) {
+        highestScore = Number(score);
+        bestSegment = parseInt(segment);
+      }
+    });
+    
+    return bestSegment;
+  };
+  
+  // Get hit statistics
+  const getHitStatistics = () => {
+    return {
+      singlesHit: player.singlesHit || 0,
+      doublesHit: player.doublesHit || 0,
+      triplesHit: player.triplesHit || 0,
+      shanghaisHit: player.shanghaisHit || 0,
+    };
+  };
+  
+  const stats = getHitStatistics();
+  const bestSegment = getBestSegment();
   
   return (
     <MobilePlayerRow $winner={isWinner}>
@@ -333,19 +434,7 @@ const MobilePlayerRowComponent: React.FC<MobilePlayerRowProps> = ({ player, isWi
         <MobilePlayerInfo>
           <PlayerColor color={player.color} />
           <PlayerName>{player.name} {isWinner && '🏆'}</PlayerName>
-          {player.isKiller ? (
-            <PlayerStatus isKiller={true}>
-              <TargetIcon />Killer
-            </PlayerStatus>
-          ) : player.isEliminated ? (
-            <PlayerStatus isKiller={false}>
-              <FiX />Out
-            </PlayerStatus>
-          ) : (
-            <PlayerStatus isKiller={false}>
-              {(player.segmentHits || 0)}/{state.killerOptions?.maxHits || 3}
-            </PlayerStatus>
-          )}
+          <div>{player.score} pts</div>
         </MobilePlayerInfo>
         {expanded ? <FiChevronUp /> : <FiChevronDown />}
       </MobilePlayerHeader>
@@ -354,56 +443,81 @@ const MobilePlayerRowComponent: React.FC<MobilePlayerRowProps> = ({ player, isWi
         <MobileStatsGrid>
           <MobileStatItem>
             <MobileStat>
-              <MobileStatLabel>Segment</MobileStatLabel>
-              <MobileStatValue>{player.segment}</MobileStatValue>
+              <MobileStatLabel>Singles Hit</MobileStatLabel>
+              <MobileStatValue>{stats.singlesHit}</MobileStatValue>
             </MobileStat>
           </MobileStatItem>
           <MobileStatItem>
             <MobileStat>
-              <MobileStatLabel>Darts</MobileStatLabel>
+              <MobileStatLabel>Doubles Hit</MobileStatLabel>
+              <MobileStatValue>{stats.doublesHit}</MobileStatValue>
+            </MobileStat>
+          </MobileStatItem>
+          <MobileStatItem>
+            <MobileStat>
+              <MobileStatLabel>Triples Hit</MobileStatLabel>
+              <MobileStatValue>{stats.triplesHit}</MobileStatValue>
+            </MobileStat>
+          </MobileStatItem>
+          <MobileStatItem>
+            <MobileStat>
+              <MobileStatLabel>Shanghais Hit</MobileStatLabel>
+              <MobileStatValue>{stats.shanghaisHit}</MobileStatValue>
+            </MobileStat>
+          </MobileStatItem>
+          <MobileStatItem>
+            <MobileStat>
+              <MobileStatLabel>Best Segment</MobileStatLabel>
+              <MobileStatValue>
+                {bestSegment > 0 ? bestSegment : '-'}
+                {bestSegment > 0 && player.shanghaiSegmentScores && 
+                  ` (${player.shanghaiSegmentScores[bestSegment]} pts)`}
+              </MobileStatValue>
+            </MobileStat>
+          </MobileStatItem>
+          <MobileStatItem>
+            <MobileStat>
+              <MobileStatLabel>Total Darts</MobileStatLabel>
               <MobileStatValue>{player.throws.flat().length}</MobileStatValue>
             </MobileStat>
           </MobileStatItem>
-          <MobileStatItem>
-            <MobileStat>
-              <MobileStatLabel>Singles</MobileStatLabel>
-              <MobileStatValue>{player.singlesHit || 0}</MobileStatValue>
-            </MobileStat>
-          </MobileStatItem>
-          <MobileStatItem>
-            <MobileStat>
-              <MobileStatLabel>Doubles</MobileStatLabel>
-              <MobileStatValue>{player.doublesHit || 0}</MobileStatValue>
-            </MobileStat>
-          </MobileStatItem>
-          <MobileStatItem>
-            <MobileStat>
-              <MobileStatLabel>Triples</MobileStatLabel>
-              <MobileStatValue>{player.triplesHit || 0}</MobileStatValue>
-            </MobileStat>
-          </MobileStatItem>
-          <MobileStatItem>
-            <MobileStat>
-              <MobileStatLabel>Eliminated</MobileStatLabel>
-              <MobileStatValue>{player.playersEliminated || 0}</MobileStatValue>
-            </MobileStat>
-          </MobileStatItem>
         </MobileStatsGrid>
+        
+        {/* Segment chart showing which segments were hit */}
+        <div style={{ marginTop: '10px' }}>
+          <MobileStatLabel style={{ marginBottom: '5px' }}>Segment Progress</MobileStatLabel>
+          <SegmentChart>
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(segment => {
+              const score = player.shanghaiSegmentScores && player.shanghaiSegmentScores[segment] 
+                ? player.shanghaiSegmentScores[segment] 
+                : 0;
+              return (
+                <SegmentBlock 
+                  key={segment} 
+                  $active={score > 0} 
+                  $score={score}
+                >
+                  {segment}
+                </SegmentBlock>
+              );
+            })}
+          </SegmentChart>
+        </div>
       </MobilePlayerDetails>
     </MobilePlayerRow>
   );
 };
 
-const KillerGameSummaryScreen: React.FC = () => {
+const ShanghaiGameSummaryScreen: React.FC = () => {
   const navigate = useNavigate();
   const { state, dispatch } = useGameContext();
   
-  // Make sure we're showing this screen for a Killer game that's completed
+  // Check if there's a winner, if not redirect
   useEffect(() => {
     if (!state.winner) {
       navigate('/games');
     }
-  }, [state.gameType, state.winner, navigate]);
+  }, [state.winner, navigate]);
   
   // Go to home screen
   const handleGoHome = () => {
@@ -413,13 +527,35 @@ const KillerGameSummaryScreen: React.FC = () => {
   
   // Start a new game with same settings
   const handleNewGame = () => {
+    // First reset the game state
+    dispatch({ type: 'RESET_GAME' });
+    
+    // Then initialize a new game with fresh segment scores
+    const freshPlayers = state.players.map(player => ({
+      ...player,
+      shanghaiSegmentScores: {}, // Clear out segment scores
+      shanghaisHit: 0,
+      singlesHit: 0,
+      doublesHit: 0,
+      triplesHit: 0,
+      score: 0,
+      throws: []
+    }));
+    
+    // Start new game with our freshly reset players
     dispatch({
       type: 'START_GAME',
-      gameType: state.gameType,
-      gameOptions: state.gameOptions,
-      killerOptions: state.killerOptions
+      gameType: 'shanghai',
+      gameOptions: state.gameOptions
     });
-    navigate('/games/killer');
+    
+    // Update players with cleared segment scores
+    dispatch({ 
+      type: 'SET_PLAYER_ORDER',
+      players: freshPlayers
+    });
+    
+    navigate('/games/shanghai');
   };
   
   // Go back to game hub
@@ -445,13 +581,46 @@ const KillerGameSummaryScreen: React.FC = () => {
     visible: { y: 0, opacity: 1 }
   };
   
+  // Helper function to get the segment score for a player
+  const getSegmentScore = (player: any, segment: number): number => {
+    // For Shanghai, we need to extract scores for each segment from throws
+    let score = 0;
+    
+    // Check if the player has shanghaiSegmentScores and if there's a score for this segment
+    if (player.shanghaiSegmentScores && player.shanghaiSegmentScores[segment]) {
+      score = player.shanghaiSegmentScores[segment];
+    }
+    
+    return score;
+  };
+  
+  // Get total score for a player across all segments
+  const getTotalScore = (player: any): number => {
+    if (!player.shanghaiSegmentScores) return 0;
+    
+    return Object.values(player.shanghaiSegmentScores).reduce((total: number, score: any) => total + Number(score), 0);
+  };
+  
+  // Find the highest score for a specific segment across all players
+  const getHighestScoreForSegment = (segment: number): number => {
+    let highest = 0;
+    state.players.forEach(player => {
+      const score = getSegmentScore(player, segment);
+      if (score > highest) highest = score;
+    });
+    return highest;
+  };
+  
   // Calculate total game statistics
   const calculateGameStats = () => {
     let totalDarts = 0;
     let totalSingles = 0;
     let totalDoubles = 0;
     let totalTriples = 0;
-    let totalEliminated = 0;
+    let highestSegmentScore = 0;
+    let highestTotalScore = 0;
+    let segmentsHit = 0;
+    let totalShanghais = 0;
     
     state.players.forEach(player => {
       const darts = player.throws.flat();
@@ -459,41 +628,66 @@ const KillerGameSummaryScreen: React.FC = () => {
       totalSingles += player.singlesHit || 0;
       totalDoubles += player.doublesHit || 0;
       totalTriples += player.triplesHit || 0;
+      totalShanghais += player.shanghaisHit || 0;
+      
+      // Track highest scores
+      if (player.score > highestTotalScore) {
+        highestTotalScore = player.score;
+      }
+      
+      // Track highest segment score
+      if (player.shanghaiSegmentScores) {
+        Object.values(player.shanghaiSegmentScores).forEach(score => {
+          if (Number(score) > highestSegmentScore) {
+            highestSegmentScore = Number(score);
+          }
+        });
+        
+        // Count total unique segments hit across all players
+        segmentsHit += Object.keys(player.shanghaiSegmentScores).length;
+      }
     });
-    
-    // Count eliminated players
-    totalEliminated = state.players.filter(p => p.isEliminated).length;
-    
+        
     return {
       totalDarts,
       totalSingles,
       totalDoubles,
       totalTriples,
-      totalEliminated
+      highestSegmentScore,
+      highestTotalScore,
+      totalShanghais,
     };
+  };
+  
+  // Get the best segment for a player
+  const getBestSegment = (player: any): number => {
+    if (!player.shanghaiSegmentScores) return 0;
+    
+    let bestSegment = 0;
+    let highestScore = 0;
+    
+    Object.entries(player.shanghaiSegmentScores).forEach(([segment, score]) => {
+      if (Number(score) > highestScore) {
+        highestScore = Number(score);
+        bestSegment = parseInt(segment);
+      }
+    });
+    
+    return bestSegment;
+  };
+  
+  // Calculate segment completion rate
+  const getCompletedSegments = (player: any): number => {
+    if (!player.shanghaiSegmentScores) return 0;
+    return Object.keys(player.shanghaiSegmentScores).length;
   };
   
   const gameStats = calculateGameStats();
   
   if (!state.winner) return null;
   
-  // Sort players: winner first, then killers, then non-eliminated, then eliminated
-  const sortedPlayers = [...state.players].sort((a, b) => {
-    // Winner first
-    if (a.id === state.winner?.id) return -1;
-    if (b.id === state.winner?.id) return 1;
-    
-    // Killers next
-    if (a.isKiller && !b.isKiller) return -1;
-    if (!a.isKiller && b.isKiller) return 1;
-    
-    // Non-eliminated before eliminated
-    if (!a.isEliminated && b.isEliminated) return -1;
-    if (a.isEliminated && !b.isEliminated) return 1;
-    
-    // Sort by name
-    return a.name.localeCompare(b.name);
-  });
+  // Sort players by score (highest first)
+  const sortedPlayers = [...state.players].sort((a, b) => (b.score || 0) - (a.score || 0));
   
   return (
     <Layout>
@@ -505,7 +699,7 @@ const KillerGameSummaryScreen: React.FC = () => {
         >
           <SummaryHeader>
             <TrophyIcon />
-            <PageTitle>Killer Game Summary</PageTitle>
+            <PageTitle>Shanghai Game Summary</PageTitle>
           </SummaryHeader>
           
           <WinnerSection as={motion.div} variants={childVariants}>
@@ -513,29 +707,29 @@ const KillerGameSummaryScreen: React.FC = () => {
               {state.winner.name.charAt(0).toUpperCase()}
             </WinnerAvatar>
             <WinnerName>{state.winner.name} Wins!</WinnerName>
-            <p>Last player standing after {state.currentTurn} turns</p>
+            <p>With {state.winner.score} points after all 9 segments</p>
           </WinnerSection>
           
           <motion.div variants={childVariants}>
             <Card>
               <Card.Header>
                 <Card.Title>Game Statistics</Card.Title>
-                <Card.Subtitle>Killer with {state.players.length} players</Card.Subtitle>
+                <Card.Subtitle>Shanghai with {state.players.length} players</Card.Subtitle>
               </Card.Header>
               
               <Card.Content>
                 <StatsGrid>
                   <StatCard>
-                    <h3>Game Type</h3>
-                    <StatValue>Killer</StatValue>
+                    <h3>Total Shanghais</h3>
+                    <StatValue>{gameStats.totalShanghais}</StatValue>
                     <p>
-                      {state.killerOptions?.maxHits || 3} hits to become a Killer
+                      How many times a player hit all parts of a segment in one turn
                     </p>
                   </StatCard>
                   <StatCard>
-                    <h3>Turns</h3>
-                    <StatValue>{state.currentTurn}</StatValue>
-                    <p>Total turns played</p>
+                    <h3>Highest Score</h3>
+                    <StatValue>{gameStats.highestTotalScore}</StatValue>
+                    <p>Achieved by {state.winner.name}</p>
                   </StatCard>
                   <StatCard>
                     <h3>Darts Thrown</h3>
@@ -543,9 +737,9 @@ const KillerGameSummaryScreen: React.FC = () => {
                     <p>Total darts thrown in game</p>
                   </StatCard>
                   <StatCard>
-                    <h3>Eliminated Players</h3>
-                    <StatValue>{gameStats.totalEliminated}</StatValue>
-                    <p>Players removed from the game</p>
+                    <h3>Highest Segment Score</h3>
+                    <StatValue>{gameStats.highestSegmentScore}</StatValue>
+                    <p>Highest score achieved in any segment</p>
                   </StatCard>
                 </StatsGrid>
                 
@@ -567,35 +761,92 @@ const KillerGameSummaryScreen: React.FC = () => {
                   </div>
                 </StatCard>
                 
+                {/* Segment Scorecard */}
+                <StatCard>
+                  <ScoreCardTitle>Segment Scorecard</ScoreCardTitle>
+                  <ScoreGrid>
+                    {/* Header row with segment numbers */}
+                    <HeaderCell>Player</HeaderCell>
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(segment => {
+                      const highestScore = getHighestScoreForSegment(segment);
+                      return (
+                        <SegmentCell key={segment} isHighest={highestScore > 0}>
+                          {segment}
+                        </SegmentCell>
+                      );
+                    })}
+                    <HeaderCell>Total</HeaderCell>
+                    
+                    {/* Player rows */}
+                    {sortedPlayers.map(player => {
+                      const isWinner = player.id === state.winner?.id;
+                      
+                      return (
+                        <React.Fragment key={player.id}>
+                          {/* Player name */}
+                          <PlayerCell isActive={isWinner}>
+                            <PlayerDot color={player.color} />
+                            <div>{player.name}</div>
+                          </PlayerCell>
+                          
+                          {/* Segment scores */}
+                          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(segment => {
+                            const score = getSegmentScore(player, segment);
+                            const isHighestForSegment = score > 0 && score === getHighestScoreForSegment(segment);
+                            
+                            return (
+                              <ScoreCell 
+                                key={`${player.id}-${segment}`}
+                                isHighest={isHighestForSegment}
+                              >
+                                {score}
+                              </ScoreCell>
+                            );
+                          })}
+                          
+                          {/* Total score */}
+                          <TotalScoreCell isHighest={isWinner}>
+                            {getTotalScore(player)}
+                          </TotalScoreCell>
+                        </React.Fragment>
+                      );
+                    })}
+                  </ScoreGrid>
+                </StatCard>
+                
                 <PlayersStatsTable>
                   {/* Desktop version of the table with header */}
                   <StatHeader>
                     <div></div>
                     <div>Player</div>
-                    <StatCell>Segment</StatCell>
+                    <StatCell>Total Score</StatCell>
                     <StatCell>Singles</StatCell>
                     <StatCell>Doubles</StatCell>
                     <StatCell>Triples</StatCell>
-                    <StatCell>Eliminated</StatCell>
-                    <StatCell>Darts</StatCell>
+                    <StatCell>Shanghais</StatCell>
+                    <StatCell>Best Segment</StatCell>
                   </StatHeader>
                   
                   {/* Desktop rows */}
                   {sortedPlayers.map(player => {
                     const isWinner = player.id === state.winner?.id;
-                    const PlayerRowComponent = player.isEliminated ? PlayerRowEliminated : PlayerRow;
+                    const bestSegment = getBestSegment(player);
                     
                     return (
-                      <PlayerRowComponent key={`desktop-${player.id}`} $winner={isWinner}>
+                      <PlayerRow key={`desktop-${player.id}`} $winner={isWinner}>
                         <PlayerColor color={player.color} />
                         <PlayerName>{player.name} {isWinner && '🏆'}</PlayerName>
-                        <StatCell>{player.segment}</StatCell>
+                        <StatCell>{player.score || 0}</StatCell>
                         <StatCell>{player.singlesHit || 0}</StatCell>
                         <StatCell>{player.doublesHit || 0}</StatCell>
                         <StatCell>{player.triplesHit || 0}</StatCell>
-                        <StatCell>{player.playersEliminated || 0}</StatCell>
-                        <StatCell>{player.throws.flat().length}</StatCell>
-                      </PlayerRowComponent>
+                        <StatCell>{player.shanghaisHit || 0}</StatCell>
+                        <StatCell>
+                          {bestSegment || '-'}
+                          {bestSegment > 0 && player.shanghaiSegmentScores && 
+                            <SegmentBadge>{player.shanghaiSegmentScores[bestSegment]} pts</SegmentBadge>}
+                        </StatCell>
+                      </PlayerRow>
                     );
                   })}
                   
@@ -648,4 +899,4 @@ const KillerGameSummaryScreen: React.FC = () => {
   );
 };
 
-export default KillerGameSummaryScreen;
+export default ShanghaiGameSummaryScreen;

@@ -34,6 +34,9 @@ export interface Player {
   doublesHit?: number; // Number of doubles hit in Killer game
   triplesHit?: number; // Number of triples hit in Killer game
   playersEliminated?: number; // Number of players eliminated by this player
+  // Shanghai game specific properties
+  shanghaiSegmentScores?: Record<number, number>; // Segment scores for Shanghai game, keyed by segment number
+  shanghaisHit?: number; // Number of Shanghais hit
 }
 
 export type EntryMode = 'straight' | 'double' | 'master';
@@ -54,6 +57,10 @@ export interface KillerOptions {
   lives?: number; // Optional number of lives for killer game
 }
 
+export interface ShanghaiOptions {
+  segments?: number[]; // Optional custom segment order, defaults to [1-9]
+}
+
 export type GameType = "501" | "301" | "701" | "custom" | "killer" | "shanghai" | "donkey_derby";
 export type GameStatus = "setup" | "active" | "complete";
 
@@ -63,6 +70,7 @@ export interface GameState {
   gameType: GameType;
   gameOptions: GameOptions;
   killerOptions?: KillerOptions;
+  shanghaiOptions?: ShanghaiOptions;
   gameStatus: GameStatus;
   currentTurn: number;
   winner: Player | null;
@@ -83,7 +91,7 @@ export type GameAction =
   | { type: 'ADD_PLAYER'; player: Omit<Player, 'score' | 'throws' | 'averageScore' | 'highestScore'> }
   | { type: 'REMOVE_PLAYER'; id: string }
   | { type: 'SET_PLAYER_ORDER'; players: Player[] }
-  | { type: 'START_GAME'; gameType: GameType; gameOptions: GameOptions; killerOptions?: KillerOptions }
+  | { type: 'START_GAME'; gameType: GameType; gameOptions: GameOptions; killerOptions?: KillerOptions; shanghaiOptions?: ShanghaiOptions }
   | { type: 'ADD_DART'; dart: string }
   | { type: 'REMOVE_DART' }
   | { type: 'REMOVE_KILLER_DART' }
@@ -96,10 +104,7 @@ export type GameAction =
   | { type: 'END_GAME'; winner: Player }
   | { type: 'RESET_GAME' }
   | { type: 'UPDATE_SESSION_STATS' }
-  | { type: 'ASSIGN_SEGMENTS' } // For Killer game
-  | { type: 'ADD_SEGMENT_HIT'; playerId: string; hits: number } // Add hit(s) to segment
-  | { type: 'REDUCE_LIFE'; playerId: string; hits: number } // Reduce player's life by # of hits
-  | { type: 'ELIMINATE_PLAYER'; playerId: string }; // Eliminate player from Killer game
+  | { type: 'ASSIGN_SEGMENTS' }; // For Killer game
 
 // Initial state
 const initialState: GameState = {
@@ -116,6 +121,9 @@ const initialState: GameState = {
   },
   killerOptions: {
     maxHits: 3, // Default to 3 hits to become a killer
+  },
+  shanghaiOptions: {
+    segments: [1, 2, 3, 4, 5, 6, 7, 8, 9], // Default segments for Shanghai
   },
   gameStatus: "setup",
   currentTurn: 1,
@@ -227,7 +235,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
     }
     
     case 'START_GAME': {
-      const { gameType, gameOptions, killerOptions } = action;
+      const { gameType, gameOptions, killerOptions, shanghaiOptions } = action;
       
       // Validate that Killer game must have at least 2 players
       if (gameType === 'killer' && state.players.length < 2) {
@@ -256,6 +264,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         gameType,
         gameOptions,
         killerOptions: killerOptions || state.killerOptions,
+        shanghaiOptions: shanghaiOptions || state.shanghaiOptions,
         gameStatus: "active",
         currentTurn: 1,
         currentPlayerIndex: 0,
