@@ -1,384 +1,482 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiArrowLeft, FiTarget, FiHome, FiTrendingUp, FiBarChart2 } from 'react-icons/fi';
+import { FiAward, FiHome, FiRepeat, FiArrowRight, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import Layout from '../../shared/Layout';
+import Card from '../../shared/Card';
 import Button from '../../shared/Button';
 import { useGameContext } from '../../../context/GameContext';
 
-// Styled components for the summary page
-const HeaderBar = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  background-color: rgba(30, 30, 30, 0.5);
-  padding: 0.75rem 1.25rem;
-  border-radius: 8px;
+const Container = styled.div`
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 ${props => props.theme.space.sm};
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    padding: 0.5rem 1rem;
-    margin-bottom: 1rem;
+    padding: 0 ${props => props.theme.space.xs};
   }
 `;
 
-const Title = styled.h1`
+const PageTitle = styled.h1`
+  margin-bottom: ${props => props.theme.space.lg};
   color: ${props => props.theme.colors.text};
-  margin: 0;
-  font-size: 1.75rem;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: 1.5rem;
+    margin-bottom: ${props => props.theme.space.md};
+  }
+`;
+
+const SummaryHeader = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: ${props => props.theme.space.md};
+  margin-bottom: ${props => props.theme.space.lg};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    gap: ${props => props.theme.space.sm};
+    margin-bottom: ${props => props.theme.space.md};
+  }
+`;
+
+const TrophyIcon = styled(FiAward)`
+  font-size: 2rem;
+  color: gold;
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
     font-size: 1.5rem;
   }
 `;
 
-const SummaryContainer = styled(motion.div)`
-  max-width: 1000px;
-  margin: 0 auto 2rem;
-`;
-
-const SummaryHeader = styled.div`
-  text-align: center;
-  margin-bottom: 2rem;
-`;
-
-const GameTitle = styled.h2`
-  color: ${props => props.theme.colors.highlight};
-  margin-bottom: 0.5rem;
-`;
-
-const GameDate = styled.div`
-  opacity: 0.7;
-  font-size: 0.9rem;
-`;
-
-const WinnerCard = styled(motion.div)`
-  background-color: rgba(30, 30, 30, 0.7);
-  border-radius: 16px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
+const WinnerSection = styled.div`
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  margin-bottom: ${props => props.theme.space.xl};
+  text-align: center;
   
-  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
-    flex-direction: column;
-    text-align: center;
-    gap: 1rem;
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    margin-bottom: ${props => props.theme.space.lg};
   }
 `;
 
-const WinnerInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+const WinnerName = styled.h2`
+  font-size: ${props => props.theme.fontSizes.xxxl};
+  color: ${props => props.theme.colors.highlight};
+  margin-top: ${props => props.theme.space.md};
   
-  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
-    flex-direction: column;
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: ${props => props.theme.fontSizes.xl};
   }
 `;
 
 const WinnerAvatar = styled.div<{ color: string }>`
-  width: 70px;
-  height: 70px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   background-color: ${props => props.color};
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.75rem;
-  color: white;
+  font-size: ${props => props.theme.fontSizes.xxxl};
   font-weight: bold;
+  color: white;
+  margin-bottom: ${props => props.theme.space.md};
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
     width: 60px;
     height: 60px;
-    font-size: 1.5rem;
+    font-size: ${props => props.theme.fontSizes.xl};
   }
 `;
 
-const WinnerStats = styled.div`
-  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
-    margin-top: 1rem;
-  }
-`;
-
-const WinnerName = styled.div`
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 0.25rem;
-`;
-
-const WinnerScore = styled.div`
-  font-size: 1.1rem;
-  opacity: 0.8;
-`;
-
-const StatGrid = styled.div`
+const StatsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 1rem;
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-`;
-
-const StatCard = styled.div`
-  background-color: rgba(20, 20, 20, 0.5);
-  border-radius: 10px;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-`;
-
-const StatIcon = styled.div`
-  background-color: rgba(233, 69, 96, 0.2);
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 0.75rem;
-  
-  svg {
-    color: ${props => props.theme.colors.highlight};
-    font-size: 1.25rem;
-  }
-`;
-
-const StatLabel = styled.div`
-  font-size: 0.8rem;
-  opacity: 0.7;
-  margin-bottom: 0.25rem;
-`;
-
-const StatValue = styled.div`
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: ${props => props.theme.colors.text};
-`;
-
-const PlayerListHeader = styled.h3`
-  margin: 1.5rem 0 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  
-  svg {
-    color: ${props => props.theme.colors.highlight};
-  }
-`;
-
-const PlayerList = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(2, minmax(250px, 1fr));
+  gap: ${props => props.theme.space.lg};
+  margin: ${props => props.theme.space.xl} 0;
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
     grid-template-columns: 1fr;
+    gap: ${props => props.theme.space.md};
+    margin: ${props => props.theme.space.md} 0;
   }
 `;
 
-const PlayerCard = styled(motion.div)<{ $isWinner?: boolean }>`
-  background-color: ${props => props.$isWinner ? 'rgba(233, 69, 96, 0.15)' : 'rgba(30, 30, 30, 0.5)'};
-  border-radius: 12px;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  border: ${props => props.$isWinner ? '1px solid rgba(233, 69, 96, 0.3)' : 'none'};
-`;
-
-const PlayerHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-`;
-
-const PlayerDot = styled.div<{ color: string }>`
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background-color: ${props => props.color};
+const StatCard = styled(Card)`
+  text-align: center;
+  padding: ${props => props.theme.space.md};
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    width: 20px;
-    height: 20px;
+    padding: ${props => props.theme.space.sm};
   }
 `;
 
-const PlayerDetails = styled.div`
-  flex: 1;
+const StatValue = styled.div`
+  font-family: ${props => props.theme.fonts.monospace};
+  font-size: ${props => props.theme.fontSizes.xxl};
+  font-weight: bold;
+  color: ${props => props.theme.colors.highlight};
+  margin: ${props => props.theme.space.md} 0;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: ${props => props.theme.fontSizes.xl};
+    margin: ${props => props.theme.space.sm} 0;
+  }
+`;
+
+const PlayersStatsTable = styled.div`
+  margin-top: ${props => props.theme.space.xl};
+  overflow-x: auto;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    margin-top: ${props => props.theme.space.lg};
+  }
+`;
+
+// Desktop version of the player row (used for larger screens)
+const PlayerRow = styled.div<{ $winner: boolean }>`
+  display: grid;
+  grid-template-columns: auto 1fr repeat(6, auto);
+  gap: ${props => props.theme.space.md};
+  align-items: center;
+  padding: ${props => props.theme.space.md};
+  background-color: ${props => 
+    props.$winner 
+      ? 'rgba(76, 175, 80, 0.1)' 
+      : 'rgba(255, 255, 255, 0.05)'
+  };
+  border-left: 4px solid ${props => 
+    props.$winner 
+      ? props.theme.colors.success 
+      : 'transparent'
+  };
+  border-radius: ${props => props.theme.borderRadius.md};
+  margin-bottom: ${props => props.theme.space.sm};
+  
+  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
+    display: none; /* Hide on mobile and show mobile version instead */
+  }
+`;
+
+// Mobile version of the player row with expandable details
+const MobilePlayerRow = styled.div<{ $winner: boolean }>`
+  display: none; /* Hidden on desktop */
+  background-color: ${props => 
+    props.$winner 
+      ? 'rgba(76, 175, 80, 0.1)' 
+      : 'rgba(255, 255, 255, 0.05)'
+  };
+  border-left: 4px solid ${props => 
+    props.$winner 
+      ? props.theme.colors.success 
+      : 'transparent'
+  };
+  border-radius: ${props => props.theme.borderRadius.md};
+  margin-bottom: ${props => props.theme.space.sm};
+  overflow: hidden;
+  
+  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
+    display: block;
+  }
+`;
+
+const MobilePlayerHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: ${props => props.theme.space.md};
+  cursor: pointer;
+`;
+
+const MobilePlayerInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${props => props.theme.space.sm};
+`;
+
+const MobilePlayerDetails = styled.div<{ $expanded: boolean }>`
+  padding: ${props => props.$expanded ? props.theme.space.md : 0};
+  max-height: ${props => props.$expanded ? '500px' : '0'};
+  opacity: ${props => props.$expanded ? 1 : 0};
+  transition: all 0.3s ease-in-out;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.2);
+`;
+
+const MobileStatsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: ${props => props.theme.space.xs};
+`;
+
+const MobileStatItem = styled.div`
+  padding: ${props => props.theme.space.xs};
+`;
+
+const MobileStat = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: ${props => props.theme.space.xs};
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: ${props => props.theme.borderRadius.sm};
+`;
+
+const MobileStatLabel = styled.div`
+  font-size: ${props => props.theme.fontSizes.xs};
+  opacity: 0.7;
+`;
+
+const MobileStatValue = styled.div`
+  font-weight: bold;
+`;
+
+const PlayerColor = styled.div<{ color: string }>`
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: ${props => props.color};
 `;
 
 const PlayerName = styled.div`
-  font-weight: bold;
+  font-weight: 500;
 `;
 
-const PlayerRank = styled.div`
-  font-size: 0.8rem;
-  opacity: 0.7;
-`;
-
-const PlayerScoreGrid = styled.div`
+const StatHeader = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-top: 0.5rem;
-`;
-
-const DartTypeStat = styled.div`
-  font-size: 0.8rem;
-  display: flex;
-  flex-direction: column;
+  grid-template-columns: auto 1fr repeat(6, auto);
+  gap: ${props => props.theme.space.md};
   align-items: center;
-  background-color: rgba(20, 20, 20, 0.5);
-  border-radius: 6px;
-  padding: 4px;
-`;
-
-const DartTypeLabel = styled.div`
+  padding: ${props => props.theme.space.sm} ${props => props.theme.space.md};
+  font-weight: 500;
+  font-size: ${props => props.theme.fontSizes.sm};
+  color: ${props => props.theme.colors.text};
   opacity: 0.7;
-  margin-bottom: 2px;
-`;
-
-const DartTypeValue = styled.div`
-  font-weight: bold;
-`;
-
-const ScoresTable = styled.div`
-  display: grid;
-  grid-template-columns: auto repeat(9, 1fr);
-  gap: 4px;
-  margin: 1rem 0;
-  font-size: 0.9rem;
   
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    font-size: 0.75rem;
+  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
+    display: none; /* Hide header on mobile */
   }
 `;
 
-const ScoreHeader = styled.div`
-  background-color: rgba(20, 20, 20, 0.7);
-  padding: 8px 4px;
+const StatCell = styled.div`
+  font-family: ${props => props.theme.fonts.monospace};
+  font-weight: 500;
   text-align: center;
-  border-radius: 4px;
-  font-weight: bold;
-`;
-
-const ScoreSegment = styled(ScoreHeader)<{ $isHighest?: boolean }>`
-  background-color: ${props => props.$isHighest ? 'rgba(233, 69, 96, 0.2)' : 'rgba(20, 20, 20, 0.5)'};
-  color: ${props => props.$isHighest ? props.theme.colors.highlight : props.theme.colors.text};
-  font-weight: ${props => props.$isHighest ? 'bold' : 'normal'};
-`;
-
-const ScoreTotal = styled(ScoreHeader)`
-  font-weight: bold;
+  min-width: 60px;
 `;
 
 const ButtonGroup = styled.div`
   display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
+  gap: ${props => props.theme.space.md};
+  margin-top: ${props => props.theme.space.xl};
   
-  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
     flex-direction: column;
-    gap: 0.5rem;
+    gap: ${props => props.theme.space.sm};
+    margin-top: ${props => props.theme.space.md};
   }
 `;
 
-// Main component
-const ShanghaiGameSummaryScreen: React.FC = () => {
-  const navigate = useNavigate();
-  const { state, dispatch } = useGameContext();
-  const [currentDate] = useState(new Date());
-  
-  // Format current date
-  const formattedDate = new Intl.DateTimeFormat('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }).format(currentDate);
-  
-  // Sort players by score
-  const sortedPlayers = [...state.players].sort((a, b) => (b.score || 0) - (a.score || 0));
-  const winner = sortedPlayers[0];
-  
-  // Helper function to get the segment score for a player from their throws
-  const getSegmentScore = (player: any, segment: number): number => {
-    if (player.shanghaiSegmentScores && player.shanghaiSegmentScores[segment]) {
-      return player.shanghaiSegmentScores[segment];
-    }
-    return 0;
+const SegmentBadge = styled.span`
+  display: inline-block;
+  background-color: rgba(233, 69, 96, 0.2);
+  color: ${props => props.theme.colors.highlight};
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin-left: ${props => props.theme.space.sm};
+  font-size: 0.8rem;
+`;
+
+// Chart showing segments 1-9 with success indicators
+const SegmentChart = styled.div`
+  display: flex;
+  gap: 4px;
+  margin-top: ${props => props.theme.space.sm};
+  justify-content: center;
+`;
+
+const SegmentBlock = styled.div<{ $active: boolean; $score: number }>`
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  background-color: ${props => props.$active 
+    ? props.$score > 0 
+      ? `rgba(76, 175, 80, ${Math.min(1, props.$score / 20)})`
+      : 'rgba(255, 255, 255, 0.1)'
+    : 'rgba(255, 255, 255, 0.05)'
   };
+  color: ${props => props.theme.colors.text};
   
-  // Calculate game statistics
-  const calculateGameStats = () => {
-    const totalDarts = state.players.reduce((sum, player) => sum + player.throws.flat().length, 0);
-    const totalScore = state.players.reduce((sum, player) => sum + (player.score || 0), 0);
-    const highestSegmentScore = state.players.reduce((highest, player) => {
-      if (!player.shanghaiSegmentScores) return highest;
-      
-      const playerHighest = Object.values(player.shanghaiSegmentScores).reduce(
-        (max, score) => Math.max(max, score), 0
-      );
-      return Math.max(highest, playerHighest);
-    }, 0);
-    
-    return {
-      totalDarts,
-      totalScore,
-      highestSegmentScore
-    };
-  };
+  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+`;
+
+// Component for Mobile Player Row with expandable details
+interface MobilePlayerRowProps {
+  player: any;
+  isWinner: boolean;
+}
+
+const MobilePlayerRowComponent: React.FC<MobilePlayerRowProps> = ({ player, isWinner }) => {
+  const [expanded, setExpanded] = useState(false);
   
-  // Handle navigating back to the games screen
-  const handleBackToGames = () => {
-    navigate('/games');
-  };
-  
-  // Handle starting a new game with the same players
-  const handlePlayAgain = () => {
-    dispatch({ type: 'RESET_GAME' });
-    dispatch({
-      type: 'START_GAME',
-      gameType: 'shanghai',
-      gameOptions: state.gameOptions
-    });
-    navigate('/shanghai');
-  };
-  
-  // Handle going back home
-  const handleGoHome = () => {
-    navigate('/');
-  };
-  
-  // Get the best segment for a player (segment with highest score)
-  const getBestSegment = (player: any): number => {
+  // Get the player's best segment
+  const getBestSegment = (): number => {
     if (!player.shanghaiSegmentScores) return 0;
     
     let bestSegment = 0;
     let highestScore = 0;
     
     Object.entries(player.shanghaiSegmentScores).forEach(([segment, score]) => {
-      if (score > highestScore) {
-        highestScore = score as number;
+      if (Number(score) > highestScore) {
+        highestScore = Number(score);
         bestSegment = parseInt(segment);
       }
     });
     
     return bestSegment;
+  };
+  
+  // Calculate segment completion rate
+  const getCompletedSegments = (): number => {
+    if (!player.shanghaiSegmentScores) return 0;
+    return Object.keys(player.shanghaiSegmentScores).length;
+  };
+  
+  // Get hit statistics
+  const getHitStatistics = () => {
+    return {
+      singlesHit: player.singlesHit || 0,
+      doublesHit: player.doublesHit || 0,
+      triplesHit: player.triplesHit || 0
+    };
+  };
+  
+  const stats = getHitStatistics();
+  const bestSegment = getBestSegment();
+  const completedSegments = getCompletedSegments();
+  
+  return (
+    <MobilePlayerRow $winner={isWinner}>
+      <MobilePlayerHeader onClick={() => setExpanded(!expanded)}>
+        <MobilePlayerInfo>
+          <PlayerColor color={player.color} />
+          <PlayerName>{player.name} {isWinner && '🏆'}</PlayerName>
+          <div>{player.score} pts</div>
+        </MobilePlayerInfo>
+        {expanded ? <FiChevronUp /> : <FiChevronDown />}
+      </MobilePlayerHeader>
+      
+      <MobilePlayerDetails $expanded={expanded}>
+        <MobileStatsGrid>
+          <MobileStatItem>
+            <MobileStat>
+              <MobileStatLabel>Singles Hit</MobileStatLabel>
+              <MobileStatValue>{stats.singlesHit}</MobileStatValue>
+            </MobileStat>
+          </MobileStatItem>
+          <MobileStatItem>
+            <MobileStat>
+              <MobileStatLabel>Doubles Hit</MobileStatLabel>
+              <MobileStatValue>{stats.doublesHit}</MobileStatValue>
+            </MobileStat>
+          </MobileStatItem>
+          <MobileStatItem>
+            <MobileStat>
+              <MobileStatLabel>Triples Hit</MobileStatLabel>
+              <MobileStatValue>{stats.triplesHit}</MobileStatValue>
+            </MobileStat>
+          </MobileStatItem>
+          <MobileStatItem>
+            <MobileStat>
+              <MobileStatLabel>Completed Segments</MobileStatLabel>
+              <MobileStatValue>{completedSegments}/9</MobileStatValue>
+            </MobileStat>
+          </MobileStatItem>
+          <MobileStatItem>
+            <MobileStat>
+              <MobileStatLabel>Best Segment</MobileStatLabel>
+              <MobileStatValue>
+                {bestSegment > 0 ? bestSegment : '-'}
+                {bestSegment > 0 && player.shanghaiSegmentScores && 
+                  ` (${player.shanghaiSegmentScores[bestSegment]} pts)`}
+              </MobileStatValue>
+            </MobileStat>
+          </MobileStatItem>
+          <MobileStatItem>
+            <MobileStat>
+              <MobileStatLabel>Total Darts</MobileStatLabel>
+              <MobileStatValue>{player.throws.flat().length}</MobileStatValue>
+            </MobileStat>
+          </MobileStatItem>
+        </MobileStatsGrid>
+        
+        {/* Segment chart showing which segments were hit */}
+        <div style={{ marginTop: '10px' }}>
+          <MobileStatLabel style={{ marginBottom: '5px' }}>Segment Progress</MobileStatLabel>
+          <SegmentChart>
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(segment => {
+              const score = player.shanghaiSegmentScores && player.shanghaiSegmentScores[segment] 
+                ? player.shanghaiSegmentScores[segment] 
+                : 0;
+              return (
+                <SegmentBlock 
+                  key={segment} 
+                  $active={score > 0} 
+                  $score={score}
+                >
+                  {segment}
+                </SegmentBlock>
+              );
+            })}
+          </SegmentChart>
+        </div>
+      </MobilePlayerDetails>
+    </MobilePlayerRow>
+  );
+};
+
+const ShanghaiGameSummaryScreen: React.FC = () => {
+  const navigate = useNavigate();
+  const { state, dispatch } = useGameContext();
+  
+  // Check if there's a winner, if not redirect
+  useEffect(() => {
+    if (!state.winner) {
+      navigate('/games');
+    }
+  }, [state.winner, navigate]);
+  
+  // Go to home screen
+  const handleGoHome = () => {
+    dispatch({ type: 'RESET_GAME' });
+    navigate('/');
+  };
+  
+  // Start a new game with same settings
+  const handleNewGame = () => {
+    dispatch({
+      type: 'START_GAME',
+      gameType: 'shanghai',
+      gameOptions: state.gameOptions
+    });
+    navigate('/games/shanghai');
+  };
+  
+  // Go back to game hub
+  const handleGameHub = () => {
+    dispatch({ type: 'RESET_GAME' });
+    navigate('/games');
   };
   
   // Animation variants
@@ -393,191 +491,247 @@ const ShanghaiGameSummaryScreen: React.FC = () => {
     }
   };
   
-  const itemVariants = {
+  const childVariants = {
     hidden: { y: 20, opacity: 0 },
     visible: { y: 0, opacity: 1 }
   };
   
-  // Game statistics
+  // Calculate total game statistics
+  const calculateGameStats = () => {
+    let totalDarts = 0;
+    let totalSingles = 0;
+    let totalDoubles = 0;
+    let totalTriples = 0;
+    let highestSegmentScore = 0;
+    let highestTotalScore = 0;
+    let segmentsHit = 0;
+    let totalShanghais = 0;
+    
+    state.players.forEach(player => {
+      const darts = player.throws.flat();
+      totalDarts += darts.length;
+      totalSingles += player.singlesHit || 0;
+      totalDoubles += player.doublesHit || 0;
+      totalTriples += player.triplesHit || 0;
+      
+      // Track highest scores
+      if (player.score > highestTotalScore) {
+        highestTotalScore = player.score;
+      }
+      
+      // Track highest segment score
+      if (player.shanghaiSegmentScores) {
+        Object.values(player.shanghaiSegmentScores).forEach(score => {
+          if (Number(score) > highestSegmentScore) {
+            highestSegmentScore = Number(score);
+          }
+        });
+        
+        // Count total shanghais (all segments hit in one turn, i.e, a single, double, and triple)
+        if (player.singlesHit && player.doublesHit && player.triplesHit) {
+          totalShanghais += 1;
+        }
+        
+        // Count total unique segments hit across all players
+        segmentsHit += Object.keys(player.shanghaiSegmentScores).length;
+      }
+    });
+        
+    return {
+      totalDarts,
+      totalSingles,
+      totalDoubles,
+      totalTriples,
+      highestSegmentScore,
+      highestTotalScore,
+      totalShanghais,
+    };
+  };
+  
+  // Get the best segment for a player
+  const getBestSegment = (player: any): number => {
+    if (!player.shanghaiSegmentScores) return 0;
+    
+    let bestSegment = 0;
+    let highestScore = 0;
+    
+    Object.entries(player.shanghaiSegmentScores).forEach(([segment, score]) => {
+      if (Number(score) > highestScore) {
+        highestScore = Number(score);
+        bestSegment = parseInt(segment);
+      }
+    });
+    
+    return bestSegment;
+  };
+  
+  // Calculate segment completion rate
+  const getCompletedSegments = (player: any): number => {
+    if (!player.shanghaiSegmentScores) return 0;
+    return Object.keys(player.shanghaiSegmentScores).length;
+  };
+  
   const gameStats = calculateGameStats();
+  
+  if (!state.winner) return null;
+  
+  // Sort players by score (highest first)
+  const sortedPlayers = [...state.players].sort((a, b) => (b.score || 0) - (a.score || 0));
   
   return (
     <Layout>
-      <SummaryContainer
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <HeaderBar>
-          <Title>
-            <FiBarChart2 />
-            <span>Game Summary</span>
-          </Title>
-          <Button
-            variant="text"
-            startIcon={<FiArrowLeft />}
-            onClick={handleBackToGames}
-          >
-            Back to Games
-          </Button>
-        </HeaderBar>
-        
-        <SummaryHeader>
-          <motion.div variants={itemVariants}>
-            <GameTitle>Shanghai Game</GameTitle>
-            <GameDate>{formattedDate}</GameDate>
-          </motion.div>
-        </SummaryHeader>
-        
-        {/* Winner Section */}
-        {winner && (
-          <WinnerCard variants={itemVariants}>
-            <WinnerInfo>
-              <WinnerAvatar color={winner.color}>
-                {winner.name.charAt(0).toUpperCase()}
-              </WinnerAvatar>
-              <div>
-                <WinnerName>{winner.name} Wins!</WinnerName>
-                <WinnerScore>Score: {winner.score} points</WinnerScore>
-              </div>
-            </WinnerInfo>
-            
-            <WinnerStats>
-              <StatGrid>
-                <StatCard>
-                  <StatLabel>Singles</StatLabel>
-                  <StatValue>{winner.singlesHit || 0}</StatValue>
-                </StatCard>
-                <StatCard>
-                  <StatLabel>Doubles</StatLabel>
-                  <StatValue>{winner.doublesHit || 0}</StatValue>
-                </StatCard>
-                <StatCard>
-                  <StatLabel>Triples</StatLabel>
-                  <StatValue>{winner.triplesHit || 0}</StatValue>
-                </StatCard>
-              </StatGrid>
-            </WinnerStats>
-          </WinnerCard>
-        )}
-        
-        {/* Game Statistics */}
-        <motion.div variants={itemVariants}>
-          <PlayerListHeader>
-            <FiTrendingUp />
-            <span>Game Statistics</span>
-          </PlayerListHeader>
+      <Container>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <SummaryHeader>
+            <TrophyIcon />
+            <PageTitle>Shanghai Game Summary</PageTitle>
+          </SummaryHeader>
           
-          <StatGrid>
-            <StatCard>
-              <StatIcon>
-                <FiTarget />
-              </StatIcon>
-              <StatLabel>Total Darts</StatLabel>
-              <StatValue>{gameStats.totalDarts}</StatValue>
-            </StatCard>
-            <StatCard>
-              <StatIcon>
-                <FiBarChart2 />
-              </StatIcon>
-              <StatLabel>Total Score</StatLabel>
-              <StatValue>{gameStats.totalScore}</StatValue>
-            </StatCard>
-            <StatCard>
-              <StatIcon>
-                <FiTrendingUp />
-              </StatIcon>
-              <StatLabel>Highest Segment Score</StatLabel>
-              <StatValue>{gameStats.highestSegmentScore}</StatValue>
-            </StatCard>
-          </StatGrid>
-        </motion.div>
-        
-        {/* All Players */}
-        <motion.div variants={itemVariants}>
-          <PlayerListHeader>
-            <FiTarget />
-            <span>All Players</span>
-          </PlayerListHeader>
+          <WinnerSection as={motion.div} variants={childVariants}>
+            <WinnerAvatar color={state.winner.color}>
+              {state.winner.name.charAt(0).toUpperCase()}
+            </WinnerAvatar>
+            <WinnerName>{state.winner.name} Wins!</WinnerName>
+            <p>With {state.winner.score} points after all 9 segments</p>
+          </WinnerSection>
           
-          <PlayerList>
-            {sortedPlayers.map((player, index) => {
-              const isWinner = player.id === winner?.id;
-              const bestSegment = getBestSegment(player);
+          <motion.div variants={childVariants}>
+            <Card>
+              <Card.Header>
+                <Card.Title>Game Statistics</Card.Title>
+                <Card.Subtitle>Shanghai with {state.players.length} players</Card.Subtitle>
+              </Card.Header>
               
-              return (
-                <PlayerCard 
-                  key={player.id} 
-                  $isWinner={isWinner}
-                  variants={itemVariants}
-                >
-                  <PlayerHeader>
-                    <PlayerDot color={player.color} />
-                    <PlayerDetails>
-                      <PlayerName>{player.name}</PlayerName>
-                      <PlayerRank>Rank: #{index + 1} - {player.score || 0} points</PlayerRank>
-                    </PlayerDetails>
-                  </PlayerHeader>
+              <Card.Content>
+                <StatsGrid>
+                  <StatCard>
+                    <h3>Total Shanghais</h3>
+                    <StatValue>{gameStats.totalShanghais}</StatValue>
+                    <p>
+                      How many times a player hit all parts of a segment in one turn
+                    </p>
+                  </StatCard>
+                  <StatCard>
+                    <h3>Highest Score</h3>
+                    <StatValue>{gameStats.highestTotalScore}</StatValue>
+                    <p>Achieved by {state.winner.name}</p>
+                  </StatCard>
+                  <StatCard>
+                    <h3>Darts Thrown</h3>
+                    <StatValue>{gameStats.totalDarts}</StatValue>
+                    <p>Total darts thrown in game</p>
+                  </StatCard>
+                  <StatCard>
+                    <h3>Highest Segment Score</h3>
+                    <StatValue>{gameStats.highestSegmentScore}</StatValue>
+                    <p>Highest score achieved in any segment</p>
+                  </StatCard>
+                </StatsGrid>
+                
+                <StatCard>
+                  <h3>Dart Accuracy</h3>
+                  <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '1rem' }}>
+                    <div>
+                      <h4>Singles</h4>
+                      <StatValue>{gameStats.totalSingles}</StatValue>
+                    </div>
+                    <div>
+                      <h4>Doubles</h4>
+                      <StatValue>{gameStats.totalDoubles}</StatValue>
+                    </div>
+                    <div>
+                      <h4>Triples</h4>
+                      <StatValue>{gameStats.totalTriples}</StatValue>
+                    </div>
+                  </div>
+                </StatCard>
+                
+                <PlayersStatsTable>
+                  {/* Desktop version of the table with header */}
+                  <StatHeader>
+                    <div></div>
+                    <div>Player</div>
+                    <StatCell>Total Score</StatCell>
+                    <StatCell>Singles</StatCell>
+                    <StatCell>Doubles</StatCell>
+                    <StatCell>Triples</StatCell>
+                    <StatCell>Segments</StatCell>
+                    <StatCell>Best Segment</StatCell>
+                  </StatHeader>
                   
-                  <PlayerScoreGrid>
-                    <DartTypeStat>
-                      <DartTypeLabel>Singles</DartTypeLabel>
-                      <DartTypeValue>{player.singlesHit || 0}</DartTypeValue>
-                    </DartTypeStat>
-                    <DartTypeStat>
-                      <DartTypeLabel>Doubles</DartTypeLabel>
-                      <DartTypeValue>{player.doublesHit || 0}</DartTypeValue>
-                    </DartTypeStat>
-                    <DartTypeStat>
-                      <DartTypeLabel>Triples</DartTypeLabel>
-                      <DartTypeValue>{player.triplesHit || 0}</DartTypeValue>
-                    </DartTypeStat>
-                  </PlayerScoreGrid>
-                  
-                  <ScoresTable>
-                    <ScoreHeader>Segment</ScoreHeader>
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(segment => (
-                      <ScoreSegment 
-                        key={segment} 
-                        $isHighest={bestSegment === segment && getSegmentScore(player, segment) > 0}
-                      >
-                        {segment}
-                      </ScoreSegment>
-                    ))}
+                  {/* Desktop rows */}
+                  {sortedPlayers.map(player => {
+                    const isWinner = player.id === state.winner?.id;
+                    const bestSegment = getBestSegment(player);
+                    const completedSegments = getCompletedSegments(player);
                     
-                    <ScoreHeader>Score</ScoreHeader>
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(segment => (
-                      <ScoreSegment 
-                        key={`score-${segment}`}
-                        $isHighest={bestSegment === segment && getSegmentScore(player, segment) > 0}
-                      >
-                        {getSegmentScore(player, segment)}
-                      </ScoreSegment>
-                    ))}
-                  </ScoresTable>
-                </PlayerCard>
-              );
-            })}
-          </PlayerList>
+                    return (
+                      <PlayerRow key={`desktop-${player.id}`} $winner={isWinner}>
+                        <PlayerColor color={player.color} />
+                        <PlayerName>{player.name} {isWinner && '🏆'}</PlayerName>
+                        <StatCell>{player.score || 0}</StatCell>
+                        <StatCell>{player.singlesHit || 0}</StatCell>
+                        <StatCell>{player.doublesHit || 0}</StatCell>
+                        <StatCell>{player.triplesHit || 0}</StatCell>
+                        <StatCell>{completedSegments}/9</StatCell>
+                        <StatCell>
+                          {bestSegment || '-'}
+                          {bestSegment > 0 && player.shanghaiSegmentScores && 
+                            <SegmentBadge>{player.shanghaiSegmentScores[bestSegment]} pts</SegmentBadge>}
+                        </StatCell>
+                      </PlayerRow>
+                    );
+                  })}
+                  
+                  {/* Mobile version of the table with expandable rows */}
+                  {sortedPlayers.map(player => {
+                    const isWinner = player.id === state.winner?.id;
+                    return (
+                      <MobilePlayerRowComponent 
+                        key={`mobile-${player.id}`}
+                        player={player}
+                        isWinner={isWinner}
+                      />
+                    );
+                  })}
+                </PlayersStatsTable>
+              </Card.Content>
+              
+              <Card.Footer>
+                <ButtonGroup>
+                  <Button 
+                    variant="outline"
+                    onClick={handleGoHome}
+                    startIcon={<FiHome />}
+                    fullWidth
+                  >
+                    Home
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={handleGameHub}
+                    startIcon={<FiArrowRight />}
+                    fullWidth
+                  >
+                    Game Hub
+                  </Button>
+                  <Button 
+                    onClick={handleNewGame}
+                    startIcon={<FiRepeat />}
+                    fullWidth
+                  >
+                    Play Again
+                  </Button>
+                </ButtonGroup>
+              </Card.Footer>
+            </Card>
+          </motion.div>
         </motion.div>
-        
-        {/* Actions */}
-        <ButtonGroup>
-          <Button
-            variant="outline"
-            startIcon={<FiHome />}
-            onClick={handleGoHome}
-          >
-            Home
-          </Button>
-          <Button
-            startIcon={<FiTarget />}
-            onClick={handlePlayAgain}
-          >
-            Play Again
-          </Button>
-        </ButtonGroup>
-      </SummaryContainer>
+      </Container>
     </Layout>
   );
 };
