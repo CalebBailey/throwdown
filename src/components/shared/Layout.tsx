@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link, useLocation } from 'react-router-dom';
-import { FiSettings, FiHome, FiGrid, FiUsers } from 'react-icons/fi';
+import { FiSettings, FiHome, FiGrid, FiUsers, FiMenu, FiX } from 'react-icons/fi';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -32,11 +32,29 @@ const Logo = styled.div`
   font-size: ${props => props.theme.fontSizes.xl};
   font-weight: 800;
   color: ${props => props.theme.colors.highlight};
+
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: ${props => props.theme.fontSizes.lg};
+  }
 `;
 
-const Navigation = styled.nav`
+const Navigation = styled.nav<{ $isOpen: boolean }>`
   display: flex;
   gap: ${props => props.theme.space.lg};
+
+  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
+    position: fixed;
+    top: 0;
+    right: ${props => props.$isOpen ? '0' : '-70%'};
+    flex-direction: column;
+    background-color: ${props => props.theme.colors.secondary};
+    height: 100vh;
+    width: 70%;
+    padding: ${props => props.theme.space.xl};
+    z-index: 20;
+    transition: right 0.3s ease;
+    box-shadow: ${props => props.$isOpen ? props.theme.shadows.lg : 'none'};
+  }
 `;
 
 const NavItem = styled(Link)<{ $active?: boolean }>`
@@ -57,6 +75,38 @@ const NavItem = styled(Link)<{ $active?: boolean }>`
   svg {
     font-size: 1.2em;
   }
+
+  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
+    padding: ${props => props.theme.space.md};
+    font-size: ${props => props.theme.fontSizes.lg};
+  }
+`;
+
+const MenuButton = styled.button`
+  display: none;
+  background: none;
+  border: none;
+  color: ${props => props.theme.colors.text};
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 30;
+  
+  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+`;
+
+const Overlay = styled.div<{ $isOpen: boolean }>`
+  display: ${props => props.$isOpen ? 'block' : 'none'};
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 15;
 `;
 
 const Main = styled.main`
@@ -65,6 +115,14 @@ const Main = styled.main`
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+
+  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
+    padding: ${props => props.theme.space.md};
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: ${props => props.theme.space.sm};
+  }
 `;
 
 const Footer = styled.footer`
@@ -73,10 +131,16 @@ const Footer = styled.footer`
   text-align: center;
   font-size: ${props => props.theme.fontSizes.sm};
   color: rgba(255, 255, 255, 0.6);
+
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: ${props => props.theme.space.sm};
+    font-size: ${props => props.theme.fontSizes.xs};
+  }
 `;
 
 export const Layout: React.FC<LayoutProps> = ({ children, hideNav = false }) => {
   const location = useLocation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   const isActive = (path: string): boolean => {
     if (path === '/' && location.pathname === '/') {
@@ -85,6 +149,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, hideNav = false }) => 
     return location.pathname.startsWith(path) && path !== '/';
   };
 
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const closeMenu = () => setIsMenuOpen(false);
+
   return (
     <LayoutContainer>
       {!hideNav && (
@@ -92,20 +159,24 @@ export const Layout: React.FC<LayoutProps> = ({ children, hideNav = false }) => 
           <Link to="/" style={{ textDecoration: 'none' }}>
             <Logo>THROWDOWN</Logo>
           </Link>
-          <Navigation>
-            <NavItem to="/" $active={isActive('/')}>
+          <MenuButton onClick={toggleMenu}>
+            {isMenuOpen ? <FiX /> : <FiMenu />}
+          </MenuButton>
+          <Overlay $isOpen={isMenuOpen} onClick={closeMenu} />
+          <Navigation $isOpen={isMenuOpen}>
+            <NavItem to="/" $active={isActive('/')} onClick={closeMenu}>
               <FiHome />
               Home
             </NavItem>
-            <NavItem to="/games" $active={isActive('/games')}>
+            <NavItem to="/games" $active={isActive('/games')} onClick={closeMenu}>
               <FiGrid />
               Games
             </NavItem>
-            <NavItem to="/players" $active={isActive('/players')}>
+            <NavItem to="/players" $active={isActive('/players')} onClick={closeMenu}>
               <FiUsers />
               Players
             </NavItem>
-            <NavItem to="/settings" $active={isActive('/settings')}>
+            <NavItem to="/settings" $active={isActive('/settings')} onClick={closeMenu}>
               <FiSettings />
               Settings
             </NavItem>

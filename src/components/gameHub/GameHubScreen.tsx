@@ -12,16 +12,31 @@ import { GameType, GameOptions, KillerOptions } from '../../context/GameContext'
 const Container = styled.div`
   max-width: 1000px;
   margin: 0 auto;
+  padding: 0 ${props => props.theme.space.sm};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: 0 ${props => props.theme.space.xs};
+  }
 `;
 
 const PageTitle = styled.h1`
   margin-bottom: ${props => props.theme.space.lg};
   color: ${props => props.theme.colors.text};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    margin-bottom: ${props => props.theme.space.md};
+    font-size: 1.75rem;
+  }
 `;
 
 const PlayerList = styled.div`
   margin-top: ${props => props.theme.space.lg};
   margin-bottom: ${props => props.theme.space.lg};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    margin-top: ${props => props.theme.space.md};
+    margin-bottom: ${props => props.theme.space.md};
+  }
 `;
 
 const PlayerRow = styled.div`
@@ -33,6 +48,11 @@ const PlayerRow = styled.div`
   
   &:last-child {
     border-bottom: none;
+  }
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    gap: ${props => props.theme.space.sm};
+    padding: ${props => props.theme.space.xs} 0;
   }
 `;
 
@@ -50,10 +70,17 @@ const NumberInput = styled.input`
   color: ${props => props.theme.colors.text};
   font-size: ${props => props.theme.fontSizes.md};
   text-align: center;
+  width: 100%;
+  padding: ${props => props.theme.space.sm};
   
   &:focus {
     outline: none;
     border-color: ${props => props.theme.colors.highlight};
+  }
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: ${props => props.theme.fontSizes.sm};
+    padding: ${props => props.theme.space.xs};
   }
 `;
 
@@ -64,12 +91,22 @@ const SettingsLabel = styled.h2`
   margin-bottom: ${props => props.theme.space.md};
   color: ${props => props.theme.colors.text};
   font-size: ${props => props.theme.fontSizes.lg};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: ${props => props.theme.fontSizes.md};
+    margin-bottom: ${props => props.theme.space.sm};
+  }
 `;
 
 const SettingsGrid = styled.div`
   display: grid;
   gap: ${props => props.theme.space.md};
   margin-bottom: ${props => props.theme.space.lg};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    gap: ${props => props.theme.space.sm};
+    margin-bottom: ${props => props.theme.space.md};
+  }
 `;
 
 const GameModeRow = styled.div`
@@ -77,6 +114,34 @@ const GameModeRow = styled.div`
   grid-template-columns: repeat(5, 1fr);
   gap: ${props => props.theme.space.sm};
   margin-bottom: ${props => props.theme.space.md};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-areas:
+      "bestof firstto"
+      "numberinput numberinput"
+      "legs sets";
+    gap: ${props => props.theme.space.xs};
+    margin-bottom: ${props => props.theme.space.sm};
+    
+    & > button:nth-child(1) {
+      grid-area: bestof;
+    }
+    & > button:nth-child(2) {
+      grid-area: firstto;
+    }
+    & > input:nth-child(3) {
+      grid-area: numberinput;
+      max-width: none;
+      width: 100%;
+    }
+    & > button:nth-child(4) {
+      grid-area: legs;
+    }
+    & > button:nth-child(5) {
+      grid-area: sets;
+    }
+  }
 `;
 
 const GameModeRow4 = styled.div`
@@ -84,6 +149,12 @@ const GameModeRow4 = styled.div`
   grid-template-columns: repeat(4, 1fr);
   gap: ${props => props.theme.space.sm};
   margin-bottom: ${props => props.theme.space.md};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: ${props => props.theme.space.xs};
+    margin-bottom: ${props => props.theme.space.sm};
+  }
 `;
 
 const GameModeRow3 = styled.div`
@@ -91,6 +162,12 @@ const GameModeRow3 = styled.div`
   grid-template-columns: repeat(3, 1fr);
   gap: ${props => props.theme.space.sm};
   margin-bottom: ${props => props.theme.space.md};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    grid-template-columns: 1fr;
+    gap: ${props => props.theme.space.xs};
+    margin-bottom: ${props => props.theme.space.sm};
+  }
 `;
 
 const GameOptionButton = styled.button<{ $active: boolean }>`
@@ -103,9 +180,19 @@ const GameOptionButton = styled.button<{ $active: boolean }>`
   font-weight: ${props => props.$active ? 'bold' : 'normal'};
   cursor: pointer;
   transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   
   &:hover {
     background-color: ${props => !props.$active && 'rgba(255, 255, 255, 0.2)'};
+  }
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: ${props => props.theme.space.sm};
+    font-size: ${props => props.theme.fontSizes.sm};
+    min-height: 48px; /* Ensure good touch target size */
   }
 `;
 
@@ -114,6 +201,7 @@ const CustomScoreInput = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100%;
 
   input {
     background-color: rgba(255, 255, 255, 0.1);
@@ -130,6 +218,12 @@ const CustomScoreInput = styled.div`
       outline: none;
       border-color: ${props => props.theme.colors.highlight};
     }
+    
+    @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+      width: 100%;
+      max-width: 120px;
+      font-size: ${props => props.theme.fontSizes.sm};
+    }
   }
 
   span {
@@ -144,6 +238,11 @@ const ToggleRow = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: ${props => props.theme.space.sm} 0;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: ${props => props.theme.space.xs} 0;
+    font-size: ${props => props.theme.fontSizes.sm};
+  }
 `;
 
 const ToggleSwitch = styled.div<{ $on: boolean }>`
@@ -166,6 +265,17 @@ const ToggleSwitch = styled.div<{ $on: boolean }>`
     border-radius: 50%;
     transition: left 0.2s ease;
   }
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    width: 42px;
+    height: 22px;
+    
+    &:after {
+      width: 18px;
+      height: 18px;
+      left: ${props => props.$on ? '22px' : '2px'};
+    }
+  }
 `;
 
 const StartGameButton = styled(Button)`
@@ -173,6 +283,12 @@ const StartGameButton = styled(Button)`
   padding: ${props => props.theme.space.md};
   font-size: ${props => props.theme.fontSizes.lg};
   margin-top: ${props => props.theme.space.md};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: ${props => props.theme.space.sm};
+    font-size: ${props => props.theme.fontSizes.md};
+    margin-top: ${props => props.theme.space.sm};
+  }
 `;
 
 // New Game Type Tab Component
@@ -181,6 +297,10 @@ const GameTypeTabs = styled.div`
   gap: 1px;
   margin-bottom: ${props => props.theme.space.md};
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    margin-bottom: ${props => props.theme.space.sm};
+  }
 `;
 
 const GameTypeTab = styled.button<{ $active: boolean }>`
@@ -200,6 +320,23 @@ const GameTypeTab = styled.button<{ $active: boolean }>`
   &:hover {
     background-color: ${props => !props.$active && 'rgba(255, 255, 255, 0.05)'};
   }
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: ${props => props.theme.space.sm} ${props => props.theme.space.xs};
+    gap: ${props => props.theme.space.xs};
+    font-size: ${props => props.theme.fontSizes.sm};
+    
+    /* Show only icon on very small screens */
+    span {
+      display: none;
+    }
+  }
+`;
+
+const TabText = styled.span`
+  @media (max-width: 360px) {
+    display: none; /* Hide text on very small screens */
+  }
 `;
 
 // Game Category
@@ -211,6 +348,12 @@ const GameSelectionArea = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: ${props => props.theme.space.md};
   margin-bottom: ${props => props.theme.space.lg};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    grid-template-columns: 1fr;
+    gap: ${props => props.theme.space.sm};
+    margin-bottom: ${props => props.theme.space.md};
+  }
 `;
 
 const GameCard = styled(motion.div)<{ $active: boolean }>`
@@ -223,8 +366,11 @@ const GameCard = styled(motion.div)<{ $active: boolean }>`
   align-items: center;
   text-align: center;
   height: 100%;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: ${props => props.theme.space.sm};
+  }
 `;
-
 
 const LivesSetting = styled(motion.div)<{ $active: boolean }>`
   background-color: ${props => props.$active ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.1)'};
@@ -236,11 +382,20 @@ const LivesSetting = styled(motion.div)<{ $active: boolean }>`
   align-items: center;
   text-align: center;
   height: 100%;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: ${props => props.theme.space.sm};
+  }
 `;
 
 const GameIcon = styled.div`
   font-size: 2.5rem;
   margin-bottom: ${props => props.theme.space.sm};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: 2rem;
+    margin-bottom: ${props => props.theme.space.xs};
+  }
 `;
 
 const GameTitle = styled.h3`
@@ -252,6 +407,10 @@ const GameDescription = styled.p`
   font-size: ${props => props.theme.fontSizes.sm};
   opacity: 0.7;
   margin: 0;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: ${props => props.theme.fontSizes.xs};
+  }
 `;
 
 // Lives options for Killer game
@@ -260,6 +419,11 @@ const LivesOptions = styled.div`
   justify-content: center;
   gap: ${props => props.theme.space.sm};
   margin-top: ${props => props.theme.space.md};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    gap: ${props => props.theme.space.xs};
+    margin-top: ${props => props.theme.space.sm};
+  }
 `;
 
 const LivesOption = styled.button<{ $active: boolean }>`
@@ -273,6 +437,12 @@ const LivesOption = styled.button<{ $active: boolean }>`
   
   &:hover {
     background-color: ${props => !props.$active && 'rgba(255, 255, 255, 0.2)'};
+  }
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: ${props => props.theme.space.xs} ${props => props.theme.space.sm};
+    min-width: 36px;
+    min-height: 36px;
   }
 `;
 
@@ -425,19 +595,22 @@ const GameHubScreen: React.FC = () => {
                   $active={gameCategory === 'x01'} 
                   onClick={() => setGameCategory('x01')}
                 >
-                  <FiTarget /> X01 Games
+                  <FiTarget />
+                  <TabText>X01 Games</TabText>
                 </GameTypeTab>
                 <GameTypeTab 
                   $active={gameCategory === 'killer'} 
                   onClick={() => setGameCategory('killer')}
                 >
-                  <FiZap /> Killer
+                  <FiZap />
+                  <TabText>Killer</TabText>
                 </GameTypeTab>
                 <GameTypeTab 
                   $active={gameCategory === 'other'} 
                   onClick={() => setGameCategory('other')}
                 >
-                  <FiTrendingUp /> Other Games
+                  <FiTrendingUp />
+                  <TabText>Other Games</TabText>
                 </GameTypeTab>
               </GameTypeTabs>
               
@@ -573,13 +746,6 @@ const GameHubScreen: React.FC = () => {
                         onClick={() => handleSelectOption('outMode', 'straight')}
                       >
                         STRAIGHT OUT
-                      </GameOptionButton>
-                      <GameOptionButton
-                        $active={false}
-                        onClick={() => {}}
-                        style={{ visibility: 'hidden' }}
-                      >
-                        HIDDEN
                       </GameOptionButton>
                     </GameModeRow3>
                   </SettingsGrid>

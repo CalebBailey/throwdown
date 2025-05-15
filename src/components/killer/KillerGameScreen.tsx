@@ -16,14 +16,20 @@ const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   
-  @media (max-width: 768px) {
+  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 `;
 
 const GameArea = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 16px;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    gap: 12px;
+  }
 `;
 
 const HeaderBar = styled.div`
@@ -34,6 +40,11 @@ const HeaderBar = styled.div`
   background-color: rgba(30, 30, 30, 0.5);
   padding: 0.75rem 1.25rem;
   border-radius: 8px;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: 0.5rem 1rem;
+    margin-bottom: 0.5rem;
+  }
 `;
 
 const Title = styled.h1`
@@ -43,6 +54,10 @@ const Title = styled.h1`
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: 1.5rem;
+  }
 `;
 
 const PlayerTurnIndicator = styled.div`
@@ -52,6 +67,10 @@ const PlayerTurnIndicator = styled.div`
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: 12px;
+  }
 `;
 
 const PlayerName = styled.span<{ color: string }>`
@@ -61,12 +80,23 @@ const PlayerName = styled.span<{ color: string }>`
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: 1.25rem;
+    flex-wrap: wrap;
+  }
 `;
 
 const PlayerInfo = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
 `;
 
 const PlayerStatus = styled.div`
@@ -75,12 +105,22 @@ const PlayerStatus = styled.div`
   gap: 0.25rem;
   font-size: 0.9rem;
   opacity: 0.8;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: 0.8rem;
+    margin-top: 4px;
+  }
 `;
 
 const ThrowInfo = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    align-self: flex-end;
+    margin-top: -30px;
+  }
 `;
 
 const DartCount = styled.div`
@@ -89,6 +129,11 @@ const DartCount = styled.div`
   padding: 0.25rem 0.75rem;
   border-radius: 4px;
   font-weight: bold;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: 0.9rem;
+    padding: 0.2rem 0.6rem;
+  }
 `;
 
 const ControlBar = styled.div`
@@ -96,6 +141,11 @@ const ControlBar = styled.div`
   justify-content: space-between;
   gap: 16px;
   margin-top: 16px;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    gap: 8px;
+    margin-top: 12px;
+  }
 `;
 
 const UndoButton = styled(Button)`
@@ -118,6 +168,7 @@ const WinnerOverlay = styled(motion.div)`
   align-items: center;
   justify-content: center;
   background-color: rgba(0, 0, 0, 0.85);
+  padding: ${props => props.theme.space.md};
 `;
 
 const WinnerCard = styled(motion.div)`
@@ -131,6 +182,16 @@ const WinnerCard = styled(motion.div)`
   position: relative;
   max-height: 90vh;
   overflow-y: auto;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: ${props => props.theme.space.lg};
+    max-height: 85vh;
+  }
+  
+  @media (max-height: 600px) and (orientation: landscape) {
+    padding: ${props => props.theme.space.md};
+    max-height: 95vh;
+  }
 `;
 
 const WinnerAvatar = styled.div<{ color: string }>`
@@ -146,12 +207,34 @@ const WinnerAvatar = styled.div<{ color: string }>`
   color: white;
   font-weight: bold;
   position: relative;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    width: 100px;
+    height: 100px;
+    font-size: ${props => props.theme.fontSizes.xxxl};
+  }
+  
+  @media (max-height: 600px) and (orientation: landscape) {
+    width: 80px;
+    height: 80px;
+    font-size: ${props => props.theme.fontSizes.xxl};
+  }
 `;
 
 const WinnerName = styled.h2`
   font-size: ${props => props.theme.fontSizes.xxxl};
   color: ${props => props.theme.colors.highlight};
   margin: 1rem 0;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: ${props => props.theme.fontSizes.xxl};
+    margin: 0.75rem 0;
+  }
+  
+  @media (max-height: 600px) and (orientation: landscape) {
+    font-size: ${props => props.theme.fontSizes.xl};
+    margin: 0.5rem 0;
+  }
 `;
 
 const Medal = styled(motion.div)`
@@ -168,23 +251,41 @@ const Medal = styled(motion.div)`
   justify-content: center;
   font-size: ${props => props.theme.fontSizes.xl};
   border: 2px solid ${props => props.theme.colors.text};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    width: 30px;
+    height: 30px;
+    font-size: ${props => props.theme.fontSizes.lg};
+  }
 `;
 
 const StatBox = styled.div`
   background-color: rgba(255, 255, 255, 0.1);
   padding: ${props => props.theme.space.md};
   border-radius: ${props => props.theme.borderRadius.md};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: ${props => props.theme.space.sm};
+  }
 `;
 
 const StatLabel = styled.div`
   font-size: ${props => props.theme.fontSizes.sm};
   opacity: 0.7;
   margin-bottom: ${props => props.theme.space.xs};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: ${props => props.theme.fontSizes.xs};
+  }
 `;
 
 const StatValue = styled.div`
   font-size: ${props => props.theme.fontSizes.xl};
   font-weight: bold;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: ${props => props.theme.fontSizes.lg};
+  }
 `;
 
 const StatsContainer = styled(motion.div)`
@@ -192,17 +293,43 @@ const StatsContainer = styled(motion.div)`
   grid-template-columns: repeat(2, 1fr);
   gap: ${props => props.theme.space.md};
   margin: ${props => props.theme.space.xl} 0;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    gap: ${props => props.theme.space.sm};
+    margin: ${props => props.theme.space.lg} 0;
+  }
+  
+  @media (max-height: 600px) and (orientation: landscape) {
+    margin: ${props => props.theme.space.md} 0;
+  }
 `;
 
 const ButtonGroup = styled.div`
   display: flex;
   gap: ${props => props.theme.space.md};
   margin-top: ${props => props.theme.space.xl};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    gap: ${props => props.theme.space.sm};
+    margin-top: ${props => props.theme.space.lg};
+  }
+  
+  @media (max-height: 600px) and (orientation: landscape) {
+    margin-top: ${props => props.theme.space.md};
+  }
 `;
 
 // New components for player score tallies
 const PlayerScoreTally = styled(motion.div)`
   margin-bottom: ${props => props.theme.space.lg};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    margin-bottom: ${props => props.theme.space.md};
+  }
+  
+  @media (max-height: 600px) and (orientation: landscape) {
+    margin-bottom: ${props => props.theme.space.sm};
+  }
 `;
 
 const ScoreScroller = styled(motion.div)`
@@ -225,6 +352,11 @@ const ScoreScroller = styled(motion.div)`
     background-color: ${props => props.theme.colors.accent};
     border-radius: 10px;
   }
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    gap: ${props => props.theme.space.sm};
+    padding: ${props => props.theme.space.sm} 0;
+  }
 `;
 
 const PlayerScoreBox = styled.div<{ $winner: boolean }>`
@@ -235,6 +367,11 @@ const PlayerScoreBox = styled.div<{ $winner: boolean }>`
   background-color: ${props => props.$winner ? `${props.theme.colors.highlight}40` : 'rgba(255, 255, 255, 0.05)' };
   border-radius: ${props => props.theme.borderRadius.md};
   min-width: 100px;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: ${props => props.theme.space.sm};
+    min-width: 80px;
+  }
 `;
 
 const PlayerScoreAvatar = styled.div<{ color: string }>`
@@ -249,6 +386,13 @@ const PlayerScoreAvatar = styled.div<{ color: string }>`
   font-weight: bold;
   font-size: ${props => props.theme.fontSizes.md};
   margin-bottom: ${props => props.theme.space.sm};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    width: 30px;
+    height: 30px;
+    font-size: ${props => props.theme.fontSizes.sm};
+    margin-bottom: ${props => props.theme.space.xs};
+  }
 `;
 
 const WinCount = styled.div`
@@ -256,6 +400,11 @@ const WinCount = styled.div`
   font-weight: bold;
   color: ${props => props.theme.colors.highlight};
   margin: ${props => props.theme.space.xs} 0;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: ${props => props.theme.fontSizes.lg};
+    margin: ${props => props.theme.space.xs} 0;
+  }
 `;
 
 const KillerGameScreen: React.FC = () => {

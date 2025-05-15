@@ -15,6 +15,14 @@ const HeroSection = styled.div`
   justify-content: center;
   text-align: center;
   padding: ${props => props.theme.space.xxl} 0;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: ${props => props.theme.space.xl} 0;
+  }
+  
+  @media (max-height: 600px) and (orientation: landscape) {
+    padding: ${props => props.theme.space.lg} 0;
+  }
 `;
 
 const AppLogo = styled(motion.div)`
@@ -26,6 +34,16 @@ const AppLogo = styled(motion.div)`
   display: flex;
   align-items: center;
   gap: ${props => props.theme.space.sm};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: ${props => props.theme.fontSizes.xxxl};
+    margin-bottom: ${props => props.theme.space.md};
+  }
+  
+  @media (max-height: 600px) and (orientation: landscape) {
+    font-size: ${props => props.theme.fontSizes.xxl};
+    margin-bottom: ${props => props.theme.space.sm};
+  }
 `;
 
 const LogoIcon = styled.div`
@@ -37,24 +55,63 @@ const Logo = styled(motion.img)`
   height: auto;
   margin-right: ${props => props.theme.space.sm};
   filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    width: 150px;
+  }
+  
+  @media (max-height: 600px) and (orientation: landscape) {
+    width: 120px;
+  }
 `;
 
 const Tagline = styled(motion.h2)`
   font-size: ${props => props.theme.fontSizes.xl};
   margin-bottom: ${props => props.theme.space.xl};
   max-width: 600px;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: ${props => props.theme.fontSizes.lg};
+    margin-bottom: ${props => props.theme.space.lg};
+  }
+  
+  @media (max-height: 600px) and (orientation: landscape) {
+    font-size: ${props => props.theme.fontSizes.md};
+    margin-bottom: ${props => props.theme.space.md};
+  }
 `;
 
 const ButtonGroup = styled.div`
   display: flex;
   gap: ${props => props.theme.space.md};
   margin-top: ${props => props.theme.space.lg};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px;
+    gap: ${props => props.theme.space.sm};
+    margin-top: ${props => props.theme.space.md};
+  }
+  
+  @media (max-height: 600px) and (orientation: landscape) {
+    gap: ${props => props.theme.space.sm};
+    margin-top: ${props => props.theme.space.sm};
+  }
 `;
 
 const SessionStats = styled(motion.div)`
   margin-top: ${props => props.theme.space.xxl};
   width: 100%;
   max-width: 800px;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    margin-top: ${props => props.theme.space.xl};
+  }
+  
+  @media (max-height: 600px) and (orientation: landscape) {
+    margin-top: ${props => props.theme.space.lg};
+  }
 `;
 
 const StatsGrid = styled.div`
@@ -62,11 +119,21 @@ const StatsGrid = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: ${props => props.theme.space.md};
   margin-top: ${props => props.theme.space.lg};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: ${props => props.theme.space.sm};
+    margin-top: ${props => props.theme.space.md};
+  }
 `;
 
 const StatCard = styled(Card)`
   text-align: center;
   padding: ${props => props.theme.space.md};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: ${props => props.theme.space.sm};
+  }
 `;
 
 const StatValue = styled.div`
@@ -75,6 +142,11 @@ const StatValue = styled.div`
   font-weight: bold;
   color: ${props => props.theme.colors.highlight};
   margin: ${props => props.theme.space.md} 0;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: ${props => props.theme.fontSizes.xl};
+    margin: ${props => props.theme.space.sm} 0;
+  }
 `;
 
 const HomeScreen: React.FC = () => {
@@ -141,7 +213,7 @@ const HomeScreen: React.FC = () => {
           <Tagline variants={itemVariants}>
             The ultimate darts scoring experience
           </Tagline>
-          <motion.div variants={itemVariants}>
+          <motion.div variants={itemVariants} style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
             <ButtonGroup>
               <Button 
                 size="large" 
@@ -183,8 +255,7 @@ const HomeScreen: React.FC = () => {
                       return player ? (
                         <StatCard key={playerId}>
                           <h4>{player.name}</h4>
-                          <StatValue>{wins} {wins === 1 ? 'win' : 'wins'}</StatValue>
-                        </StatCard>
+                          <StatValue>{wins} {wins === 1 ? 'win' : 'wins'}</StatCard>
                       ) : null;
                     })}
                 </StatsGrid>
