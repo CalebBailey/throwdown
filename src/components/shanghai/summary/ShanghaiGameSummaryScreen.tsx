@@ -107,6 +107,7 @@ const StatsGrid = styled.div`
 const StatCard = styled(Card)`
   text-align: center;
   padding: ${props => props.theme.space.md};
+  margin-bottom: ${props => props.theme.space.sm};
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
     padding: ${props => props.theme.space.sm};
@@ -321,6 +322,73 @@ const SegmentBlock = styled.div<{ $active: boolean; $score: number }>`
   }
 `;
 
+// Additional styled components for the segment scorecard
+const ScoreCardTitle = styled.h3`
+  margin: ${props => props.theme.space.md} 0;
+  color: ${props => props.theme.colors.text};
+`;
+
+const ScoreGrid = styled.div`
+  display: grid;
+  grid-template-columns: auto repeat(9, 1fr) auto;
+  gap: 4px;
+  margin: ${props => props.theme.space.md} 0 ${props => props.theme.space.xl};
+  overflow-x: auto;
+  padding-bottom: ${props => props.theme.space.sm};
+`;
+
+const HeaderCell = styled.div`
+  background-color: rgba(20, 20, 20, 0.5);
+  padding: 8px;
+  text-align: center;
+  border-radius: 4px;
+  font-weight: bold;
+  color: ${props => props.theme.colors.text};
+`;
+
+const SegmentCell = styled.div<{ isHighest?: boolean }>`
+  background-color: ${props => props.isHighest ? 'rgba(233, 69, 96, 0.2)' : 'rgba(20, 20, 20, 0.5)'};
+  padding: 8px;
+  text-align: center;
+  border-radius: 4px;
+  color: ${props => props.isHighest ? props.theme.colors.highlight : props.theme.colors.text};
+  font-weight: ${props => props.isHighest ? 'bold' : 'normal'};
+`;
+
+const PlayerCell = styled.div<{ isActive?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background-color: ${props => props.isActive ? 'rgba(76, 175, 80, 0.1)' : 'rgba(20, 20, 20, 0.3)'};
+  border-radius: 4px;
+`;
+
+const PlayerDot = styled.div<{ color: string }>`
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: ${props => props.color};
+`;
+
+const ScoreCell = styled.div<{ isHighest?: boolean }>`
+  background-color: ${props => props.isHighest ? 'rgba(76, 175, 80, 0.2)' : 'rgba(20, 20, 20, 0.2)'};
+  padding: 8px 4px;
+  text-align: center;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 20px;
+  font-weight: ${props => props.isHighest ? 'bold' : 'normal'};
+`;
+
+const TotalScoreCell = styled(ScoreCell)`
+  font-weight: bold;
+  background-color: rgba(20, 20, 20, 0.5);
+`;
+
 // Component for Mobile Player Row with expandable details
 interface MobilePlayerRowProps {
   player: any;
@@ -347,24 +415,18 @@ const MobilePlayerRowComponent: React.FC<MobilePlayerRowProps> = ({ player, isWi
     return bestSegment;
   };
   
-  // Calculate segment completion rate
-  const getCompletedSegments = (): number => {
-    if (!player.shanghaiSegmentScores) return 0;
-    return Object.keys(player.shanghaiSegmentScores).length;
-  };
-  
   // Get hit statistics
   const getHitStatistics = () => {
     return {
       singlesHit: player.singlesHit || 0,
       doublesHit: player.doublesHit || 0,
-      triplesHit: player.triplesHit || 0
+      triplesHit: player.triplesHit || 0,
+      shanghaisHit: player.shanghaisHit || 0,
     };
   };
   
   const stats = getHitStatistics();
   const bestSegment = getBestSegment();
-  const completedSegments = getCompletedSegments();
   
   return (
     <MobilePlayerRow $winner={isWinner}>
@@ -399,8 +461,8 @@ const MobilePlayerRowComponent: React.FC<MobilePlayerRowProps> = ({ player, isWi
           </MobileStatItem>
           <MobileStatItem>
             <MobileStat>
-              <MobileStatLabel>Completed Segments</MobileStatLabel>
-              <MobileStatValue>{completedSegments}/9</MobileStatValue>
+              <MobileStatLabel>Shanghais Hit</MobileStatLabel>
+              <MobileStatValue>{stats.shanghaisHit}</MobileStatValue>
             </MobileStat>
           </MobileStatItem>
           <MobileStatItem>
@@ -496,6 +558,36 @@ const ShanghaiGameSummaryScreen: React.FC = () => {
     visible: { y: 0, opacity: 1 }
   };
   
+  // Helper function to get the segment score for a player
+  const getSegmentScore = (player: any, segment: number): number => {
+    // For Shanghai, we need to extract scores for each segment from throws
+    let score = 0;
+    
+    // Check if the player has shanghaiSegmentScores and if there's a score for this segment
+    if (player.shanghaiSegmentScores && player.shanghaiSegmentScores[segment]) {
+      score = player.shanghaiSegmentScores[segment];
+    }
+    
+    return score;
+  };
+  
+  // Get total score for a player across all segments
+  const getTotalScore = (player: any): number => {
+    if (!player.shanghaiSegmentScores) return 0;
+    
+    return Object.values(player.shanghaiSegmentScores).reduce((total: number, score: any) => total + Number(score), 0);
+  };
+  
+  // Find the highest score for a specific segment across all players
+  const getHighestScoreForSegment = (segment: number): number => {
+    let highest = 0;
+    state.players.forEach(player => {
+      const score = getSegmentScore(player, segment);
+      if (score > highest) highest = score;
+    });
+    return highest;
+  };
+  
   // Calculate total game statistics
   const calculateGameStats = () => {
     let totalDarts = 0;
@@ -526,7 +618,7 @@ const ShanghaiGameSummaryScreen: React.FC = () => {
             highestSegmentScore = Number(score);
           }
         });
-        
+
         // Count total shanghais (all segments hit in one turn, i.e, a single, double, and triple)
         if (player.singlesHit && player.doublesHit && player.triplesHit) {
           totalShanghais += 1;
@@ -648,6 +740,59 @@ const ShanghaiGameSummaryScreen: React.FC = () => {
                       <StatValue>{gameStats.totalTriples}</StatValue>
                     </div>
                   </div>
+                </StatCard>
+                
+                {/* Segment Scorecard */}
+                <StatCard>
+                  <ScoreCardTitle>Segment Scorecard</ScoreCardTitle>
+                  <ScoreGrid>
+                    {/* Header row with segment numbers */}
+                    <HeaderCell>Player</HeaderCell>
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(segment => {
+                      const highestScore = getHighestScoreForSegment(segment);
+                      return (
+                        <SegmentCell key={segment} isHighest={highestScore > 0}>
+                          {segment}
+                        </SegmentCell>
+                      );
+                    })}
+                    <HeaderCell>Total</HeaderCell>
+                    
+                    {/* Player rows */}
+                    {sortedPlayers.map(player => {
+                      const isWinner = player.id === state.winner?.id;
+                      
+                      return (
+                        <React.Fragment key={player.id}>
+                          {/* Player name */}
+                          <PlayerCell isActive={isWinner}>
+                            <PlayerDot color={player.color} />
+                            <div>{player.name}</div>
+                          </PlayerCell>
+                          
+                          {/* Segment scores */}
+                          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(segment => {
+                            const score = getSegmentScore(player, segment);
+                            const isHighestForSegment = score > 0 && score === getHighestScoreForSegment(segment);
+                            
+                            return (
+                              <ScoreCell 
+                                key={`${player.id}-${segment}`}
+                                isHighest={isHighestForSegment}
+                              >
+                                {score}
+                              </ScoreCell>
+                            );
+                          })}
+                          
+                          {/* Total score */}
+                          <TotalScoreCell isHighest={isWinner}>
+                            {getTotalScore(player)}
+                          </TotalScoreCell>
+                        </React.Fragment>
+                      );
+                    })}
+                  </ScoreGrid>
                 </StatCard>
                 
                 <PlayersStatsTable>
