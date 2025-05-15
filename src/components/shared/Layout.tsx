@@ -176,10 +176,10 @@ export const Layout: React.FC<LayoutProps> = ({ children, hideNav = false }) => 
               <FiUsers />
               Players
             </NavItem>
-            <NavItem to="/settings" $active={isActive('/settings')} onClick={closeMenu}>
+            {/* <NavItem to="/settings" $active={isActive('/settings')} onClick={closeMenu}>
               <FiSettings />
               Settings
-            </NavItem>
+            </NavItem> */}
           </Navigation>
         </Header>
       )}

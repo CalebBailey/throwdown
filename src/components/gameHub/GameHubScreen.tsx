@@ -551,9 +551,11 @@ const GameHubScreen: React.FC = () => {
       navigate("/games/X01"); // Use generic X01 route (the logic handles different starting scores)
     } else if (gameCategory === 'killer') {
       navigate("/games/killer");
+    } else if (selectedGameType === 'shanghai') {
+      navigate("/games/shanghai");
     } else {
-      // Handle other game types in the future
-      navigate("/games/X01");
+      // Handle other game types that might be added in the future
+      navigate("/games");
     }
   };
   
@@ -562,16 +564,6 @@ const GameHubScreen: React.FC = () => {
   };
   
   // Animation variants
-  const containerAnimation = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      }
-    }
-  };
-  
   const itemAnimation = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0 }
@@ -813,13 +805,16 @@ const GameHubScreen: React.FC = () => {
                   </SettingsLabel>
                   
                   <GameSelectionArea>
-                    <GameCard $active={false}>
+                    <GameCard 
+                      $active={selectedGameType === "shanghai"}
+                      onClick={() => setSelectedGameType("shanghai")}
+                    >
                       <GameIcon>
                         <FiTrendingUp />
                       </GameIcon>
                       <GameTitle>Shanghai</GameTitle>
                       <GameDescription>
-                        Coming soon! Sequential scoring game with special "Shanghai" combinations for instant wins.
+                        Progress through segments 1-9, scoring points for each hit. Players aim for the highest score across all segments.
                       </GameDescription>
                     </GameCard>
                     
