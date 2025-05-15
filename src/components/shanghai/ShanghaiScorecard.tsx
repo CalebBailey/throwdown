@@ -157,7 +157,8 @@ const ShanghaiScorecard: React.FC<ShanghaiScorecardProps> = ({ players, currentP
     return {
       singlesHit: player.singlesHit || 0,
       doublesHit: player.doublesHit || 0,
-      triplesHit: player.triplesHit || 0
+      triplesHit: player.triplesHit || 0,
+      shanghaisHit: player.shanghaisHit || 0
     };
   };
   

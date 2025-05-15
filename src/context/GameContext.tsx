@@ -36,6 +36,7 @@ export interface Player {
   playersEliminated?: number; // Number of players eliminated by this player
   // Shanghai game specific properties
   shanghaiSegmentScores?: Record<number, number>; // Segment scores for Shanghai game, keyed by segment number
+  shanghaisHit?: number; // Number of Shanghais hit
 }
 
 export type EntryMode = 'straight' | 'double' | 'master';

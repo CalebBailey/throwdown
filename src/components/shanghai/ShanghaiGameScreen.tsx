@@ -442,6 +442,32 @@ const ShanghaiGameScreen: React.FC = () => {
     newThrows.push(dartsThrown);
     updatedPlayer.throws = newThrows;
     
+    // Check if player hit a Shanghai (single, double, and triple of the current segment in one turn)
+    const checkForShanghai = () => {
+      // Need all 3 darts for a shanghai
+      if (dartsThrown.length !== 3) return false;
+      
+      // All darts must be for the current segment
+      const segmentHits = dartsThrown
+        .filter(dart => parseInt(dart.substring(1)) === currentSegment)
+        .map(dart => dart[0]); // Extract the multipliers (S, D, T)
+      
+      // Need exactly 3 hits on the segment
+      if (segmentHits.length !== 3) return false;
+      
+      // Check if we have one of each: single, double, and triple
+      const hasSingle = segmentHits.includes('S');
+      const hasDouble = segmentHits.includes('D');
+      const hasTriple = segmentHits.includes('T');
+      
+      return hasSingle && hasDouble && hasTriple;
+    };
+    
+    // Update shanghaisHit if player achieved one
+    if (checkForShanghai()) {
+      updatedPlayer.shanghaisHit = (updatedPlayer.shanghaisHit || 0) + 1;
+    }
+    
     // Update players array
     const updatedPlayers = [...state.players];
     updatedPlayers[state.currentPlayerIndex] = updatedPlayer;

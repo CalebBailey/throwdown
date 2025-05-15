@@ -605,6 +605,7 @@ const ShanghaiGameSummaryScreen: React.FC = () => {
       totalSingles += player.singlesHit || 0;
       totalDoubles += player.doublesHit || 0;
       totalTriples += player.triplesHit || 0;
+      totalShanghais += player.shanghaisHit || 0;
       
       // Track highest scores
       if (player.score > highestTotalScore) {
@@ -618,11 +619,6 @@ const ShanghaiGameSummaryScreen: React.FC = () => {
             highestSegmentScore = Number(score);
           }
         });
-
-        // Count total shanghais (all segments hit in one turn, i.e, a single, double, and triple)
-        if (player.singlesHit && player.doublesHit && player.triplesHit) {
-          totalShanghais += 1;
-        }
         
         // Count total unique segments hit across all players
         segmentsHit += Object.keys(player.shanghaiSegmentScores).length;
@@ -804,7 +800,7 @@ const ShanghaiGameSummaryScreen: React.FC = () => {
                     <StatCell>Singles</StatCell>
                     <StatCell>Doubles</StatCell>
                     <StatCell>Triples</StatCell>
-                    <StatCell>Segments</StatCell>
+                    <StatCell>Shanghais</StatCell>
                     <StatCell>Best Segment</StatCell>
                   </StatHeader>
                   
@@ -812,7 +808,6 @@ const ShanghaiGameSummaryScreen: React.FC = () => {
                   {sortedPlayers.map(player => {
                     const isWinner = player.id === state.winner?.id;
                     const bestSegment = getBestSegment(player);
-                    const completedSegments = getCompletedSegments(player);
                     
                     return (
                       <PlayerRow key={`desktop-${player.id}`} $winner={isWinner}>
@@ -822,7 +817,7 @@ const ShanghaiGameSummaryScreen: React.FC = () => {
                         <StatCell>{player.singlesHit || 0}</StatCell>
                         <StatCell>{player.doublesHit || 0}</StatCell>
                         <StatCell>{player.triplesHit || 0}</StatCell>
-                        <StatCell>{completedSegments}/9</StatCell>
+                        <StatCell>{player.shanghaisHit || 0}</StatCell>
                         <StatCell>
                           {bestSegment || '-'}
                           {bestSegment > 0 && player.shanghaiSegmentScores && 
