@@ -573,7 +573,6 @@ const KillerGameSummaryScreen: React.FC = () => {
                     <div></div>
                     <div>Player</div>
                     <StatCell>Segment</StatCell>
-                    <StatCell>Status</StatCell>
                     <StatCell>Singles</StatCell>
                     <StatCell>Doubles</StatCell>
                     <StatCell>Triples</StatCell>
@@ -591,21 +590,6 @@ const KillerGameSummaryScreen: React.FC = () => {
                         <PlayerColor color={player.color} />
                         <PlayerName>{player.name} {isWinner && '🏆'}</PlayerName>
                         <StatCell>{player.segment}</StatCell>
-                        <StatCell>
-                          {player.isKiller ? (
-                            <PlayerStatus isKiller={true}>
-                              <TargetIcon />Killer
-                            </PlayerStatus>
-                          ) : player.isEliminated ? (
-                            <PlayerStatus isKiller={false}>
-                              <FiX />Out
-                            </PlayerStatus>
-                          ) : (
-                            <PlayerStatus isKiller={false}>
-                              {(player.segmentHits || 0)}/{state.killerOptions?.maxHits || 3}
-                            </PlayerStatus>
-                          )}
-                        </StatCell>
                         <StatCell>{player.singlesHit || 0}</StatCell>
                         <StatCell>{player.doublesHit || 0}</StatCell>
                         <StatCell>{player.triplesHit || 0}</StatCell>

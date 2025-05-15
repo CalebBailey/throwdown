@@ -329,7 +329,8 @@ const ShanghaiGameScreen: React.FC = () => {
         if (!player.shanghaiSegmentScores) {
           return {
             ...player,
-            shanghaiSegmentScores: {},
+            shanghaiSegmentScores: {}, // need to be cleared for each game
+            shanghaisHit: 0,
             singlesHit: 0,
             doublesHit: 0,
             triplesHit: 0,
@@ -600,12 +601,34 @@ const ShanghaiGameScreen: React.FC = () => {
   
   // Handle starting a new game with same settings
   const handlePlayAgain = () => {
+    // First reset the game state
     dispatch({ type: 'RESET_GAME' });
+    
+    // Then initialize a new game with fresh segment scores
+    const freshPlayers = state.players.map(player => ({
+      ...player,
+      shanghaiSegmentScores: {}, // Clear out segment scores
+      shanghaisHit: 0,
+      singlesHit: 0,
+      doublesHit: 0,
+      triplesHit: 0,
+      score: 0,
+      throws: []
+    }));
+    
+    // Start new game with our freshly reset players
     dispatch({
       type: 'START_GAME',
       gameType: 'shanghai',
       gameOptions: state.gameOptions
     });
+    
+    // Update players with cleared segment scores
+    dispatch({ 
+      type: 'SET_PLAYER_ORDER',
+      players: freshPlayers
+    });
+    
     setCurrentSegment(1);
     setShowWinnerScreen(false);
   };
