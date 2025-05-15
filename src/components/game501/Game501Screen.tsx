@@ -336,7 +336,6 @@ const CurrentThrowTotal = styled.div`
   font-weight: bold;
   color: ${props => props.theme.colors.highlight};
   text-align: center;
-  margin-top: ${props => props.theme.space.lg};
 `;
 
 /* Enhanced Winner Screen Components */
@@ -662,7 +661,7 @@ const Game501Screen: React.FC = () => {
                     
                     {currentThrowScore > 0 && (
                     <CurrentThrowTotal>
-                      Throw Total: {currentThrowScore}
+                      {currentThrowScore}
                     </CurrentThrowTotal>
                     )}
 

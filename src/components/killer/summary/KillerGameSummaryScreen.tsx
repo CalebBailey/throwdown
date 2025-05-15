@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiAward, FiHome, FiRepeat, FiArrowRight, FiTarget, FiX } from 'react-icons/fi';
+import { FiAward, FiHome, FiRepeat, FiArrowRight, FiTarget, FiX, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import Layout from '../../shared/Layout';
 import Card from '../../shared/Card';
 import Button from '../../shared/Button';
@@ -11,11 +11,21 @@ import { useGameContext } from '../../../context/GameContext';
 const Container = styled.div`
   max-width: 900px;
   margin: 0 auto;
+  padding: 0 ${props => props.theme.space.sm};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: 0 ${props => props.theme.space.xs};
+  }
 `;
 
 const PageTitle = styled.h1`
   margin-bottom: ${props => props.theme.space.lg};
   color: ${props => props.theme.colors.text};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: 1.5rem;
+    margin-bottom: ${props => props.theme.space.md};
+  }
 `;
 
 const SummaryHeader = styled.div`
@@ -23,11 +33,20 @@ const SummaryHeader = styled.div`
   align-items: center;
   gap: ${props => props.theme.space.md};
   margin-bottom: ${props => props.theme.space.lg};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    gap: ${props => props.theme.space.sm};
+    margin-bottom: ${props => props.theme.space.md};
+  }
 `;
 
 const TrophyIcon = styled(FiAward)`
   font-size: 2rem;
   color: gold;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: 1.5rem;
+  }
 `;
 
 const TargetIcon = styled(FiTarget)`
@@ -41,12 +60,20 @@ const WinnerSection = styled.div`
   align-items: center;
   margin-bottom: ${props => props.theme.space.xl};
   text-align: center;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    margin-bottom: ${props => props.theme.space.lg};
+  }
 `;
 
 const WinnerName = styled.h2`
   font-size: ${props => props.theme.fontSizes.xxxl};
   color: ${props => props.theme.colors.highlight};
   margin-top: ${props => props.theme.space.md};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: ${props => props.theme.fontSizes.xl};
+  }
 `;
 
 const WinnerAvatar = styled.div<{ color: string }>`
@@ -61,6 +88,12 @@ const WinnerAvatar = styled.div<{ color: string }>`
   font-weight: bold;
   color: white;
   margin-bottom: ${props => props.theme.space.md};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    width: 60px;
+    height: 60px;
+    font-size: ${props => props.theme.fontSizes.xl};
+  }
 `;
 
 const StatsGrid = styled.div`
@@ -68,11 +101,21 @@ const StatsGrid = styled.div`
   grid-template-columns: repeat(2, minmax(250px, 1fr));
   gap: ${props => props.theme.space.lg};
   margin: ${props => props.theme.space.xl} 0;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    grid-template-columns: 1fr;
+    gap: ${props => props.theme.space.md};
+    margin: ${props => props.theme.space.md} 0;
+  }
 `;
 
 const StatCard = styled(Card)`
   text-align: center;
   padding: ${props => props.theme.space.md};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: ${props => props.theme.space.sm};
+  }
 `;
 
 const StatValue = styled.div`
@@ -81,12 +124,23 @@ const StatValue = styled.div`
   font-weight: bold;
   color: ${props => props.theme.colors.highlight};
   margin: ${props => props.theme.space.md} 0;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: ${props => props.theme.fontSizes.xl};
+    margin: ${props => props.theme.space.sm} 0;
+  }
 `;
 
 const PlayersStatsTable = styled.div`
   margin-top: ${props => props.theme.space.xl};
+  overflow-x: auto;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    margin-top: ${props => props.theme.space.lg};
+  }
 `;
 
+// Desktop version of the player row (used for larger screens)
 const PlayerRow = styled.div<{ $winner: boolean }>`
   display: grid;
   grid-template-columns: auto 1fr repeat(7, auto);
@@ -105,6 +159,83 @@ const PlayerRow = styled.div<{ $winner: boolean }>`
   };
   border-radius: ${props => props.theme.borderRadius.md};
   margin-bottom: ${props => props.theme.space.sm};
+  
+  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
+    display: none; /* Hide on mobile and show mobile version instead */
+  }
+`;
+
+// Mobile version of the player row with expandable details
+const MobilePlayerRow = styled.div<{ $winner: boolean }>`
+  display: none; /* Hidden on desktop */
+  background-color: ${props => 
+    props.$winner 
+      ? 'rgba(76, 175, 80, 0.1)' 
+      : 'rgba(255, 255, 255, 0.05)'
+  };
+  border-left: 4px solid ${props => 
+    props.$winner 
+      ? props.theme.colors.success 
+      : 'transparent'
+  };
+  border-radius: ${props => props.theme.borderRadius.md};
+  margin-bottom: ${props => props.theme.space.sm};
+  overflow: hidden;
+  
+  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
+    display: block;
+  }
+`;
+
+const MobilePlayerHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: ${props => props.theme.space.md};
+  cursor: pointer;
+`;
+
+const MobilePlayerInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${props => props.theme.space.sm};
+`;
+
+const MobilePlayerDetails = styled.div<{ $expanded: boolean }>`
+  padding: ${props => props.$expanded ? props.theme.space.md : 0};
+  max-height: ${props => props.$expanded ? '500px' : '0'};
+  opacity: ${props => props.$expanded ? 1 : 0};
+  transition: all 0.3s ease-in-out;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.2);
+`;
+
+const MobileStatsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: ${props => props.theme.space.xs};
+`;
+
+const MobileStatItem = styled.div`
+  padding: ${props => props.theme.space.xs};
+`;
+
+const MobileStat = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: ${props => props.theme.space.xs};
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: ${props => props.theme.borderRadius.sm};
+`;
+
+const MobileStatLabel = styled.div`
+  font-size: ${props => props.theme.fontSizes.xs};
+  opacity: 0.7;
+`;
+
+const MobileStatValue = styled.div`
+  font-weight: bold;
 `;
 
 const PlayerRowEliminated = styled(PlayerRow)`
@@ -161,6 +292,10 @@ const StatHeader = styled.div`
   font-size: ${props => props.theme.fontSizes.sm};
   color: ${props => props.theme.colors.text};
   opacity: 0.7;
+  
+  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
+    display: none; /* Hide header on mobile */
+  }
 `;
 
 const StatCell = styled.div`
@@ -174,7 +309,90 @@ const ButtonGroup = styled.div`
   display: flex;
   gap: ${props => props.theme.space.md};
   margin-top: ${props => props.theme.space.xl};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    flex-direction: column;
+    gap: ${props => props.theme.space.sm};
+    margin-top: ${props => props.theme.space.md};
+  }
 `;
+
+// Component for Mobile Player Row with expandable details
+interface MobilePlayerRowProps {
+  player: any;
+  isWinner: boolean;
+}
+
+const MobilePlayerRowComponent: React.FC<MobilePlayerRowProps> = ({ player, isWinner }) => {
+  const [expanded, setExpanded] = useState(false);
+  const { state } = useGameContext();
+  
+  return (
+    <MobilePlayerRow $winner={isWinner}>
+      <MobilePlayerHeader onClick={() => setExpanded(!expanded)}>
+        <MobilePlayerInfo>
+          <PlayerColor color={player.color} />
+          <PlayerName>{player.name} {isWinner && '🏆'}</PlayerName>
+          {player.isKiller ? (
+            <PlayerStatus isKiller={true}>
+              <TargetIcon />Killer
+            </PlayerStatus>
+          ) : player.isEliminated ? (
+            <PlayerStatus isKiller={false}>
+              <FiX />Out
+            </PlayerStatus>
+          ) : (
+            <PlayerStatus isKiller={false}>
+              {(player.segmentHits || 0)}/{state.killerOptions?.maxHits || 3}
+            </PlayerStatus>
+          )}
+        </MobilePlayerInfo>
+        {expanded ? <FiChevronUp /> : <FiChevronDown />}
+      </MobilePlayerHeader>
+      
+      <MobilePlayerDetails $expanded={expanded}>
+        <MobileStatsGrid>
+          <MobileStatItem>
+            <MobileStat>
+              <MobileStatLabel>Segment</MobileStatLabel>
+              <MobileStatValue>{player.segment}</MobileStatValue>
+            </MobileStat>
+          </MobileStatItem>
+          <MobileStatItem>
+            <MobileStat>
+              <MobileStatLabel>Darts</MobileStatLabel>
+              <MobileStatValue>{player.throws.flat().length}</MobileStatValue>
+            </MobileStat>
+          </MobileStatItem>
+          <MobileStatItem>
+            <MobileStat>
+              <MobileStatLabel>Singles</MobileStatLabel>
+              <MobileStatValue>{player.singlesHit || 0}</MobileStatValue>
+            </MobileStat>
+          </MobileStatItem>
+          <MobileStatItem>
+            <MobileStat>
+              <MobileStatLabel>Doubles</MobileStatLabel>
+              <MobileStatValue>{player.doublesHit || 0}</MobileStatValue>
+            </MobileStat>
+          </MobileStatItem>
+          <MobileStatItem>
+            <MobileStat>
+              <MobileStatLabel>Triples</MobileStatLabel>
+              <MobileStatValue>{player.triplesHit || 0}</MobileStatValue>
+            </MobileStat>
+          </MobileStatItem>
+          <MobileStatItem>
+            <MobileStat>
+              <MobileStatLabel>Eliminated</MobileStatLabel>
+              <MobileStatValue>{player.playersEliminated || 0}</MobileStatValue>
+            </MobileStat>
+          </MobileStatItem>
+        </MobileStatsGrid>
+      </MobilePlayerDetails>
+    </MobilePlayerRow>
+  );
+};
 
 const KillerGameSummaryScreen: React.FC = () => {
   const navigate = useNavigate();
@@ -350,6 +568,7 @@ const KillerGameSummaryScreen: React.FC = () => {
                 </StatCard>
                 
                 <PlayersStatsTable>
+                  {/* Desktop version of the table with header */}
                   <StatHeader>
                     <div></div>
                     <div>Player</div>
@@ -362,12 +581,13 @@ const KillerGameSummaryScreen: React.FC = () => {
                     <StatCell>Darts</StatCell>
                   </StatHeader>
                   
+                  {/* Desktop rows */}
                   {sortedPlayers.map(player => {
                     const isWinner = player.id === state.winner?.id;
                     const PlayerRowComponent = player.isEliminated ? PlayerRowEliminated : PlayerRow;
                     
                     return (
-                      <PlayerRowComponent key={player.id} $winner={isWinner}>
+                      <PlayerRowComponent key={`desktop-${player.id}`} $winner={isWinner}>
                         <PlayerColor color={player.color} />
                         <PlayerName>{player.name} {isWinner && '🏆'}</PlayerName>
                         <StatCell>{player.segment}</StatCell>
@@ -394,6 +614,18 @@ const KillerGameSummaryScreen: React.FC = () => {
                       </PlayerRowComponent>
                     );
                   })}
+                  
+                  {/* Mobile version of the table with expandable rows */}
+                  {sortedPlayers.map(player => {
+                    const isWinner = player.id === state.winner?.id;
+                    return (
+                      <MobilePlayerRowComponent 
+                        key={`mobile-${player.id}`}
+                        player={player}
+                        isWinner={isWinner}
+                      />
+                    );
+                  })}
                 </PlayersStatsTable>
               </Card.Content>
               
@@ -403,6 +635,7 @@ const KillerGameSummaryScreen: React.FC = () => {
                     variant="outline"
                     onClick={handleGoHome}
                     startIcon={<FiHome />}
+                    fullWidth
                   >
                     Home
                   </Button>
@@ -410,12 +643,14 @@ const KillerGameSummaryScreen: React.FC = () => {
                     variant="outline"
                     onClick={handleGameHub}
                     startIcon={<FiArrowRight />}
+                    fullWidth
                   >
                     Game Hub
                   </Button>
                   <Button 
                     onClick={handleNewGame}
                     startIcon={<FiRepeat />}
+                    fullWidth
                   >
                     Play Again
                   </Button>
