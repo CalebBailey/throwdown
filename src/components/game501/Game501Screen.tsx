@@ -20,10 +20,20 @@ const GameHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: ${props => props.theme.space.lg};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: ${props => props.theme.space.md};
+  }
 `;
 
 const PageTitle = styled.h1`
   color: ${props => props.theme.colors.text};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: ${props => props.theme.fontSizes.xl};
+  }
 `;
 
 const GameInfo = styled.div`
@@ -31,6 +41,11 @@ const GameInfo = styled.div`
   align-items: center;
   gap: ${props => props.theme.space.md};
   font-size: ${props => props.theme.fontSizes.lg};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: ${props => props.theme.fontSizes.md};
+    gap: ${props => props.theme.space.sm};
+  }
 `;
 
 const GameOptionsInfo = styled.div`
@@ -39,6 +54,12 @@ const GameOptionsInfo = styled.div`
   gap: ${props => props.theme.space.sm};
   font-size: ${props => props.theme.fontSizes.md};
   opacity: 0.7;
+  flex-wrap: wrap;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: ${props => props.theme.fontSizes.sm};
+    gap: ${props => props.theme.space.xs};
+  }
 `;
 
 const OptionsTag = styled.span<{ $enabled: boolean }>`
@@ -166,6 +187,14 @@ const CurrentScore = styled(motion.div)`
   text-align: center;
   color: ${props => props.theme.colors.text};
   margin-bottom: 0; /* Changed from lg to 0 to position suggestion box directly below */
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: 3rem;
+  }
+  
+  @media (max-height: 600px) and (orientation: landscape) {
+    font-size: 2.5rem;
+  }
 `;
 
 const SimplifiedCheckout = styled.div<{ $hasCheckout: boolean }>`
@@ -339,6 +368,16 @@ const WinnerCard = styled(motion.div)`
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: ${props => props.theme.space.lg};
+    max-height: 85vh;
+  }
+  
+  @media (max-height: 600px) and (orientation: landscape) {
+    padding: ${props => props.theme.space.md};
+    max-height: 95vh;
+  }
 `;
 
 const WinnerHeader = styled.div`
@@ -940,6 +979,18 @@ const DartSlot = styled.div<{ $filled: boolean; $index: number }>`
     background: ${props => props.theme.colors.secondary};
     padding: 0 4px;
   }
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    width: 60px;
+    height: 50px;
+    font-size: ${props => props.theme.fontSizes.md};
+  }
+  
+  @media (max-height: 600px) and (orientation: landscape) {
+    width: 50px;
+    height: 40px;
+    font-size: ${props => props.theme.fontSizes.sm};
+  }
 `;
 
 const DartValue = styled.div`
@@ -1002,6 +1053,16 @@ const NumberButton = styled.button`
   &:active {
     background-color: ${props => props.theme.colors.primary};
   }
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: ${props => props.theme.space.xs};
+    font-size: ${props => props.theme.fontSizes.sm};
+  }
+  
+  @media (max-height: 600px) and (orientation: landscape) {
+    padding: ${props => props.theme.space.xs};
+    font-size: ${props => props.theme.fontSizes.xs};
+  }
 `;
 
 
@@ -1041,6 +1102,16 @@ const WinnerTitle = styled(motion.h1)`
   color: ${props => props.theme.colors.highlight};
   font-size: ${props => props.theme.fontSizes.huge};
   margin-bottom: ${props => props.theme.space.xl};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: ${props => props.theme.fontSizes.xxxl};
+    margin-bottom: ${props => props.theme.space.lg};
+  }
+  
+  @media (max-height: 600px) and (orientation: landscape) {
+    font-size: ${props => props.theme.fontSizes.xxl};
+    margin-bottom: ${props => props.theme.space.md};
+  }
 `;
 
 const WinnerAvatar = styled(motion.div)<{ color: string }>`
@@ -1056,6 +1127,18 @@ const WinnerAvatar = styled(motion.div)<{ color: string }>`
   color: white;
   font-weight: bold;
   position: relative;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    width: 100px;
+    height: 100px;
+    font-size: ${props => props.theme.fontSizes.xxxl};
+  }
+  
+  @media (max-height: 600px) and (orientation: landscape) {
+    width: 80px;
+    height: 80px;
+    font-size: ${props => props.theme.fontSizes.xxl};
+  }
 `;
 
 const ContinueButton = styled(Button)`

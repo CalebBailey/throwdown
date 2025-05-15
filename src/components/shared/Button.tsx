@@ -23,6 +23,7 @@ const StyledButton = styled.button<Omit<ButtonProps, 'children'>>`
   border-radius: ${props => props.theme.borderRadius.md};
   transition: all 0.2s ease-in-out;
   cursor: pointer;
+  touch-action: manipulation; /* Improves touch interactions */
   
   ${props => props.fullWidth && css`
     width: 100%;
@@ -35,16 +36,34 @@ const StyledButton = styled.button<Omit<ButtonProps, 'children'>>`
         return css`
           padding: ${props.theme.space.xs} ${props.theme.space.md};
           font-size: ${props.theme.fontSizes.sm};
+          
+          @media (max-width: ${props.theme.breakpoints.mobile}) {
+            padding: calc(${props.theme.space.xs} + 2px) ${props.theme.space.md};
+            min-height: 36px; /* Ensures better touch target */
+          }
         `;
       case 'large':
         return css`
           padding: ${props.theme.space.md} ${props.theme.space.lg};
           font-size: ${props.theme.fontSizes.lg};
+          
+          @media (max-width: ${props.theme.breakpoints.mobile}) {
+            padding: ${props.theme.space.sm} ${props.theme.space.lg};
+          }
+          
+          @media (max-height: 600px) and (orientation: landscape) {
+            padding: ${props.theme.space.sm} ${props.theme.space.md};
+            font-size: ${props.theme.fontSizes.md};
+          }
         `;
       default: // medium
         return css`
           padding: ${props.theme.space.sm} ${props.theme.space.md};
           font-size: ${props.theme.fontSizes.md};
+          
+          @media (max-width: ${props.theme.breakpoints.mobile}) {
+            min-height: 40px; /* Ensures better touch target */
+          }
         `;
     }
   }}
@@ -70,6 +89,7 @@ const StyledButton = styled.button<Omit<ButtonProps, 'children'>>`
             background-color: ${props.theme.colors.secondary};
             opacity: 0.6;
             cursor: not-allowed;
+            transform: none;
           }
         `;
       case 'outline':
@@ -89,6 +109,7 @@ const StyledButton = styled.button<Omit<ButtonProps, 'children'>>`
           &:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+            transform: none;
           }
         `;
       case 'text':
@@ -108,6 +129,7 @@ const StyledButton = styled.button<Omit<ButtonProps, 'children'>>`
           &:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+            transform: none;
           }
         `;
       default: // primary
@@ -128,10 +150,31 @@ const StyledButton = styled.button<Omit<ButtonProps, 'children'>>`
             background-color: ${props.theme.colors.highlight};
             opacity: 0.6;
             cursor: not-allowed;
+            transform: none;
           }
         `;
     }
   }}
+  
+  /* Icon spacing adjustments */
+  .start-icon {
+    margin-right: 2px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .end-icon {
+    margin-left: 2px;
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Mobile touch states */
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    &:active {
+      opacity: 0.8;
+    }
+  }
 `;
 
 export const Button: React.FC<ButtonProps> = ({
