@@ -10,6 +10,8 @@ import KillerGameScreen from './components/killer/KillerGameScreen';
 import KillerGameSummaryScreen from './components/killer/summary/KillerGameSummaryScreen';
 import ShanghaiGameScreen from './components/shanghai/ShanghaiGameScreen';
 import ShanghaiGameSummaryScreen from './components/shanghai/summary/ShanghaiGameSummaryScreen';
+import DonkeyDerbyGameScreen from './components/donkeyDerby/DonkeyDerbyGameScreen';
+import DonkeyDerbyGameSummaryScreen from './components/donkeyDerby/summary/DonkeyDerbyGameSummaryScreen';
 import { useGameContext } from './context/GameContext';
 
 // Protected route component to check if we have players before allowing access
@@ -106,6 +108,11 @@ function App() {
           path="/games/shanghai" 
           element={<GameExistsRoute element={<ShanghaiGameScreen />} />} 
         />
+        {/* Donkey Derby Game Route */}
+        <Route 
+          path="/games/donkey-derby" 
+          element={<GameExistsRoute element={<DonkeyDerbyGameScreen />} />} 
+        />
         
         {/* Game Summary routes - requires a winner */}
         <Route 
@@ -123,6 +130,11 @@ function App() {
         <Route 
           path="/shanghai/summary" 
           element={<GameSummaryRoute element={<ShanghaiGameSummaryScreen />} />} 
+        />
+        {/* Donkey Derby Summary route - requires a winner */}
+        <Route 
+          path="/donkey-derby/summary" 
+          element={<GameSummaryRoute element={<DonkeyDerbyGameSummaryScreen />} />} 
         />
         
         {/* Redirect any other paths to home */}

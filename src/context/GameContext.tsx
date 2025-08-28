@@ -37,6 +37,8 @@ export interface Player {
   // Shanghai game specific properties
   shanghaiSegmentScores?: Record<number, number>; // Segment scores for Shanghai game, keyed by segment number
   shanghaisHit?: number; // Number of Shanghais hit
+  // Donkey Derby specific
+  donkeyProgress?: number; // Distance advanced toward finish line
 }
 
 export type EntryMode = 'straight' | 'double' | 'master';
@@ -71,6 +73,7 @@ export interface GameState {
   gameOptions: GameOptions;
   killerOptions?: KillerOptions;
   shanghaiOptions?: ShanghaiOptions;
+  donkeyDerbyOptions?: { finishLine: number };
   gameStatus: GameStatus;
   currentTurn: number;
   winner: Player | null;
@@ -91,7 +94,7 @@ export type GameAction =
   | { type: 'ADD_PLAYER'; player: Omit<Player, 'score' | 'throws' | 'averageScore' | 'highestScore'> }
   | { type: 'REMOVE_PLAYER'; id: string }
   | { type: 'SET_PLAYER_ORDER'; players: Player[] }
-  | { type: 'START_GAME'; gameType: GameType; gameOptions: GameOptions; killerOptions?: KillerOptions; shanghaiOptions?: ShanghaiOptions }
+  | { type: 'START_GAME'; gameType: GameType; gameOptions: GameOptions; killerOptions?: KillerOptions; shanghaiOptions?: ShanghaiOptions; donkeyDerbyOptions?: { finishLine: number } }
   | { type: 'ADD_DART'; dart: string }
   | { type: 'REMOVE_DART' }
   | { type: 'REMOVE_KILLER_DART' }
@@ -104,7 +107,10 @@ export type GameAction =
   | { type: 'END_GAME'; winner: Player }
   | { type: 'RESET_GAME' }
   | { type: 'UPDATE_SESSION_STATS' }
-  | { type: 'ASSIGN_SEGMENTS' }; // For Killer game
+  | { type: 'ASSIGN_SEGMENTS' } // For Killer game
+  | { type: 'ADD_SEGMENT_HIT'; playerId: string; hits: number }
+  | { type: 'REDUCE_LIFE'; playerId: string; hits: number }
+  | { type: 'ELIMINATE_PLAYER'; playerId: string };
 
 // Initial state
 const initialState: GameState = {
@@ -124,6 +130,9 @@ const initialState: GameState = {
   },
   shanghaiOptions: {
     segments: [1, 2, 3, 4, 5, 6, 7, 8, 9], // Default segments for Shanghai
+  },
+  donkeyDerbyOptions: {
+    finishLine: 10
   },
   gameStatus: "setup",
   currentTurn: 1,
@@ -179,22 +188,20 @@ const assignRandomSegments = (players: Player[]): Player[] => {
   }));
 };
 
-// Get number of hits based on dart notation
-const getHitsFromDart = (dart: string, targetSegment: number): number => {
-  if (!dart) return 0;
-  
-  const multiplier = dart[0];
-  const segment = parseInt(dart.substring(1));
-  
-  if (segment !== targetSegment) return 0;
-  
-  switch (multiplier) {
-    case 'S': return 1;
-    case 'D': return 2;
-    case 'T': return 3;
-    default: return 0;
-  }
+// Assign random unique segments (1-20) for Donkey Derby without killer properties
+const assignRandomSegmentsSimple = (players: Player[]): Player[] => {
+  const availableSegments = Array.from({ length: 20 }, (_, i) => i + 1);
+  const shuffled = availableSegments.sort(() => Math.random() - 0.5);
+  return players.map((p, idx) => ({
+    ...p,
+    segment: shuffled[idx],
+    donkeyProgress: 0,
+    singlesHit: 0,
+    doublesHit: 0,
+    triplesHit: 0
+  }));
 };
+
 
 // Game reducer
 const gameReducer = (state: GameState, action: GameAction): GameState => {
@@ -235,7 +242,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
     }
     
     case 'START_GAME': {
-      const { gameType, gameOptions, killerOptions, shanghaiOptions } = action;
+      const { gameType, gameOptions, killerOptions, shanghaiOptions, donkeyDerbyOptions } = action;
       
       // Validate that Killer game must have at least 2 players
       if (gameType === 'killer' && state.players.length < 2) {
@@ -244,27 +251,31 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       }
       
       // Initialize players based on game type
-      let updatedPlayers = state.players.map(player => ({
+      let updatedPlayers: Player[] = state.players.map(player => ({
         ...player,
         score: gameOptions.startingScore,
         throws: [],
         averageScore: 0,
         highestScore: 0,
         legs: 0,
-        sets: 0
+        sets: 0,
+        donkeyProgress: 0
       }));
       
       // For Killer game, assign random segments to players
       if (gameType === 'killer') {
         updatedPlayers = assignRandomSegments(updatedPlayers);
+      } else if (gameType === 'donkey_derby') {
+        updatedPlayers = assignRandomSegmentsSimple(updatedPlayers);
       }
       
       return {
         ...state,
         gameType,
         gameOptions,
-        killerOptions: killerOptions || state.killerOptions,
-        shanghaiOptions: shanghaiOptions || state.shanghaiOptions,
+  killerOptions: killerOptions || state.killerOptions,
+  shanghaiOptions: shanghaiOptions || state.shanghaiOptions,
+  donkeyDerbyOptions: donkeyDerbyOptions || state.donkeyDerbyOptions,
         gameStatus: "active",
         currentTurn: 1,
         currentPlayerIndex: 0,
@@ -569,8 +580,8 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       newThrows[state.currentTurn - 1] = dartsThrown;
       
       // Calculate total darts thrown in all legs
-      const allDarts = newThrows.flat();
-      const dartsCount = allDarts.length;
+  const allDarts = newThrows.flat();
+  const dartsCount = allDarts.length;
       
       // Calculate scores for various statistics
       const totalScore = newThrows.reduce((sum, turn) => {
@@ -580,7 +591,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       // Calculate averages
       const turnCount = newThrows.length;
       const averageScore = turnCount > 0 ? totalScore / turnCount : 0;
-      const threeDartAverage = dartsCount > 0 ? (totalScore / dartsCount) * 3 : 0;
+  const threeDartAverage = dartsCount > 0 ? (totalScore / dartsCount) * 3 : 0;
       
       // Calculate first 9 dart average
       const first9Darts = newThrows.slice(0, 3).flat();
@@ -623,7 +634,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       
       // If this was a checkout, update leg statistics
       if (!isBust && newScore === 0) {
-        const currentLegDarts = dartsCount;
+  const currentLegDarts = dartsCount;
         
         // Update best leg
         if (bestLeg === 0 || currentLegDarts < bestLeg) {
@@ -890,8 +901,6 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
                      (state.gameOptions.outMode === 'double' && newScore === 0 && score % 2 !== 0);
       
       // Calculate stats
-      const allDarts = newThrows.flat();
-      const dartsCount = allDarts.length;
       
       // Calculate average per throw (turn) instead of per dart
       const totalTurnScores = newThrows.reduce((sum, turn) => {
@@ -945,8 +954,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       newThrows[currentRoundIndex] = [];
       
       // Calculate stats
-      const allDarts = newThrows.flat();
-      const dartsCount = allDarts.length;
+  // Flattened darts not required for current average calculation
       
       // Calculate average per throw (turn) instead of per dart
       const totalTurnScores = newThrows.reduce((sum, turn) => {
