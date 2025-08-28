@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiAward, FiHome, FiRepeat, FiArrowRight } from 'react-icons/fi';
+import { FiAward, FiHome, FiRepeat, FiArrowRight, FiChevronUp, FiChevronDown } from 'react-icons/fi';
 import Layout from '../../shared/Layout';
 import Card from '../../shared/Card';
 import Button from '../../shared/Button';
