@@ -93,6 +93,7 @@ export interface GameState {
 export type GameAction =
   | { type: 'ADD_PLAYER'; player: Omit<Player, 'score' | 'throws' | 'averageScore' | 'highestScore'> }
   | { type: 'REMOVE_PLAYER'; id: string }
+  | { type: 'UPDATE_PLAYER_COLOR'; id: string; color: string }
   | { type: 'SET_PLAYER_ORDER'; players: Player[] }
   | { type: 'START_GAME'; gameType: GameType; gameOptions: GameOptions; killerOptions?: KillerOptions; shanghaiOptions?: ShanghaiOptions; donkeyDerbyOptions?: { finishLine: number } }
   | { type: 'ADD_DART'; dart: string }
@@ -248,6 +249,15 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       return {
         ...state,
         players: state.players.filter(player => player.id !== action.id)
+      };
+    }
+    
+    case 'UPDATE_PLAYER_COLOR': {
+      return {
+        ...state,
+        players: state.players.map(player =>
+          player.id === action.id ? { ...player, color: action.color } : player
+        )
       };
     }
     
