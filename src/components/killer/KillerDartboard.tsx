@@ -44,19 +44,19 @@ const MultiplierSelector = styled.div`
   width: 100%;
 `;
 
-const MultiplierButton = styled.button<{ isActive: boolean }>`
-  background-color: ${props => props.isActive ? '#E94560' : 'rgba(30, 30, 30, 0.7)'};
+const MultiplierButton = styled.button<{ $isActive: boolean }>`
+  background-color: ${props => props.$isActive ? '#E94560' : 'rgba(30, 30, 30, 0.7)'};
   color: ${props => props.theme.colors.text};
   border: none;
   padding: 12px 24px;
   border-radius: 10px;
   cursor: pointer;
-  font-weight: ${props => props.isActive ? 'bold' : 'normal'};
+  font-weight: ${props => props.$isActive ? 'bold' : 'normal'};
   flex: 1;
   max-width: 150px;
   
   &:hover {
-    background-color: ${props => !props.isActive && 'rgba(60, 60, 60, 0.7)'};
+    background-color: ${props => !props.$isActive && 'rgba(60, 60, 60, 0.7)'};
   }
 `;
 
@@ -68,14 +68,14 @@ const PlayerSegmentInfo = styled.div`
   margin: 12px 0;
 `;
 
-const PlayerSegmentItem = styled.div<{ color: string; isActive: boolean }>`
+const PlayerSegmentItem = styled.div<{ color: string; $isActive: boolean }>`
   display: flex;
   align-items: center;
   gap: 8px;
   background-color: rgba(30, 30, 30, 0.7);
   padding: 8px 16px;
   border-radius: 10px;
-  border: 2px solid ${props => props.isActive ? props.color : 'transparent'};
+  border: 2px solid ${props => props.$isActive ? props.color : 'transparent'};
 `;
 
 const PlayerDot = styled.div<{ color: string }>`
@@ -94,7 +94,7 @@ interface SegmentItemWrapperProps {
 }
 
 const StyledPlayerSegmentItem = ({ color, isActive, children, ...props }: SegmentItemWrapperProps) => (
-  <PlayerSegmentItem color={color} isActive={isActive} {...props}>
+  <PlayerSegmentItem color={color} $isActive={isActive} {...props}>
     {children}
   </PlayerSegmentItem>
 );
@@ -109,7 +109,7 @@ interface MultiplierButtonWrapperProps {
 
 // Create a wrapper component for MultiplierButton to avoid DOM prop warnings
 const StyledMultiplierButton = ({ isActive, children, onClick, ...props }: MultiplierButtonWrapperProps) => (
-  <MultiplierButton isActive={isActive} onClick={onClick} {...props}>
+  <MultiplierButton $isActive={isActive} onClick={onClick} {...props}>
     {children}
   </MultiplierButton>
 );

@@ -13,7 +13,11 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   endIcon?: React.ReactNode;
 }
 
-const StyledButton = styled.button<Omit<ButtonProps, 'children'>>`
+const StyledButton = styled.button<{
+  $variant?: ButtonVariant;
+  $size?: ButtonSize;
+  $fullWidth?: boolean;
+}>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -25,13 +29,13 @@ const StyledButton = styled.button<Omit<ButtonProps, 'children'>>`
   cursor: pointer;
   touch-action: manipulation; /* Improves touch interactions */
   
-  ${props => props.fullWidth && css`
+  ${props => props.$fullWidth && css`
     width: 100%;
   `}
   
   /* Size variants */
   ${props => {
-    switch(props.size) {
+    switch(props.$size) {
       case 'small':
         return css`
           padding: ${props.theme.space.xs} ${props.theme.space.md};
@@ -70,7 +74,7 @@ const StyledButton = styled.button<Omit<ButtonProps, 'children'>>`
   
   /* Style variants */
   ${props => {
-    switch(props.variant) {
+    switch(props.$variant) {
       case 'secondary':
         return css`
           background-color: ${props.theme.colors.accent};
@@ -188,9 +192,9 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   return (
     <StyledButton 
-      variant={variant}
-      size={size}
-      fullWidth={fullWidth}
+      $variant={variant}
+      $size={size}
+      $fullWidth={fullWidth}
       {...rest}
     >
       {startIcon && <span className="start-icon">{startIcon}</span>}

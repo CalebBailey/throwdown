@@ -33,7 +33,6 @@ const PageTitle = styled.h1`
 `;
 
 const ScrollableContent = styled.div`
-  max-height: calc(100vh - 250px);
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: ${props => props.theme.space.xs};

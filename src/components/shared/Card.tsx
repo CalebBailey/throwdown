@@ -10,12 +10,16 @@ interface CardProps {
   className?: string;
 }
 
-const StyledCard = styled.div<Omit<CardProps, 'children'>>`
+const StyledCard = styled.div<{
+  elevation?: 'low' | 'medium' | 'high';
+  $clickable?: boolean;
+  $fullWidth?: boolean;
+}>`
   background-color: ${props => props.theme.colors.secondary};
   border-radius: ${props => props.theme.borderRadius.lg};
   padding: ${props => props.theme.space.lg};
   color: ${props => props.theme.colors.text};
-  width: ${props => props.fullWidth ? '100%' : 'auto'};
+  width: ${props => props.$fullWidth ? '100%' : 'auto'};
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   
   /* Elevation variants */
@@ -30,7 +34,7 @@ const StyledCard = styled.div<Omit<CardProps, 'children'>>`
     }
   }}
   
-  ${props => props.clickable && `
+  ${props => props.$clickable && `
     cursor: pointer;
     
     &:hover {
@@ -90,8 +94,8 @@ export const Card: React.FC<CardProps> & {
   return (
     <StyledCard
       elevation={elevation}
-      clickable={clickable}
-      fullWidth={fullWidth}
+      $clickable={clickable}
+      $fullWidth={fullWidth}
       onClick={onClick}
       className={className}
     >

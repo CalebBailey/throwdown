@@ -62,8 +62,6 @@ export const theme = {
 };
 
 export const GlobalStyle = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&family=Roboto+Mono:wght@400;500&display=swap');
-  
   * {
     box-sizing: border-box;
     margin: 0;

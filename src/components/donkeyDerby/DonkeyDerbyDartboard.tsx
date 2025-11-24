@@ -42,15 +42,15 @@ const Legend = styled.div`
   margin-top: 12px;
 `;
 
-const LegendItem = styled.div<{ color: string; active: boolean }>`
+const LegendItem = styled.div<{ color: string; $active: boolean }>`
   display: flex;
   align-items: center;
   gap: 4px;
-  background: ${p => p.active ? 'rgba(233,69,96,0.2)' : 'rgba(255,255,255,0.05)'};
+  background: ${p => p.$active ? 'rgba(233,69,96,0.2)' : 'rgba(255,255,255,0.05)'};
   padding: 4px 8px;
   border-radius: 6px;
   font-size: 12px;
-  border: 1px solid ${p => p.active ? p.theme.colors.highlight : 'transparent'};
+  border: 1px solid ${p => p.$active ? p.theme.colors.highlight : 'transparent'};
 `;
 
 const ColorDot = styled.span<{ color: string }>`
@@ -67,15 +67,15 @@ const MultiplierSelector = styled.div`
   margin-top: 14px;
 `;
 
-const MultBtn = styled.button<{ active: boolean }>`
-  background: ${p => p.active ? p.theme.colors.highlight : 'rgba(30,30,30,0.7)'};
+const MultBtn = styled.button<{ $active: boolean }>`
+  background: ${p => p.$active ? p.theme.colors.highlight : 'rgba(30,30,30,0.7)'};
   color: ${p => p.theme.colors.text};
   border: none;
   padding: 10px 18px;
   border-radius: 8px;
   cursor: pointer;
-  font-weight: ${p => p.active ? 'bold' : 400};
-  &:hover { background: ${p => !p.active && 'rgba(60,60,60,0.7)'}; }
+  font-weight: ${p => p.$active ? 'bold' : 400};
+  &:hover { background: ${p => !p.$active && 'rgba(60,60,60,0.7)'}; }
 `;
 
 const DonkeyDerbyDartboard: React.FC<DonkeyDerbyDartboardProps> = ({ players, currentPlayer, onHitSegment }) => {
@@ -140,14 +140,14 @@ const DonkeyDerbyDartboard: React.FC<DonkeyDerbyDartboardProps> = ({ players, cu
       </BoardSvg>
       <Legend>
         {players.map(p => (
-          <LegendItem key={p.id} color={p.color} active={p.id === currentPlayer.id}>
+          <LegendItem key={p.id} color={p.color} $active={p.id === currentPlayer.id}>
             <ColorDot color={p.color} /> {p.name}: {p.segment}
           </LegendItem>
         ))}
       </Legend>
       <MultiplierSelector>
         {(['single','double','triple'] as const).map(m => (
-          <MultBtn key={m} active={mult===m} onClick={() => setMult(m)}>
+          <MultBtn key={m} $active={mult===m} onClick={() => setMult(m)}>
             {m.charAt(0).toUpperCase()+m.slice(1)} {m==='single'?'(1)':m==='double'?'(2)':'(3)'}
           </MultBtn>
         ))}
