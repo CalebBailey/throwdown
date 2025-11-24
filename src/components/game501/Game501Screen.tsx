@@ -6,6 +6,7 @@ import { FiArrowRight, FiCheck, FiX, FiArrowLeft, FiTarget, FiDelete, FiAward, F
 import Layout from '../shared/Layout';
 import Button from '../shared/Button';
 import Card from '../shared/Card';
+import GameRestoredBanner from '../shared/GameRestoredBanner';
 import { useGameContext } from '../../context/GameContext';
 import { isScoreValid, getCheckoutSuggestions, dartNotationToScore, calculateScore } from '../../utils/gameUtils';
 
@@ -413,6 +414,15 @@ const Game501Screen: React.FC = () => {
   const { state, dispatch } = useGameContext();
   const [activeScoreTab, setActiveScoreTab] = useState<'single' | 'double' | 'triple' | 'special'>('single');
   const [error, setError] = useState<string | null>(null);
+  const [showRestoredBanner, setShowRestoredBanner] = useState(false);
+  
+  // Check if we're restoring a game
+  useEffect(() => {
+    if (state.gameStatus === 'active' && state.players.length > 0 && state.currentTurn > 1) {
+      setShowRestoredBanner(true);
+      setTimeout(() => setShowRestoredBanner(false), 5000);
+    }
+  }, []); // Only run once on mount
   
   // Get the current player
   const currentPlayer = state.players[state.currentPlayerIndex];
@@ -547,6 +557,8 @@ const Game501Screen: React.FC = () => {
   return (
     <Layout hideNav>
       <Container>
+        <GameRestoredBanner show={showRestoredBanner} />
+        
         <GameHeader>
           <div>
             <PageTitle>{state.gameType} Game</PageTitle>

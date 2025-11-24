@@ -11,8 +11,9 @@ interface LayoutProps {
 const LayoutContainer = styled.div`
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100%;
   position: relative;
+  flex: 1;
 `;
 
 const Header = styled.header`
@@ -25,6 +26,11 @@ const Header = styled.header`
   position: sticky;
   top: 0;
   z-index: 10;
+  flex-shrink: 0;
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: ${props => props.theme.space.sm} ${props => props.theme.space.md};
+  }
 `;
 
 const Logo = styled.div`
@@ -113,27 +119,30 @@ const Main = styled.main`
   flex: 1;
   padding: ${props => props.theme.space.lg};
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 
   @media (max-width: ${props => props.theme.breakpoints.tablet}) {
     padding: ${props => props.theme.space.md};
   }
 
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    padding: ${props => props.theme.space.sm};
+    padding: ${props => props.theme.space.md} ${props => props.theme.space.sm};
   }
 `;
 
 const Footer = styled.footer`
   background-color: ${props => props.theme.colors.primary};
-  padding: ${props => props.theme.space.md};
+  padding: ${props => props.theme.space.sm} ${props => props.theme.space.md};
   text-align: center;
   font-size: ${props => props.theme.fontSizes.sm};
   color: rgba(255, 255, 255, 0.6);
+  flex-shrink: 0;
 
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    padding: ${props => props.theme.space.sm};
+    padding: ${props => props.theme.space.xs} ${props => props.theme.space.sm};
     font-size: ${props => props.theme.fontSizes.xs};
   }
 `;
@@ -184,7 +193,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, hideNav = false }) => 
         </Header>
       )}
       <Main>{children}</Main>
-      <Footer>ThrowDown Darts App &copy; {new Date().getFullYear()}</Footer>
+      {/* {!hideNav && (
+        <Footer>ThrowDown Darts App &copy; {new Date().getFullYear()}</Footer>
+      )} */}
     </LayoutContainer>
   );
 };

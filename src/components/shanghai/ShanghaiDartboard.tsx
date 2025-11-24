@@ -23,6 +23,7 @@ const BoardSvg = styled.svg`
   max-width: 500px;
   width: 100%;
   height: auto;
+  aspect-ratio: 1 / 1;
 `;
 
 const SegmentText = styled.text`
@@ -42,19 +43,19 @@ const MultiplierSelector = styled.div`
   width: 100%;
 `;
 
-const MultiplierButton = styled.button<{ isActive: boolean }>`
-  background-color: ${props => props.isActive ? '#E94560' : 'rgba(30, 30, 30, 0.7)'};
+const MultiplierButton = styled.button<{ $isActive: boolean }>`
+  background-color: ${props => props.$isActive ? '#E94560' : 'rgba(30, 30, 30, 0.7)'};
   color: ${props => props.theme.colors.text};
   border: none;
   padding: 12px 24px;
   border-radius: 10px;
   cursor: pointer;
-  font-weight: ${props => props.isActive ? 'bold' : 'normal'};
+  font-weight: ${props => props.$isActive ? 'bold' : 'normal'};
   flex: 1;
   max-width: 150px;
   
   &:hover {
-    background-color: ${props => !props.isActive && 'rgba(60, 60, 60, 0.7)'};
+    background-color: ${props => !props.$isActive && 'rgba(60, 60, 60, 0.7)'};
   }
 `;
 
@@ -86,7 +87,7 @@ interface MultiplierButtonWrapperProps {
 
 // Create a wrapper component for MultiplierButton to avoid DOM prop warnings
 const StyledMultiplierButton = ({ isActive, children, onClick, ...props }: MultiplierButtonWrapperProps) => (
-  <MultiplierButton isActive={isActive} onClick={onClick} {...props}>
+  <MultiplierButton $isActive={isActive} onClick={onClick} {...props}>
     {children}
   </MultiplierButton>
 );
