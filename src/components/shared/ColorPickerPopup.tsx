@@ -23,7 +23,7 @@ const Overlay = styled(motion.div)`
 const PopupContainer = styled(motion.div)<{ top: number; left: number }>`
   position: fixed;
   bottom: calc(100vh - ${props => props.top}px);
-  left: calc(${props => props.left}px - 8.3%);
+  left: ${props => props.left}px;
   z-index: 1000;
   transform: translateX(-50%);
   padding-bottom: 12px;

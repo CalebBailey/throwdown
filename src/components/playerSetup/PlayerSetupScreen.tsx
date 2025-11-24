@@ -31,7 +31,7 @@ const PlayerGrid = styled.div`
   }
 `;
 
-const PlayerCard = styled(motion.div)`
+const PlayerCard = styled(motion.div)<{ color: string }>`
   background-color: ${props => props.theme.colors.secondary};
   border-radius: ${props => props.theme.borderRadius.md};
   padding: ${props => props.theme.space.md};
@@ -39,12 +39,19 @@ const PlayerCard = styled(motion.div)`
   justify-content: space-between;
   align-items: center;
   box-shadow: ${props => props.theme.shadows.sm};
+  cursor: pointer;
+  transition: box-shadow 0.2s ease-in-out;
+  
+  &:hover {
+    box-shadow: 0 0 16px ${props => props.color};
+  }
 `;
 
 const PlayerInfo = styled.div`
   display: flex;
   align-items: center;
   gap: ${props => props.theme.space.md};
+  pointer-events: none;
 `;
 
 const PlayerColor = styled.div<{ color: string }>`
@@ -52,15 +59,9 @@ const PlayerColor = styled.div<{ color: string }>`
   height: 24px;
   border-radius: 50%;
   background-color: ${props => props.color};
-  cursor: pointer;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  transition: transform 0.2s ease-in-out;
   
-  &:hover {
-    transform: scale(1.2);
-    box-shadow: 0 0 8px ${props => props.color};
-  }
-  
-  &:active {
+  ${PlayerCard}:hover & {
     transform: scale(1.1);
   }
 `;
@@ -73,6 +74,7 @@ const PlayerName = styled.span`
 const PlayerActions = styled.div`
   display: flex;
   gap: ${props => props.theme.space.sm};
+  pointer-events: auto;
 `;
 
 const AddPlayerForm = styled.form`
@@ -174,11 +176,14 @@ const PlayerSetupScreen: React.FC = () => {
     dispatch({ type: 'SET_PLAYER_ORDER', players: shuffledPlayers });
   };
   
-  const handleColorClick = (playerId: string, color: string, event: React.MouseEvent<HTMLDivElement>) => {
-    const target = event.currentTarget;
-    const rect = target.getBoundingClientRect();
+  const handleColorClick = (playerId: string, color: string) => {
+    // Find the color circle element to position the popup correctly
+    const colorCircle = colorCircleRefs.current[playerId];
+    
+    if (!colorCircle) return;
+    
+    const rect = colorCircle.getBoundingClientRect();
     // Position at the center of the color circle
-    // Using fixed positioning, so we don't need to add scroll offset
     const position = {
       top: rect.top + rect.height / 2,
       left: rect.left + rect.width / 2,
@@ -262,15 +267,19 @@ const PlayerSetupScreen: React.FC = () => {
             
             <PlayerGrid as={motion.div} variants={containerAnimation} initial="hidden" animate="show">
               {state.players.map(player => (
-                <PlayerCard key={player.id} variants={itemAnimation}>
+                <PlayerCard 
+                  key={player.id} 
+                  variants={itemAnimation}
+                  color={player.color}
+                  onClick={() => handleColorClick(player.id, player.color)}
+                  title="Click to change color"
+                >
                   <PlayerInfo>
                     <PlayerColor 
-                      color={player.color} 
-                      onClick={(e) => handleColorClick(player.id, player.color, e)}
+                      color={player.color}
                       ref={(el) => {
                         if (el) colorCircleRefs.current[player.id] = el;
                       }}
-                      title="Click to change color"
                     />
                     <PlayerName>{player.name}</PlayerName>
                   </PlayerInfo>
@@ -278,7 +287,10 @@ const PlayerSetupScreen: React.FC = () => {
                     <Button 
                       variant="text" 
                       size="small"
-                      onClick={() => handleRemovePlayer(player.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemovePlayer(player.id);
+                      }}
                       startIcon={<FiTrash2 />}
                     >
                       Remove
