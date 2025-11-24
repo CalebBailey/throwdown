@@ -7,6 +7,7 @@ import Layout from '../shared/Layout';
 import Button from '../shared/Button';
 import { useGameContext } from '../../context/GameContext';
 import Card from '../shared/Card';
+import logo from '../../assets/images/ThrowDownLogoNoBkgd.png';
 
 const HeroSection = styled.div`
   display: flex;
@@ -196,7 +197,7 @@ const HomeScreen: React.FC = () => {
       >
         <HeroSection>
           <Logo
-            src="/ThrowDownLogoNoBkgd.png"
+            src={logo}
             alt="ThrowDown Logo"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
