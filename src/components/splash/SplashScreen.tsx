@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
+import logo from '../../assets/images/ThrowDownLogoNoBkgd.png';
 
 const SplashContainer = styled(motion.div)`
   position: fixed;
@@ -89,7 +90,7 @@ const SplashScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
         ))}
         
         <Logo
-          src="/ThrowDownLogoNoBkgd.png"
+          src={logo}
           alt="ThrowDown Logo"
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
