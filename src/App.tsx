@@ -71,7 +71,7 @@ const HomeRouteWithSplash: React.FC = () => {
 
 function App() {
   return (
-    <Router>
+    <Router basename="/throwdown">
       <Routes>
         {/* Home route with splash screen */}
         <Route path="/" element={<HomeRouteWithSplash />} />

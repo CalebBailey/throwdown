@@ -669,7 +669,6 @@ const KillerGameScreen: React.FC = () => {
                 <WinnerAvatar color={state.winner.color}>
                   {state.winner.name.charAt(0).toUpperCase()}
                   <Medal 
-                    position={1}
                     initial={{ scale: 0, opacity: 0, rotate: -30 }}
                     animate={{ scale: 1, opacity: 1, rotate: 0 }}
                     transition={{ delay: 0.5, type: 'spring', stiffness: 300 }}
@@ -712,7 +711,7 @@ const KillerGameScreen: React.FC = () => {
                   <h3>Player Win Tallies</h3>
                   <ScoreScroller>
                     {state.players.map(player => (
-                      <PlayerScoreBox key={player.id} $winner={player.id === state.winner.id}>
+                      <PlayerScoreBox key={player.id} $winner={player.id === state.winner?.id}>
                         <PlayerScoreAvatar color={player.color}>
                           {player.name.charAt(0).toUpperCase()}
                         </PlayerScoreAvatar>
