@@ -52,7 +52,7 @@ const LogoIcon = styled.div`
 `;
 
 const Logo = styled(motion.img)`
-  width: 200px;
+  width: 300px;
   height: auto;
   margin-right: ${props => props.theme.space.sm};
   filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
