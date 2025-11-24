@@ -2,279 +2,62 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiSettings, FiPlay, FiTarget, FiTrendingUp, FiZap } from 'react-icons/fi';
+import { FiPlay } from 'react-icons/fi';
 import Layout from '../shared/Layout';
 import Card from '../shared/Card';
 import Button from '../shared/Button';
 import { useGameContext } from '../../context/GameContext';
 import { GameType, GameOptions, KillerOptions } from '../../context/GameContext';
+import { GameTypeSelector } from './GameTypeSelector';
+import { X01Settings } from './X01Settings';
+import { KillerSettings } from './KillerSettings';
+import { OtherGamesSettings } from './OtherGamesSettings';
+import { PlayerListSection } from './PlayerListSection';
+
+type GameCategory = 'x01' | 'killer' | 'other';
 
 const Container = styled.div`
-  max-width: 1000px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 0 ${props => props.theme.space.sm};
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    padding: 0 ${props => props.theme.space.xs};
-  }
 `;
 
 const PageTitle = styled.h1`
-  margin-bottom: ${props => props.theme.space.lg};
-  color: ${props => props.theme.colors.text};
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    margin-bottom: ${props => props.theme.space.md};
-    font-size: 1.75rem;
-  }
-`;
-
-const PlayerList = styled.div`
-  margin-top: ${props => props.theme.space.lg};
-  margin-bottom: ${props => props.theme.space.lg};
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    margin-top: ${props => props.theme.space.md};
-    margin-bottom: ${props => props.theme.space.md};
-  }
-`;
-
-const PlayerRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${props => props.theme.space.md};
-  padding: ${props => props.theme.space.sm} 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  
-  &:last-child {
-    border-bottom: none;
-  }
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    gap: ${props => props.theme.space.sm};
-    padding: ${props => props.theme.space.xs} 0;
-  }
-`;
-
-const PlayerDot = styled.div<{ color: string }>`
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: ${props => props.color};
-`;
-
-const NumberInput = styled.input`
-  background-color: #E94560;
-  border: none;
-  border-radius: ${props => props.theme.borderRadius.md};
-  color: ${props => props.theme.colors.text};
-  font-size: ${props => props.theme.fontSizes.md};
-  text-align: center;
-  width: 100%;
-  padding: ${props => props.theme.space.sm};
-  
-  &:focus {
-    outline: none;
-    border-color: ${props => props.theme.colors.highlight};
-  }
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    font-size: ${props => props.theme.fontSizes.sm};
-    padding: ${props => props.theme.space.xs};
-  }
-`;
-
-const SettingsLabel = styled.h2`
-  display: flex;
-  align-items: center;
-  gap: ${props => props.theme.space.sm};
   margin-bottom: ${props => props.theme.space.md};
   color: ${props => props.theme.colors.text};
-  font-size: ${props => props.theme.fontSizes.lg};
+  font-size: ${props => props.theme.fontSizes.xxxl};
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    font-size: ${props => props.theme.fontSizes.md};
     margin-bottom: ${props => props.theme.space.sm};
+    font-size: ${props => props.theme.fontSizes.xxl};
   }
 `;
 
-const SettingsGrid = styled.div`
-  display: grid;
-  gap: ${props => props.theme.space.md};
-  margin-bottom: ${props => props.theme.space.lg};
+const ScrollableContent = styled.div`
+  max-height: calc(100vh - 250px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: ${props => props.theme.space.xs};
+  
+  /* Custom scrollbar */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: ${props => props.theme.colors.highlight};
+    border-radius: 3px;
+  }
+  
+  scrollbar-width: thin;
+  scrollbar-color: ${props => props.theme.colors.highlight} rgba(255, 255, 255, 0.05);
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    gap: ${props => props.theme.space.sm};
-    margin-bottom: ${props => props.theme.space.md};
-  }
-`;
-
-const GameModeRow = styled.div`
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: ${props => props.theme.space.sm};
-  margin-bottom: ${props => props.theme.space.md};
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-areas:
-      "bestof firstto"
-      "numberinput numberinput"
-      "legs sets";
-    gap: ${props => props.theme.space.xs};
-    margin-bottom: ${props => props.theme.space.sm};
-    
-    & > button:nth-child(1) {
-      grid-area: bestof;
-    }
-    & > button:nth-child(2) {
-      grid-area: firstto;
-    }
-    & > input:nth-child(3) {
-      grid-area: numberinput;
-      max-width: none;
-      width: 100%;
-    }
-    & > button:nth-child(4) {
-      grid-area: legs;
-    }
-    & > button:nth-child(5) {
-      grid-area: sets;
-    }
-  }
-`;
-
-const GameModeRow4 = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: ${props => props.theme.space.sm};
-  margin-bottom: ${props => props.theme.space.md};
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    grid-template-columns: repeat(2, 1fr);
-    gap: ${props => props.theme.space.xs};
-    margin-bottom: ${props => props.theme.space.sm};
-  }
-`;
-
-const GameModeRow3 = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: ${props => props.theme.space.sm};
-  margin-bottom: ${props => props.theme.space.md};
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    grid-template-columns: 1fr;
-    gap: ${props => props.theme.space.xs};
-    margin-bottom: ${props => props.theme.space.sm};
-  }
-`;
-
-const GameOptionButton = styled.button<{ $active: boolean }>`
-  background-color: ${props => props.$active ? props.theme.colors.highlight : 'rgba(255, 255, 255, 0.1)'};
-  color: ${props => props.theme.colors.text};
-  padding: ${props => props.theme.space.md};
-  border: none;
-  border-radius: ${props => props.theme.borderRadius.md};
-  font-size: ${props => props.theme.fontSizes.md};
-  font-weight: ${props => props.$active ? 'bold' : 'normal'};
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  
-  &:hover {
-    background-color: ${props => !props.$active && 'rgba(255, 255, 255, 0.2)'};
-  }
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    padding: ${props => props.theme.space.sm};
-    font-size: ${props => props.theme.fontSizes.sm};
-    min-height: 48px; /* Ensure good touch target size */
-  }
-`;
-
-const CustomScoreInput = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-
-  input {
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: ${props => props.theme.borderRadius.sm};
-    color: ${props => props.theme.colors.text};
-    font-size: ${props => props.theme.fontSizes.md};
-    padding: ${props => props.theme.space.xs} ${props => props.theme.space.sm};
-    width: 80px;
-    text-align: center;
-    margin-top: ${props => props.theme.space.xs};
-    
-    &:focus {
-      outline: none;
-      border-color: ${props => props.theme.colors.highlight};
-    }
-    
-    @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-      width: 100%;
-      max-width: 120px;
-      font-size: ${props => props.theme.fontSizes.sm};
-    }
-  }
-
-  span {
-    font-size: ${props => props.theme.fontSizes.sm};
-    opacity: 0.7;
-    margin-bottom: ${props => props.theme.space.xs};
-  }
-`;
-
-const ToggleRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: ${props => props.theme.space.sm} 0;
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    padding: ${props => props.theme.space.xs} 0;
-    font-size: ${props => props.theme.fontSizes.sm};
-  }
-`;
-
-const ToggleSwitch = styled.div<{ $on: boolean }>`
-  width: 50px;
-  height: 24px;
-  background-color: ${props => props.$on ? props.theme.colors.highlight : 'rgba(255, 255, 255, 0.2)'};
-  border-radius: 12px;
-  position: relative;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  
-  &:after {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: ${props => props.$on ? '26px' : '2px'};
-    width: 20px;
-    height: 20px;
-    background-color: #fff;
-    border-radius: 50%;
-    transition: left 0.2s ease;
-  }
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    width: 42px;
-    height: 22px;
-    
-    &:after {
-      width: 18px;
-      height: 18px;
-      left: ${props => props.$on ? '22px' : '2px'};
-    }
+    max-height: calc(100vh - 220px);
   }
 `;
 
@@ -283,166 +66,11 @@ const StartGameButton = styled(Button)`
   padding: ${props => props.theme.space.md};
   font-size: ${props => props.theme.fontSizes.lg};
   margin-top: ${props => props.theme.space.md};
+  font-weight: bold;
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
     padding: ${props => props.theme.space.sm};
     font-size: ${props => props.theme.fontSizes.md};
-    margin-top: ${props => props.theme.space.sm};
-  }
-`;
-
-// New Game Type Tab Component
-const GameTypeTabs = styled.div`
-  display: flex;
-  gap: 1px;
-  margin-bottom: ${props => props.theme.space.md};
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    margin-bottom: ${props => props.theme.space.sm};
-  }
-`;
-
-const GameTypeTab = styled.button<{ $active: boolean }>`
-  background-color: ${props => props.$active ? props.theme.colors.highlight : 'transparent'};
-  color: ${props => props.theme.colors.text};
-  border: none;
-  padding: ${props => props.theme.space.md};
-  cursor: pointer;
-  font-weight: ${props => props.$active ? 'bold' : 'normal'};
-  border-radius: ${props => props.theme.borderRadius.md} ${props => props.theme.borderRadius.md} 0 0;
-  display: flex;
-  align-items: center;
-  gap: ${props => props.theme.space.sm};
-  flex: 1;
-  justify-content: center;
-  
-  &:hover {
-    background-color: ${props => !props.$active && 'rgba(255, 255, 255, 0.05)'};
-  }
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    padding: ${props => props.theme.space.sm} ${props => props.theme.space.xs};
-    gap: ${props => props.theme.space.xs};
-    font-size: ${props => props.theme.fontSizes.sm};
-    
-    /* Show only icon on very small screens */
-    span {
-      display: none;
-    }
-  }
-`;
-
-const TabText = styled.span`
-  @media (max-width: 360px) {
-    display: none; /* Hide text on very small screens */
-  }
-`;
-
-// Game Category
-type GameCategory = 'x01' | 'killer' | 'other';
-
-// New Game Card Component
-const GameSelectionArea = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: ${props => props.theme.space.md};
-  margin-bottom: ${props => props.theme.space.lg};
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    grid-template-columns: 1fr;
-    gap: ${props => props.theme.space.sm};
-    margin-bottom: ${props => props.theme.space.md};
-  }
-`;
-
-const GameCard = styled(motion.div)<{ $active: boolean }>`
-  background-color: ${props => props.$active ? props.theme.colors.highlight : 'rgba(255, 255, 255, 0.1)'};
-  border-radius: ${props => props.theme.borderRadius.md};
-  padding: ${props => props.theme.space.md};
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  height: 100%;
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    padding: ${props => props.theme.space.sm};
-  }
-`;
-
-const LivesSetting = styled(motion.div)<{ $active: boolean }>`
-  background-color: ${props => props.$active ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.1)'};
-  border-radius: ${props => props.theme.borderRadius.md};
-  padding: ${props => props.theme.space.md};
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  height: 100%;
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    padding: ${props => props.theme.space.sm};
-  }
-`;
-
-const GameIcon = styled.div`
-  font-size: 2.5rem;
-  margin-bottom: ${props => props.theme.space.sm};
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    font-size: 2rem;
-    margin-bottom: ${props => props.theme.space.xs};
-  }
-`;
-
-const GameTitle = styled.h3`
-  margin: 0;
-  margin-bottom: ${props => props.theme.space.xs};
-`;
-
-const GameDescription = styled.p`
-  font-size: ${props => props.theme.fontSizes.sm};
-  opacity: 0.7;
-  margin: 0;
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    font-size: ${props => props.theme.fontSizes.xs};
-  }
-`;
-
-// Lives options for Killer game
-const LivesOptions = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: ${props => props.theme.space.sm};
-  margin-top: ${props => props.theme.space.md};
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    gap: ${props => props.theme.space.xs};
-    margin-top: ${props => props.theme.space.sm};
-  }
-`;
-
-const LivesOption = styled.button<{ $active: boolean }>`
-  background-color: ${props => props.$active ? props.theme.colors.highlight : 'rgba(255, 255, 255, 0.1)'};
-  color: ${props => props.theme.colors.text};
-  border: none;
-  border-radius: ${props => props.theme.borderRadius.md};
-  padding: ${props => props.theme.space.sm};
-  min-width: 40px;
-  cursor: pointer;
-  
-  &:hover {
-    background-color: ${props => !props.$active && 'rgba(255, 255, 255, 0.2)'};
-  }
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    padding: ${props => props.theme.space.xs} ${props => props.theme.space.sm};
-    min-width: 36px;
-    min-height: 36px;
   }
 `;
 
@@ -466,45 +94,27 @@ const GameHubScreen: React.FC = () => {
   const [checkoutRate, setCheckoutRate] = useState<boolean>(true);
   const [twoLegsDifference, setTwoLegsDifference] = useState<boolean>(false);
   const [activeInput, setActiveInput] = useState<'legs' | 'sets'>('legs');
-  // Donkey Derby finish line configuration
   const [donkeyFinishLine, setDonkeyFinishLine] = useState<number>(10);
   const [donkeyFinishLineMode, setDonkeyFinishLineMode] = useState<'10' | '15' | 'custom'>('10');
   const [donkeyCustomFinish, setDonkeyCustomFinish] = useState<string>('12');
-  
-  // New state for game category tabs
   const [gameCategory, setGameCategory] = useState<GameCategory>('x01');
-  
-  // Add handler to safely switch active input without resetting values
-  const handleSwitchActiveInput = (input: 'legs' | 'sets') => {
-    setActiveInput(input);
-  };
   
   const handleGameTypeSelect = (gameType: GameType) => {
     setSelectedGameType(gameType);
     
-    // Update starting score based on game type
     let startingScore: number;
     switch (gameType) {
-      case "301":
-        startingScore = 301;
-        break;
-      case "701":
-        startingScore = 701;
-        break;
-      case "custom":
-        startingScore = parseInt(customScore) || 170;
-        break;
-      default:
-        startingScore = 501;
+      case "301": startingScore = 301; break;
+      case "701": startingScore = 701; break;
+      case "custom": startingScore = parseInt(customScore) || 170; break;
+      default: startingScore = 501;
     }
     
     setGameOptions(prev => ({ ...prev, startingScore }));
   };
   
-  const handleCustomScoreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+  const handleCustomScoreChange = (value: string) => {
     setCustomScore(value);
-    
     if (selectedGameType === "custom" && value) {
       setGameOptions(prev => ({
         ...prev,
@@ -520,29 +130,34 @@ const GameHubScreen: React.FC = () => {
     }));
   };
   
+  const handleSharedValueChange = (value: number) => {
+    setSharedLegsSetValue(value);
+    setGameOptions(prev => ({
+      ...prev,
+      legs: value,
+      sets: value
+    }));
+  };
+  
   const handleLivesOption = (lives: number) => {
     setKillerOptions(prev => ({
       ...prev,
-      maxHits: lives // Use maxHits instead of lives
+      maxHits: lives
     }));
   };
   
   const handleStartGame = () => {
-    // Apply the shared value based on which tab is active
     const finalGameOptions = {
       ...gameOptions,
-      // Only use the active option's value
       legs: activeInput === 'legs' ? sharedLegsSetValue : 1,
       sets: activeInput === 'sets' ? sharedLegsSetValue : 1
     };
     
-    // Validate player count for Killer game
     if (gameCategory === 'killer' && state.players.length < 2) {
       alert('Killer game requires at least 2 players to start!');
       return;
     }
     
-    // Start the game with selected options
     dispatch({
       type: 'START_GAME',
       gameType: selectedGameType,
@@ -551,17 +166,15 @@ const GameHubScreen: React.FC = () => {
       donkeyDerbyOptions: selectedGameType === 'donkey_derby' ? { finishLine: donkeyFinishLine } : undefined
     });
     
-    // Navigate to the appropriate game screen
     if (selectedGameType === 'donkey_derby') {
       navigate('/games/donkey-derby');
     } else if (gameCategory === 'x01') {
-      navigate("/games/X01"); // Use generic X01 route (the logic handles different starting scores)
+      navigate("/games/X01");
     } else if (gameCategory === 'killer') {
       navigate("/games/killer");
     } else if (selectedGameType === 'shanghai') {
       navigate("/games/shanghai");
     } else {
-      // Handle other game types that might be added in the future
       navigate("/games");
     }
   };
@@ -570,7 +183,6 @@ const GameHubScreen: React.FC = () => {
     navigate('/players');
   };
   
-  // Animation variants
   const itemAnimation = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0 }
@@ -589,322 +201,62 @@ const GameHubScreen: React.FC = () => {
             </Card.Header>
             
             <Card.Content>
-              <GameTypeTabs>
-                <GameTypeTab 
-                  $active={gameCategory === 'x01'} 
-                  onClick={() => setGameCategory('x01')}
-                >
-                  <FiTarget />
-                  <TabText>X01 Games</TabText>
-                </GameTypeTab>
-                <GameTypeTab 
-                  $active={gameCategory === 'killer'} 
-                  onClick={() => setGameCategory('killer')}
-                >
-                  <FiZap />
-                  <TabText>Killer</TabText>
-                </GameTypeTab>
-                <GameTypeTab 
-                  $active={gameCategory === 'other'} 
-                  onClick={() => setGameCategory('other')}
-                >
-                  <FiTrendingUp />
-                  <TabText>Other Games</TabText>
-                </GameTypeTab>
-              </GameTypeTabs>
+              <GameTypeSelector
+                activeCategory={gameCategory}
+                onCategoryChange={setGameCategory}
+              />
               
-              {/* X01 Games Settings */}
-              {gameCategory === 'x01' && (
-                <>
-                  <SettingsLabel>
-                    <FiSettings /> GAME SETTINGS
-                  </SettingsLabel>
-                  
-                  <SettingsGrid>
-                    {/* Format row */}
-                    <GameModeRow>
-                      <GameOptionButton
-                        $active={gameOptions.format === 'bestOf'}
-                        onClick={() => handleSelectOption('format', 'bestOf')}
-                      >
-                        BEST OF
-                      </GameOptionButton>
-                      <GameOptionButton
-                        $active={gameOptions.format === 'firstTo'}
-                        onClick={() => handleSelectOption('format', 'firstTo')}
-                      >
-                        FIRST TO
-                      </GameOptionButton>
-                      <NumberInput
-                        type="number"
-                        min="1"
-                        max="20"
-                        value={sharedLegsSetValue}
-                        onChange={(e) => {
-                          const value = parseInt(e.target.value) || 1;
-                          setSharedLegsSetValue(value);
-                          // Update both legs and sets with the same value
-                          setGameOptions(prev => ({
-                            ...prev,
-                            legs: value,
-                            sets: value
-                          }));
-                        }}
-                      />
-                      <GameOptionButton
-                        $active={activeInput === 'legs'}
-                        onClick={() => handleSwitchActiveInput('legs')}
-                      >
-                        LEGS
-                      </GameOptionButton>
-                      <GameOptionButton
-                        $active={activeInput === 'sets'}
-                        onClick={() => handleSwitchActiveInput('sets')}
-                      >
-                        SETS
-                      </GameOptionButton>
-                    </GameModeRow>
-
-                    {/* Game type row */}
-                    <GameModeRow4>
-                      <GameOptionButton
-                        $active={selectedGameType === "301"}
-                        onClick={() => handleGameTypeSelect("301")}
-                      >
-                        301
-                      </GameOptionButton>
-                      <GameOptionButton
-                        $active={selectedGameType === "501"}
-                        onClick={() => handleGameTypeSelect("501")}
-                      >
-                        501
-                      </GameOptionButton>
-                      <GameOptionButton
-                        $active={selectedGameType === "701"}
-                        onClick={() => handleGameTypeSelect("701")}
-                      >
-                        701
-                      </GameOptionButton>
-                      <GameOptionButton
-                        $active={selectedGameType === "custom"}
-                        onClick={() => handleGameTypeSelect("custom")}
-                      >
-                        CUSTOM
-                        {selectedGameType === "custom" && (
-                          <CustomScoreInput>
-                            <input
-                              type="number"
-                              value={customScore}
-                              onChange={handleCustomScoreChange}
-                              min="1"
-                              max="999"
-                            />
-                          </CustomScoreInput>
-                        )}
-                      </GameOptionButton>
-                    </GameModeRow4>
-                    
-                    {/* Entry options row */}
-                    <GameModeRow3>
-                      <GameOptionButton
-                        $active={gameOptions.entryMode === 'straight'}
-                        onClick={() => handleSelectOption('entryMode', 'straight')}
-                      >
-                        STRAIGHT IN
-                      </GameOptionButton>
-                      <GameOptionButton
-                        $active={gameOptions.entryMode === 'double'}
-                        onClick={() => handleSelectOption('entryMode', 'double')}
-                      >
-                        DOUBLE IN
-                      </GameOptionButton>
-                      <GameOptionButton
-                        $active={gameOptions.entryMode === 'master'}
-                        onClick={() => handleSelectOption('entryMode', 'master')}
-                      >
-                        MASTER IN
-                      </GameOptionButton>
-                    </GameModeRow3>
-                    
-                    {/* Out options row */}
-                    <GameModeRow3>
-                      <GameOptionButton
-                        $active={gameOptions.outMode === 'double'}
-                        onClick={() => handleSelectOption('outMode', 'double')}
-                      >
-                        DOUBLE OUT
-                      </GameOptionButton>
-                      <GameOptionButton
-                        $active={gameOptions.outMode === 'master'}
-                        onClick={() => handleSelectOption('outMode', 'master')}
-                      >
-                        MASTER OUT
-                      </GameOptionButton>
-                      <GameOptionButton
-                        $active={gameOptions.outMode === 'straight'}
-                        onClick={() => handleSelectOption('outMode', 'straight')}
-                      >
-                        STRAIGHT OUT
-                      </GameOptionButton>
-                    </GameModeRow3>
-                  </SettingsGrid>
-                  
-                  {/* Toggle switches */}
-                  <div>
-                    <ToggleRow>
-                      <span>Checkout rate</span>
-                      <ToggleSwitch 
-                        $on={checkoutRate} 
-                        onClick={() => setCheckoutRate(!checkoutRate)} 
-                      />
-                    </ToggleRow>
-                    <ToggleRow>
-                      <span>Two legs difference</span>
-                      <ToggleSwitch 
-                        $on={twoLegsDifference} 
-                        onClick={() => setTwoLegsDifference(!twoLegsDifference)} 
-                      />
-                    </ToggleRow>
-                  </div>
-                </>
-              )}
-              
-              {/* Killer Game Settings */}
-              {gameCategory === 'killer' && (
-                <>
-                  <SettingsLabel>
-                    <FiSettings /> KILLER GAME SETTINGS
-                  </SettingsLabel>
-                  
-                  <LivesSetting $active={selectedGameType === "killer"} onClick={() => setSelectedGameType("killer")}>
-                    <GameIcon>
-                      <FiZap />
-                    </GameIcon>
-                    <GameTitle>Killer</GameTitle>
-                    <GameDescription>
-                      Each player tries to hit their assigned segment to become a "killer". <br />Once a killer,
-                      you can target other players' segments to eliminate them. Last player standing wins!
-                    </GameDescription>
-                    
-                    <div>
-                      <h4>Number of Hits to Become Killer</h4>
-                      <LivesOptions>
-                        {[3, 5, 7].map(lives => (
-                          <LivesOption 
-                            key={lives} 
-                            $active={killerOptions.maxHits === lives} 
-                            onClick={() => handleLivesOption(lives)}
-                          >
-                            {lives}
-                          </LivesOption>
-                        ))}
-                      </LivesOptions>
-                    </div>
-                  </LivesSetting>
-                </>
-              )}
-              
-              {/* Other Games (Future Implementation) */}
-              {gameCategory === 'other' && (
-                <>
-                  <SettingsLabel>
-                    <FiSettings /> PARTY GAMES
-                  </SettingsLabel>
-                  
-                  <GameSelectionArea>
-                    <GameCard 
-                      $active={selectedGameType === "shanghai"}
-                      onClick={() => setSelectedGameType("shanghai")}
-                    >
-                      <GameIcon>
-                        <FiTrendingUp />
-                      </GameIcon>
-                      <GameTitle>Shanghai</GameTitle>
-                      <GameDescription>
-                        Progress through segments 1-9, scoring points for each hit. Players aim for the highest score across all segments.
-                      </GameDescription>
-                    </GameCard>
-                    
-                    <GameCard 
-                      $active={selectedGameType === "donkey_derby"}
-                      onClick={() => setSelectedGameType("donkey_derby")}
-                    >
-                      <GameIcon>
-                        <FiTarget />
-                      </GameIcon>
-                      <GameTitle>Donkey Derby</GameTitle>
-                      <GameDescription>
-                        Race-style game where players aim to hit their assigned segments to score points. First to reach the finish line wins!
-                      </GameDescription>
-                    </GameCard>
-                  </GameSelectionArea>
-
-                  {selectedGameType === 'donkey_derby' && (
-                    <div style={{marginTop: '8px'}}>
-                      <SettingsLabel style={{marginTop: '16px'}}>DONKEY DERBY SETTINGS</SettingsLabel>
-                      <GameModeRow4>
-                        <GameOptionButton
-                          $active={donkeyFinishLineMode === '10'}
-                          onClick={() => { setDonkeyFinishLineMode('10'); setDonkeyFinishLine(10); }}
-                        >
-                          FINISH 10
-                        </GameOptionButton>
-                        <GameOptionButton
-                          $active={donkeyFinishLineMode === '15'}
-                          onClick={() => { setDonkeyFinishLineMode('15'); setDonkeyFinishLine(15); }}
-                        >
-                          FINISH 15
-                        </GameOptionButton>
-                        <GameOptionButton
-                          $active={donkeyFinishLineMode === 'custom'}
-                          onClick={() => { setDonkeyFinishLineMode('custom'); const v = parseInt(donkeyCustomFinish)||12; setDonkeyFinishLine(v); }}
-                        >
-                          CUSTOM
-                          {donkeyFinishLineMode === 'custom' && (
-                            <CustomScoreInput>
-                              <input
-                                type="number"
-                                min={2}
-                                max={50}
-                                value={donkeyCustomFinish}
-                                onChange={(e)=>{
-                                  const val = e.target.value; setDonkeyCustomFinish(val); const num = parseInt(val)||2; setDonkeyFinishLine(Math.min(50, Math.max(2, num))); }}
-                              />
-                            </CustomScoreInput>
-                          )}
-                        </GameOptionButton>
-                        <GameOptionButton $active={false} onClick={()=>{}}>
-                          <span style={{fontSize:'0.7rem',opacity:0.7,lineHeight:1.1}}>NODES SHOW UP TO 20</span>
-                        </GameOptionButton>
-                      </GameModeRow4>
-                      <p style={{fontSize:'0.75rem',opacity:0.6,marginTop:0}}>Finish line currently set to <strong>{donkeyFinishLine}</strong>. Track displays first 20 positions if larger.</p>
-                    </div>
-                  )}
-                </>
-              )}
-              
-              <PlayerList>
-                <h3>Players ({state.players.length})</h3>
-                {state.players.map((player, index) => (
-                  <PlayerRow key={player.id}>
-                    <PlayerDot color={player.color} />
-                    <span>{index + 1}. {player.name}</span>
-                  </PlayerRow>
-                ))}
-                
-                {state.players.length === 0 && (
-                  <p>No players added yet. Add players to start a game.</p>
+              <ScrollableContent>
+                {gameCategory === 'x01' && (
+                  <X01Settings
+                    selectedGameType={selectedGameType}
+                    gameOptions={gameOptions}
+                    customScore={customScore}
+                    sharedLegsSetValue={sharedLegsSetValue}
+                    activeInput={activeInput}
+                    checkoutRate={checkoutRate}
+                    twoLegsDifference={twoLegsDifference}
+                    onGameTypeSelect={handleGameTypeSelect}
+                    onCustomScoreChange={handleCustomScoreChange}
+                    onSharedValueChange={handleSharedValueChange}
+                    onSelectOption={handleSelectOption}
+                    onSwitchActiveInput={setActiveInput}
+                    onCheckoutRateToggle={() => setCheckoutRate(!checkoutRate)}
+                    onTwoLegsDifferenceToggle={() => setTwoLegsDifference(!twoLegsDifference)}
+                  />
                 )}
                 
-                <Button 
-                  variant="outline" 
-                  size="small"
-                  onClick={handleAddMorePlayers}
-                  style={{ marginTop: '16px' }}
-                >
-                  {state.players.length === 0 ? 'Add Players' : 'Edit Players'}
-                </Button>
-              </PlayerList>
+                {gameCategory === 'killer' && (
+                  <KillerSettings
+                    selectedGameType={selectedGameType}
+                    killerOptions={killerOptions}
+                    onGameTypeSelect={handleGameTypeSelect}
+                    onLivesOptionChange={handleLivesOption}
+                  />
+                )}
+                
+                {gameCategory === 'other' && (
+                  <OtherGamesSettings
+                    selectedGameType={selectedGameType}
+                    donkeyFinishLineMode={donkeyFinishLineMode}
+                    donkeyCustomFinish={donkeyCustomFinish}
+                    onGameTypeSelect={handleGameTypeSelect}
+                    onDonkeyFinishLineModeChange={(mode, value) => {
+                      setDonkeyFinishLineMode(mode);
+                      setDonkeyFinishLine(value);
+                    }}
+                    onDonkeyCustomFinishChange={(val, numValue) => {
+                      setDonkeyCustomFinish(val);
+                      setDonkeyFinishLine(numValue);
+                    }}
+                  />
+                )}
+                
+                <PlayerListSection
+                  players={state.players}
+                  onEditPlayers={handleAddMorePlayers}
+                />
+              </ScrollableContent>
               
               <StartGameButton
                 onClick={handleStartGame}

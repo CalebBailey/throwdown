@@ -2,172 +2,229 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiArrowLeft, FiChevronRight, FiAward, FiTarget, FiArrowRight } from 'react-icons/fi';
+import { FiArrowLeft, FiAward, FiTarget, FiArrowRight } from 'react-icons/fi';
 import Layout from '../shared/Layout';
 import Button from '../shared/Button';
+import Card from '../shared/Card';
 import DonkeyDerbyDartboard from './DonkeyDerbyDartboard';
 import { useGameContext } from '../../context/GameContext';
 
+// 501-style container
 const Container = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 20px;
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
-  
-  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
+  height: 100%;
 `;
 
-const GameArea = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    gap: 12px;
-  }
-`;
-
-const HeaderBar = styled.div`
+// 501-style header
+const GameHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
-  background-color: rgba(30, 30, 30, 0.5);
-  padding: 0.75rem 1.25rem;
-  border-radius: 8px;
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    padding: 0.5rem 1rem;
-    margin-bottom: 0.5rem;
-  }
-`;
-
-const Title = styled.h1`
-  color: ${props => props.theme.colors.text};
-  margin: 0;
-  font-size: 1.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    font-size: 1.5rem;
-  }
-`;
-
-const PlayerTurnIndicator = styled.div`
-  background: linear-gradient(to right, rgba(30, 30, 30, 0.7), rgba(40, 40, 40, 0.7));
-  padding: 16px 16px;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    padding: 12px;
-  }
-`;
-
-const PlayerName = styled.span<{ color: string }>`
-  color: ${props => props.color};
-  font-weight: bold;
-  font-size: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    font-size: 1.25rem;
-    flex-wrap: wrap;
-  }
-`;
-
-const PlayerInfo = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  margin-bottom: ${props => props.theme.space.lg};
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
+    gap: ${props => props.theme.space.md};
   }
 `;
 
-const PlayerStatus = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.9rem;
-  opacity: 0.8;
+const PageTitle = styled.h1`
+  color: ${props => props.theme.colors.text};
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    font-size: 0.8rem;
-    margin-top: 4px;
+    font-size: ${props => props.theme.fontSizes.xl};
   }
 `;
 
-const ThrowInfo = styled.div`
+// 501-style grid layout
+const GameGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: ${props => props.theme.space.lg};
+  
+  @media (min-width: ${props => props.theme.breakpoints.tablet}) {
+    grid-template-columns: 320px 1fr;
+  }
+`;
+
+// 501-style scoreboard (now race progress)
+const RaceProgressCard = styled(Card)`
+  grid-row: 2;
+  height: fit-content;
+  
+  @media (min-width: ${props => props.theme.breakpoints.tablet}) {
+    grid-row: 1;
+  }
+`;
+
+const PlayersList = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    align-self: flex-end;
-    margin-top: -30px;
-  }
+  gap: ${props => props.theme.space.md};
 `;
 
-const DartCount = styled.div`
-  font-size: 1rem;
-  background-color: rgba(233, 69, 96, 0.8);
-  padding: 0.25rem 0.75rem;
-  border-radius: 4px;
+const PlayerRaceLane = styled.div<{ $active: boolean }>`
+  display: flex;
+  flex-direction: column;
+  padding: ${props => props.theme.space.sm};
+  border-radius: ${props => props.theme.borderRadius.md};
+  background-color: ${props => props.$active ? 'rgba(255, 255, 255, 0.1)' : 'transparent'};
+  border-left: 4px solid ${props => props.$active ? props.theme.colors.highlight : 'transparent'};
+  transition: all 0.2s ease;
+`;
+
+const PlayerHeader = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: ${props => props.theme.space.xs};
+`;
+
+const PlayerColor = styled.div<{ color: string }>`
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: ${props => props.color};
+  margin-right: ${props => props.theme.space.sm};
+`;
+
+const PlayerName = styled.span`
+  font-weight: 500;
+  flex: 1;
+`;
+
+const PlayerProgress = styled.span`
+  font-family: ${props => props.theme.fonts.monospace};
+  font-size: ${props => props.theme.fontSizes.lg};
   font-weight: bold;
+  color: ${props => props.theme.colors.text};
+`;
+
+const ProgressTrack = styled.div`
+  position: relative;
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: ${props => props.theme.borderRadius.pill};
+  overflow: hidden;
+`;
+
+const ProgressBar = styled(motion.div)<{ color: string }>`
+  height: 100%;
+  background-color: ${props => props.color};
+  border-radius: ${props => props.theme.borderRadius.pill};
+  position: relative;
   
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    font-size: 0.9rem;
-    padding: 0.2rem 0.6rem;
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.3) 50%,
+      transparent 100%
+    );
+    animation: shimmer 2s infinite;
   }
+  
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+`;
+
+// Main game card
+const MainGameCard = styled(Card)`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+`;
+
+const CurrentPlayer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${props => props.theme.space.md};
+  margin-bottom: ${props => props.theme.space.sm};
+`;
+
+const CurrentPlayerName = styled.h2`
+  margin: 0;
+  color: ${props => props.theme.colors.highlight};
+`;
+
+const CurrentPlayerAvatar = styled.div<{ color: string }>`
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: ${props => props.color};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${props => props.theme.colors.text};
+  font-weight: bold;
+  font-size: ${props => props.theme.fontSizes.lg};
+`;
+
+const GameInfo = styled.div`
+  display: flex;
+  gap: ${props => props.theme.space.lg};
+  margin-bottom: ${props => props.theme.space.md};
+  font-size: ${props => props.theme.fontSizes.md};
+  opacity: 0.8;
+  flex-wrap: wrap;
+`;
+
+const InfoItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${props => props.theme.space.xs};
+`;
+
+const DartCountBadge = styled.div`
+  background-color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colors.text};
+  padding: ${props => props.theme.space.xs} ${props => props.theme.space.sm};
+  border-radius: ${props => props.theme.borderRadius.pill};
+  font-weight: bold;
+  font-size: ${props => props.theme.fontSizes.sm};
+  display: inline-block;
+`;
+
+const DartboardContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: ${props => props.theme.space.md} 0;
 `;
 
 const ControlBar = styled.div`
   display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  margin-top: 16px;
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    gap: 8px;
-    margin-top: 12px;
-  }
+  gap: ${props => props.theme.space.md};
+  margin-top: ${props => props.theme.space.md};
 `;
 
-const UndoButton = styled(Button)`
-  flex: 1;
-`;
-
-const NextButton = styled(Button)`
-  flex: 2;
-`;
-
-// Add new styled components for winner overlay and player score tallies
+// Winner screen - 501 style
 const WinnerOverlay = styled(motion.div)`
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 100;
+  background-color: rgba(0, 0, 0, 0.85);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.85);
   padding: ${props => props.theme.space.md};
+  z-index: 100;
 `;
 
 const WinnerCard = styled(motion.div)`
@@ -175,12 +232,14 @@ const WinnerCard = styled(motion.div)`
   border-radius: ${props => props.theme.borderRadius.lg};
   padding: ${props => props.theme.space.xl};
   width: 100%;
-  max-width: 500px;
+  max-width: 600px;
+  max-height: 90vh;
   text-align: center;
   box-shadow: ${props => props.theme.shadows.lg};
   position: relative;
-  max-height: 90vh;
-  overflow-y: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
     padding: ${props => props.theme.space.lg};
@@ -188,7 +247,46 @@ const WinnerCard = styled(motion.div)`
   }
 `;
 
-const WinnerAvatar = styled.div<{ color: string }>`
+const WinnerHeader = styled.div`
+  flex-shrink: 0;
+  margin-bottom: ${props => props.theme.space.md};
+`;
+
+const WinnerStatsScrollable = styled.div`
+  overflow-y: auto;
+  flex-grow: 1;
+  padding-right: ${props => props.theme.space.sm};
+  margin-right: -${props => props.theme.space.sm};
+  
+  scrollbar-width: thin;
+  scrollbar-color: ${props => props.theme.colors.accent} transparent;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: ${props => props.theme.colors.accent};
+    border-radius: 10px;
+  }
+`;
+
+const WinnerTitle = styled(motion.h1)`
+  color: ${props => props.theme.colors.highlight};
+  font-size: ${props => props.theme.fontSizes.huge};
+  margin-bottom: ${props => props.theme.space.xl};
+  
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: ${props => props.theme.fontSizes.xxxl};
+    margin-bottom: ${props => props.theme.space.lg};
+  }
+`;
+
+const WinnerAvatar = styled(motion.div)<{ color: string }>`
   width: 120px;
   height: 120px;
   border-radius: 50%;
@@ -209,17 +307,6 @@ const WinnerAvatar = styled.div<{ color: string }>`
   }
 `;
 
-const WinnerName = styled.h2`
-  font-size: ${props => props.theme.fontSizes.xxxl};
-  color: ${props => props.theme.colors.highlight};
-  margin: 1rem 0;
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    font-size: ${props => props.theme.fontSizes.xxl};
-    margin: 0.75rem 0;
-  }
-`;
-
 const Medal = styled(motion.div)`
   position: absolute;
   bottom: -5px;
@@ -234,6 +321,13 @@ const Medal = styled(motion.div)`
   justify-content: center;
   font-size: ${props => props.theme.fontSizes.xl};
   border: 2px solid ${props => props.theme.colors.text};
+`;
+
+const StatsContainer = styled(motion.div)`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: ${props => props.theme.space.md};
+  margin-bottom: ${props => props.theme.space.xl};
 `;
 
 const StatBox = styled.div`
@@ -253,21 +347,8 @@ const StatValue = styled.div`
   font-weight: bold;
 `;
 
-const StatsContainer = styled(motion.div)`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: ${props => props.theme.space.md};
-  margin: ${props => props.theme.space.xl} 0;
-`;
-
-const ButtonGroup = styled.div`
-  display: flex;
-  gap: ${props => props.theme.space.md};
-  margin-top: ${props => props.theme.space.xl};
-`;
-
 const PlayerScoreTally = styled(motion.div)`
-  margin-bottom: ${props => props.theme.space.lg};
+  margin-bottom: ${props => props.theme.space.xl};
 `;
 
 const ScoreScroller = styled(motion.div)`
@@ -277,6 +358,19 @@ const ScoreScroller = styled(motion.div)`
   padding: ${props => props.theme.space.md} 0;
   scrollbar-width: thin;
   scrollbar-color: ${props => props.theme.colors.accent} transparent;
+  
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: ${props => props.theme.colors.accent};
+    border-radius: 10px;
+  }
 `;
 
 const PlayerScoreBox = styled.div<{ $winner: boolean }>`
@@ -284,7 +378,7 @@ const PlayerScoreBox = styled.div<{ $winner: boolean }>`
   flex-direction: column;
   align-items: center;
   padding: ${props => props.theme.space.md};
-  background-color: ${props => props.$winner ? `${props.theme.colors.highlight}40` : 'rgba(255, 255, 255, 0.05)' };
+  background-color: ${props => props.$winner ? `${props.theme.colors.highlight}40` : 'rgba(255, 255, 255, 0.05)'};
   border-radius: ${props => props.theme.borderRadius.md};
   min-width: 100px;
 `;
@@ -310,406 +404,364 @@ const WinCount = styled.div`
   margin: ${props => props.theme.space.xs} 0;
 `;
 
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: ${props => props.theme.space.md};
+  width: 100%;
+  margin-top: ${props => props.theme.space.lg};
+`;
+
 const DonkeyDerbyGameScreen: React.FC = () => {
   const navigate = useNavigate();
   const { state, dispatch } = useGameContext();
   const [dartThrowCount, setDartThrowCount] = useState(0);
   const [showWinnerScreen, setShowWinnerScreen] = useState(false);
+  
+  const currentPlayer = state.players[state.currentPlayerIndex];
   const finishLine = state.donkeyDerbyOptions?.finishLine || 10;
   
-  // Get current player
-  const currentPlayer = state.players[state.currentPlayerIndex];
-  
-  // Init donkey derby if not started correctly
+  // Initialize Donkey Derby player data
   useEffect(() => {
     if (state.gameType === 'donkey_derby') {
-      const updatedPlayers = state.players.map(p => ({
-        ...p,
-        donkeyProgress: p.donkeyProgress ?? 0,
-        singlesHit: p.singlesHit || 0,
-        doublesHit: p.doublesHit || 0,
-        triplesHit: p.triplesHit || 0
-      }));
-      dispatch({ type: 'SET_PLAYER_ORDER', players: updatedPlayers });
+      const updatedPlayers = state.players.map(player => {
+        if (player.donkeyProgress === undefined) {
+          return { ...player, donkeyProgress: 0 };
+        }
+        return player;
+      });
+      
+      if (JSON.stringify(updatedPlayers) !== JSON.stringify(state.players)) {
+        dispatch({ type: 'SET_PLAYER_ORDER', players: updatedPlayers });
+      }
     }
   }, []);
   
-  const handleHitSegment = (segment: number, multiplier: 'single' | 'double' | 'triple') => {
+  const handleHitSegment = (segment: number, multiplier: string) => {
     if (dartThrowCount >= 3) return;
-    const hitValue = multiplier === 'double' ? 2 : multiplier === 'triple' ? 3 : 1;
-    const notation = `${multiplier === 'single' ? 'S' : multiplier === 'double' ? 'D' : 'T'}${segment}`;
-    dispatch({ type: 'ADD_DART', dart: notation });
-    const players = [...state.players];
-    const cur = { ...players[state.currentPlayerIndex] };
-    if (cur.segment === segment) {
-      cur.donkeyProgress = Math.min(finishLine, (cur.donkeyProgress || 0) + hitValue);
+    
+    let dartNotation = '';
+    switch(multiplier) {
+      case 'double': dartNotation = `D${segment}`; break;
+      case 'triple': dartNotation = `T${segment}`; break;
+      default: dartNotation = `S${segment}`;
+    }
+    
+    dispatch({ type: 'ADD_DART', dart: dartNotation });
+    
+    const updatedPlayer = { ...currentPlayer };
+    const currentProgress = updatedPlayer.donkeyProgress || 0;
+    
+    // Check if hit own segment (move forward)
+    if (segment === currentPlayer.segment) {
+      const multiplierValue = multiplier === 'double' ? 2 : multiplier === 'triple' ? 3 : 1;
+      updatedPlayer.donkeyProgress = Math.min(currentProgress + multiplierValue, finishLine);
+      
+      // Check for winner
+      if (updatedPlayer.donkeyProgress >= finishLine) {
+        updatedPlayer.wins = (updatedPlayer.wins || 0) + 1;
+        const updatedPlayers = [...state.players];
+        updatedPlayers[state.currentPlayerIndex] = updatedPlayer;
+        dispatch({ type: 'SET_PLAYER_ORDER', players: updatedPlayers });
+        dispatch({ type: 'END_GAME', winner: updatedPlayer });
+        setShowWinnerScreen(true);
+        return;
+      }
     } else {
-      // knock back owner of segment hit
-      const targetIdx = players.findIndex(p => p.segment === segment);
-      if (targetIdx >= 0) {
-        const target = { ...players[targetIdx] };
-        target.donkeyProgress = Math.max(0, (target.donkeyProgress || 0) - hitValue);
-        players[targetIdx] = target;
+      // Check if hit opponent's segment (knock them back)
+      const opponentIndex = state.players.findIndex(p => p.segment === segment);
+      if (opponentIndex !== -1) {
+        const multiplierValue = multiplier === 'double' ? 2 : multiplier === 'triple' ? 3 : 1;
+        const opponent = state.players[opponentIndex];
+        const opponentProgress = opponent.donkeyProgress || 0;
+        if (opponentProgress > 0) {
+          opponent.donkeyProgress = Math.max(0, opponentProgress - multiplierValue);
+        }
       }
     }
-    // stats
-    if (multiplier === 'single') cur.singlesHit = (cur.singlesHit || 0) + 1;
-    if (multiplier === 'double') cur.doublesHit = (cur.doublesHit || 0) + 1;
-    if (multiplier === 'triple') cur.triplesHit = (cur.triplesHit || 0) + 1;
-    players[state.currentPlayerIndex] = cur;
-    dispatch({ type: 'SET_PLAYER_ORDER', players });
-    setDartThrowCount(c => c + 1);
-    // check winner immediately
-    if ((cur.donkeyProgress || 0) >= finishLine) {
-      cur.wins = (cur.wins || 0) + 1;
-      dispatch({ type: 'END_GAME', winner: cur });
-      setShowWinnerScreen(true);
-    }
+    
+    const updatedPlayers = [...state.players];
+    updatedPlayers[state.currentPlayerIndex] = updatedPlayer;
+    dispatch({ type: 'SET_PLAYER_ORDER', players: updatedPlayers });
+    
+    setDartThrowCount(prev => prev + 1);
   };
   
-  // Handle ending the turn
   const handleEndTurn = () => {
-    // record throws
-    const cur = { ...currentPlayer };
-    if (state.currentThrow.darts.length) {
-      const newThrows = [...cur.throws];
-      newThrows.push([...state.currentThrow.darts]);
-      cur.throws = newThrows;
-    }
-    const players = [...state.players];
-    players[state.currentPlayerIndex] = cur;
-    dispatch({ type: 'SET_PLAYER_ORDER', players });
-    if (!showWinnerScreen) dispatch({ type: 'END_TURN' });
+    const updatedPlayer = { ...currentPlayer };
+    const newThrows = [...updatedPlayer.throws];
+    newThrows.push([...state.currentThrow.darts]);
+    updatedPlayer.throws = newThrows;
+    
+    const updatedPlayers = [...state.players];
+    updatedPlayers[state.currentPlayerIndex] = updatedPlayer;
+    
+    dispatch({ type: 'SET_PLAYER_ORDER', players: updatedPlayers });
+    dispatch({ type: 'END_TURN' });
     setDartThrowCount(0);
   };
   
-  // Handle undoing the last dart
   const handleUndoDart = () => {
-    if (dartThrowCount === 0) return;
-    const last = state.currentThrow.darts[state.currentThrow.darts.length - 1];
-    if (!last) return;
-    const multChar = last[0];
-    const seg = parseInt(last.substring(1));
-    const value = multChar === 'D' ? 2 : multChar === 'T' ? 3 : 1;
-    const players = [...state.players];
-    const cur = { ...players[state.currentPlayerIndex] };
-    if (cur.segment === seg) {
-      cur.donkeyProgress = Math.max(0, (cur.donkeyProgress || 0) - value);
-    } else {
-      const targetIdx = players.findIndex(p => p.segment === seg);
-      if (targetIdx >= 0) {
-        const target = { ...players[targetIdx] };
-        target.donkeyProgress = Math.min(finishLine, (target.donkeyProgress || 0) + value);
-        players[targetIdx] = target;
-      }
+    if (dartThrowCount > 0) {
+      dispatch({ type: 'REMOVE_DART' });
+      setDartThrowCount(prev => prev - 1);
     }
-    if (multChar === 'S') cur.singlesHit = Math.max(0, (cur.singlesHit || 0) - 1);
-    if (multChar === 'D') cur.doublesHit = Math.max(0, (cur.doublesHit || 0) - 1);
-    if (multChar === 'T') cur.triplesHit = Math.max(0, (cur.triplesHit || 0) - 1);
-    players[state.currentPlayerIndex] = cur;
-    dispatch({ type: 'SET_PLAYER_ORDER', players });
-    dispatch({ type: 'REMOVE_DART' });
-    setDartThrowCount(c => c - 1);
   };
   
-  // Handle exit game
   const handleExitGame = () => {
-    if (window.confirm('Are you sure you want to exit this game?')) {
+    if (window.confirm('Are you sure you want to exit? Game progress will be lost.')) {
       dispatch({ type: 'RESET_GAME' });
       navigate('/games');
     }
   };
   
-  // Handle starting a new game with same settings
   const handlePlayAgain = () => {
+    const freshPlayers = state.players.map(player => ({
+      ...player,
+      donkeyProgress: 0,
+      throws: []
+    }));
+    
     dispatch({ type: 'RESET_GAME' });
-    dispatch({ type: 'START_GAME', gameType: 'donkey_derby', gameOptions: state.gameOptions, donkeyDerbyOptions: state.donkeyDerbyOptions });
+    dispatch({ type: 'START_GAME', gameType: 'donkey_derby', gameOptions: state.gameOptions });
+    dispatch({ type: 'SET_PLAYER_ORDER', players: freshPlayers });
+    
     setShowWinnerScreen(false);
   };
   
-  // Handle navigating to the detailed summary screen
   const handleGoToSummary = () => navigate('/donkey-derby/summary');
   
-  // Animations
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        when: 'beforeChildren',
-        staggerChildren: 0.1
-      }
-    }
-  };
-  
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1 }
-  };
-  
-  const overlayAnimation = {
-    initial: { opacity: 0 },
-    animate: { opacity: 1 },
-    exit: { opacity: 0 }
-  };
-  
   return (
-    <Layout>
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <HeaderBar>
-          <Title>
-            <span>Donkey Derby</span>
-          </Title>
-          <Button
-            variant="text"
+    <Layout hideNav>
+      <Container>
+        <GameHeader>
+          <PageTitle>Donkey Derby</PageTitle>
+          <Button 
+            variant="outline" 
             startIcon={<FiArrowLeft />}
             onClick={handleExitGame}
           >
             Exit Game
           </Button>
-        </HeaderBar>
+        </GameHeader>
         
-        <Container>
-          <GameArea>
-            <motion.div variants={itemVariants}>
-              <PlayerTurnIndicator>
-                <PlayerInfo>
-                  <PlayerName color={currentPlayer?.color || '#fff'}>
-                    <span>{currentPlayer?.name || 'Unknown'}</span>
-                  </PlayerName>
+        <GameGrid>
+          <RaceProgressCard>
+            <Card.Header>
+              <Card.Title>Race Progress</Card.Title>
+              <Card.Subtitle>Goal: {finishLine}</Card.Subtitle>
+            </Card.Header>
+            
+            <Card.Content>
+              <PlayersList>
+                {state.players.map((player, index) => {
+                  const progress = player.donkeyProgress || 0;
+                  const progressPercent = (progress / finishLine) * 100;
                   
-                  <ThrowInfo>
-                    <DartCount>
-                      {dartThrowCount} / 3 darts
-                    </DartCount>
-                  </ThrowInfo>
-                </PlayerInfo>
-                
-                <PlayerStatus>
-                  <div>Total Score: <strong>{currentPlayer?.score || 0}</strong></div>
-                </PlayerStatus>
-              </PlayerTurnIndicator>
-            </motion.div>
-
-            {/* Race track visualization */}
-            <motion.div variants={itemVariants}>
-              <RaceTrack players={state.players} finishLine={finishLine} />
-            </motion.div>
-            
-            <motion.div variants={itemVariants}>
-              <DonkeyDerbyDartboard
-                players={state.players}
-                currentPlayer={currentPlayer}
-                onHitSegment={handleHitSegment}
-              />
-            </motion.div>
-            
-            <motion.div variants={itemVariants}>
+                  return (
+                    <PlayerRaceLane 
+                      key={player.id} 
+                      $active={index === state.currentPlayerIndex}
+                    >
+                      <PlayerHeader>
+                        <PlayerColor color={player.color} />
+                        <PlayerName>{player.name}</PlayerName>
+                        <PlayerProgress>{progress} / {finishLine}</PlayerProgress>
+                      </PlayerHeader>
+                      <ProgressTrack>
+                        <ProgressBar
+                          color={player.color}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${progressPercent}%` }}
+                          transition={{ type: 'spring', stiffness: 100 }}
+                        />
+                      </ProgressTrack>
+                    </PlayerRaceLane>
+                  );
+                })}
+              </PlayersList>
+            </Card.Content>
+          </RaceProgressCard>
+          
+          <MainGameCard>
+            <Card.Content>
+              <CurrentPlayer>
+                <CurrentPlayerAvatar color={currentPlayer?.color || '#ccc'}>
+                  {currentPlayer?.name.charAt(0).toUpperCase()}
+                </CurrentPlayerAvatar>
+                <CurrentPlayerName>{currentPlayer?.name}'s turn</CurrentPlayerName>
+              </CurrentPlayer>
+              
+              <GameInfo>
+                <InfoItem>
+                  <span>Your Segment:</span>
+                  <strong>{currentPlayer?.segment}</strong>
+                </InfoItem>
+                <InfoItem>
+                  <span>Progress:</span>
+                  <strong>{currentPlayer?.donkeyProgress || 0} / {finishLine}</strong>
+                </InfoItem>
+                <DartCountBadge>{dartThrowCount} / 3 darts</DartCountBadge>
+              </GameInfo>
+              
+              <DartboardContainer>
+                <DonkeyDerbyDartboard
+                  currentPlayer={currentPlayer}
+                  players={state.players}
+                  onHitSegment={handleHitSegment}
+                />
+              </DartboardContainer>
+              
               <ControlBar>
-                <UndoButton
+                <Button
                   onClick={handleUndoDart}
                   variant="outline"
                   disabled={dartThrowCount === 0}
+                  fullWidth
                 >
                   Undo
-                </UndoButton>
-                <NextButton
+                </Button>
+                <Button
                   onClick={handleEndTurn}
-                  endIcon={<FiChevronRight />}
                   disabled={dartThrowCount === 0}
+                  fullWidth
                 >
                   Next Player
-                </NextButton>
+                </Button>
               </ControlBar>
-            </motion.div>
-          </GameArea>
-          
-          {/* Legacy progress board removed in favor of RaceTrack; keep commented if needed for fallback */}
-        </Container>
+            </Card.Content>
+          </MainGameCard>
+        </GameGrid>
         
-        {/* Winner overlay screen */}
         <AnimatePresence>
           {showWinnerScreen && state.winner && (
             <WinnerOverlay
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              variants={overlayAnimation}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
             >
               <WinnerCard
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ type: 'spring', duration: 0.8 }}
               >
-                <WinnerAvatar color={state.winner.color}>
-                  {state.winner.name.charAt(0).toUpperCase()}
-                  <Medal 
-                    initial={{ scale: 0, opacity: 0, rotate: -30 }}
-                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                    transition={{ delay: 0.5, type: 'spring', stiffness: 300 }}
+                <WinnerHeader>
+                  <WinnerTitle
+                    initial={{ y: -50, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ type: 'spring', delay: 0.2, stiffness: 300 }}
                   >
-                    <FiAward />
-                  </Medal>
-                </WinnerAvatar>
-                
-                <WinnerName>{state.winner.name} Wins!</WinnerName>
-                <p>Reached the finish line (target {finishLine})</p>
-                
-                <StatsContainer
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  <StatBox>
-                    <StatLabel>Singles</StatLabel>
-                    <StatValue>{currentPlayer?.singlesHit || 0}</StatValue>
-                  </StatBox>
-                  <StatBox>
-                      <StatLabel>Doubles</StatLabel>
-                      <StatValue>{currentPlayer?.doublesHit || 0}</StatValue>
-                  </StatBox>
-                  <StatBox>
-                      <StatLabel>Triples</StatLabel>
-                      <StatValue>{currentPlayer?.triplesHit || 0}</StatValue>
-                  </StatBox>
-                  <StatBox>
-                      <StatLabel>Total Darts</StatLabel>
-                      <StatValue>{currentPlayer?.throws.flat().length}</StatValue>
-                  </StatBox>
-                </StatsContainer>
-
-                <PlayerScoreTally
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.6 }}
-                >
-                  <h3>Player Win Tallies</h3>
-                  <ScoreScroller>
-                    {state.players.map(p => (
-                      <PlayerScoreBox key={p.id} $winner={p.id===state.winner?.id}>
-                        <PlayerScoreAvatar color={p.color}>{p.name[0]}</PlayerScoreAvatar>
-                        <div>{p.name}</div>
-                        <div>{p.donkeyProgress}/{finishLine}</div>
-                        <WinCount>{p.wins||0}</WinCount>
-                      </PlayerScoreBox>
-                    ))}
-                  </ScoreScroller>
-                </PlayerScoreTally>
-                
-                <ButtonGroup>
-                  <Button
-                    variant="outline"
-                    startIcon={<FiTarget />}
-                    onClick={handlePlayAgain}
-                    fullWidth
+                    WINNER!
+                  </WinnerTitle>
+                  
+                  <WinnerAvatar 
+                    color={state.winner.color}
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.4, type: 'spring' }}
                   >
-                    Play Again
-                  </Button>
-                  <Button
-                    startIcon={<FiArrowRight />}
-                    onClick={handleGoToSummary}
-                    fullWidth
+                    {state.winner.name.charAt(0).toUpperCase()}
+                    <Medal 
+                      initial={{ scale: 0, opacity: 0, rotate: -30 }}
+                      animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                      transition={{ delay: 1.0, type: 'spring', stiffness: 300 }}
+                    >
+                      <FiAward />
+                    </Medal>
+                  </WinnerAvatar>
+                  
+                  <motion.h2
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                    style={{ 
+                      color: '#fff', 
+                      fontSize: '2.5rem', 
+                      marginTop: '1rem',
+                      marginBottom: '0.5rem'
+                    }}
                   >
-                    Summary
-                  </Button>
-                </ButtonGroup>
+                    {state.winner.name}
+                  </motion.h2>
+                  <p>Reached the finish line at {finishLine}!</p>
+                </WinnerHeader>
+                
+                <WinnerStatsScrollable>
+                  <StatsContainer
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.8 }}
+                  >
+                    <StatBox>
+                      <StatLabel>Segment</StatLabel>
+                      <StatValue>{state.winner.segment}</StatValue>
+                    </StatBox>
+                    <StatBox>
+                      <StatLabel>Final Position</StatLabel>
+                      <StatValue>{state.winner.donkeyProgress || 0}</StatValue>
+                    </StatBox>
+                    <StatBox>
+                      <StatLabel>Turns Taken</StatLabel>
+                      <StatValue>{state.winner.throws?.length || 0}</StatValue>
+                    </StatBox>
+                    <StatBox>
+                      <StatLabel>Total Wins</StatLabel>
+                      <StatValue>{state.winner.wins || 1}</StatValue>
+                    </StatBox>
+                  </StatsContainer>
+                  
+                  <PlayerScoreTally
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1.0 }}
+                  >
+                    <motion.h3 style={{ marginBottom: '0.5rem' }}>Player Win Tallies</motion.h3>
+                    <ScoreScroller
+                      initial={{ x: 300 }}
+                      animate={{ x: 0 }}
+                      transition={{ 
+                        delay: 1.2, 
+                        duration: 1,
+                        type: 'spring',
+                        stiffness: 100 
+                      }}
+                    >
+                      {state.players.map(player => (
+                        <PlayerScoreBox key={player.id} $winner={player.id === state.winner?.id}>
+                          <PlayerScoreAvatar color={player.color}>
+                            {player.name.charAt(0).toUpperCase()}
+                          </PlayerScoreAvatar>
+                          <div>{player.name}</div>
+                          <WinCount>{player.wins || 0}</WinCount>
+                          <div>wins</div>
+                        </PlayerScoreBox>
+                      ))}
+                    </ScoreScroller>
+                  </PlayerScoreTally>
+                  
+                  <ButtonGroup>
+                    <Button
+                      variant="outline"
+                      startIcon={<FiTarget />}
+                      onClick={handlePlayAgain}
+                      fullWidth
+                    >
+                      Play Again
+                    </Button>
+                    <Button
+                      startIcon={<FiArrowRight />}
+                      onClick={handleGoToSummary}
+                      fullWidth
+                    >
+                      Summary
+                    </Button>
+                  </ButtonGroup>
+                </WinnerStatsScrollable>
               </WinnerCard>
             </WinnerOverlay>
           )}
         </AnimatePresence>
-      </motion.div>
+      </Container>
     </Layout>
-  );
-};
-
-// New RaceTrack component (discrete nodes up to finish line, capped at 20)
-const RaceWrapper = styled.div`
-  background: linear-gradient(to bottom, rgba(30,30,30,0.7), rgba(40,40,40,0.7));
-  padding: 16px;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-`;
-const LaneHeader = styled.div`
-  display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:0.85rem;opacity:0.85;
-`;
-const Lane = styled.div`
-  position:relative;
-`;
-const NodesRow = styled.div<{count:number}>`
-  display:grid;
-  grid-template-columns: repeat(${p=>p.count}, 1fr);
-  gap:4px;
-  position:relative;
-`;
-const Node = styled.div<{ active:boolean;color:string }>`
-  width:100%;
-  aspect-ratio:1 / 1;
-  border-radius:50%;
-  background: ${p=>p.active? p.color : 'rgba(255,255,255,0.08)'};
-  border:2px solid ${p=>p.color};
-  position:relative;
-  display:flex;align-items:center;justify-content:center;
-  font-size:0.6rem;
-  font-weight:bold;
-  color:#fff;
-  overflow:hidden;
-`;
-const Token = styled(motion.div)<{color:string}>`
-  position:absolute;inset:0;
-  background:${p=>p.color};
-  border-radius:50%;
-  box-shadow:0 0 0 2px #fff, 0 0 8px ${p=>p.color};
-`;
-interface RaceTrackProps { players:any[]; finishLine:number }
-const RaceTrack: React.FC<RaceTrackProps> = ({players, finishLine}) => {
-  const maxNodes = Math.min(finishLine, 20);
-  const indices = Array.from({length: maxNodes + 1}, (_,i)=>i); // include start (0) to finish
-  return (
-    <RaceWrapper>
-      <h3 style={{margin:'0 0 4px'}}>Finish Line Race</h3>
-      {players.map(p=>{
-        const progress = Math.min(p.donkeyProgress||0, maxNodes);
-        return (
-          <div key={p.id}>
-            <LaneHeader>
-              <PlayerScoreAvatar color={p.color}>{p.name[0]}</PlayerScoreAvatar>
-              <strong>{p.name}</strong>
-              <span style={{opacity:0.7}}>({progress}/{finishLine})</span>
-            </LaneHeader>
-            <Lane>
-              <NodesRow count={indices.length}>
-                {indices.map(i=>{
-                  const isActive = i <= progress;
-                  return (
-                    <Node key={i} active={isActive} color={p.color}>
-                      {i===progress && (
-                        <Token
-                          layoutId={`token-${p.id}`}
-                          color={p.color}
-                          initial={{ scale:0.4, opacity:0.4 }}
-                          animate={{ scale:1, opacity:1 }}
-                          transition={{ type:'spring', stiffness:300, damping:20 }}
-                        />
-                      )}
-                      {i}
-                    </Node>
-                  );
-                })}
-              </NodesRow>
-            </Lane>
-          </div>
-        );
-      })}
-      {finishLine>20 && (
-        <div style={{fontSize:'0.7rem',opacity:0.6}}>Showing first 20 positions (finish line {finishLine})</div>
-      )}
-    </RaceWrapper>
   );
 };
 

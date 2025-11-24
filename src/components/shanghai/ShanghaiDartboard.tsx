@@ -23,6 +23,7 @@ const BoardSvg = styled.svg`
   max-width: 500px;
   width: 100%;
   height: auto;
+  aspect-ratio: 1 / 1;
 `;
 
 const SegmentText = styled.text`
