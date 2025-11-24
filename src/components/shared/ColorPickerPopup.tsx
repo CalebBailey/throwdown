@@ -177,7 +177,7 @@ export const ColorPickerPopup: React.FC<ColorPickerPopupProps> = ({
                   color={currentColor}
                   colors={COLORS}
                   onChangeComplete={handleColorChange}
-                  width="240px"
+                  width="280px"
                   circleSize={28}
                   circleSpacing={8}
                 />
