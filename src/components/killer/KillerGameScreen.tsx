@@ -7,6 +7,7 @@ import Layout from '../shared/Layout';
 import Button from '../shared/Button';
 import Card from '../shared/Card';
 import KillerDartboard from './KillerDartboard';
+import GameRestoredBanner from '../shared/GameRestoredBanner';
 import { useGameContext } from '../../context/GameContext';
 
 // 501-style container
@@ -470,19 +471,26 @@ const KillerGameScreen: React.FC = () => {
   const [showSetup, setShowSetup] = useState(true);
   const [dartThrowCount, setDartThrowCount] = useState(0);
   const [showWinnerScreen, setShowWinnerScreen] = useState(false);
+  const [showRestoredBanner, setShowRestoredBanner] = useState(false);
   
   const currentPlayer = state.players[state.currentPlayerIndex];
   const requiredHits = state.killerOptions?.maxHits || 3;
   
-  // Initialize killer game data
+  // Check if we're restoring a game and skip setup if so
   useEffect(() => {
-    if (state.gameType === 'killer') {
-      const needsSegments = state.players.some(p => p.segment === undefined);
-      if (needsSegments) {
-        dispatch({ type: 'ASSIGN_SEGMENTS' });
+    if (state.gameType === 'killer' && state.gameStatus === 'active') {
+      const allPlayersHaveSegments = state.players.every(p => p.segment !== undefined);
+      
+      if (allPlayersHaveSegments && state.currentTurn > 1) {
+        // We're restoring an in-progress game, skip setup screen
+        setShowSetup(false);
+        setShowRestoredBanner(true);
+        
+        // Hide the banner after 5 seconds
+        setTimeout(() => setShowRestoredBanner(false), 5000);
       }
     }
-  }, []);
+  }, [state.gameType, state.gameStatus, state.players, state.currentTurn]);
   
   const handleSetupComplete = () => {
     setShowSetup(false);
@@ -523,9 +531,25 @@ const KillerGameScreen: React.FC = () => {
   };
   
   const handlePlayAgain = () => {
-    // Reset all player killer stats
+    // Reset the game state completely
+    dispatch({ type: 'RESET_GAME' });
+    
+    // Re-initialize the game with fresh players
     const freshPlayers = state.players.map(player => ({
       ...player,
+      score: state.gameOptions.startingScore,
+      throws: [],
+      averageScore: 0,
+      highestScore: 0,
+      lastScore: 0,
+      threeDartAverage: 0,
+      first9Average: 0,
+      checkoutRate: 0,
+      checkoutsCompleted: 0,
+      checkoutAttempts: 0,
+      highestFinish: 0,
+      bestLeg: 0,
+      worstLeg: 0,
       segment: undefined,
       isKiller: false,
       segmentHits: 0,
@@ -534,17 +558,20 @@ const KillerGameScreen: React.FC = () => {
       singlesHit: 0,
       doublesHit: 0,
       triplesHit: 0,
-      playersEliminated: 0,
-      throws: []
+      playersEliminated: 0
     }));
     
-    dispatch({ type: 'RESET_GAME' });
-    dispatch({ type: 'START_GAME', gameType: 'killer', gameOptions: state.gameOptions, killerOptions: state.killerOptions });
     dispatch({ type: 'SET_PLAYER_ORDER', players: freshPlayers });
-    dispatch({ type: 'ASSIGN_SEGMENTS' });
+    dispatch({ 
+      type: 'START_GAME', 
+      gameType: 'killer', 
+      gameOptions: state.gameOptions, 
+      killerOptions: state.killerOptions 
+    });
     
     setShowWinnerScreen(false);
     setShowSetup(true);
+    setDartThrowCount(0);
   };
   
   const handleGoToSummary = () => navigate('/killer/summary');
@@ -559,6 +586,8 @@ const KillerGameScreen: React.FC = () => {
   return (
     <Layout hideNav>
       <Container>
+        <GameRestoredBanner show={showRestoredBanner} />
+        
         <GameHeader>
           <PageTitle>Killer</PageTitle>
           <Button 

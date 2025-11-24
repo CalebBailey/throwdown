@@ -154,6 +154,20 @@ const loadInitialState = (): GameState => {
   if (savedState) {
     try {
       const parsedState = JSON.parse(savedState);
+      // If we have an active game, restore the full state
+      if (parsedState.gameStatus === 'active' && parsedState.players && parsedState.players.length > 0) {
+        console.log('Restoring active game state from localStorage');
+        return {
+          ...initialState,
+          ...parsedState,
+          // Ensure we have proper defaults for any missing properties
+          currentThrow: parsedState.currentThrow || initialState.currentThrow,
+          killerOptions: parsedState.killerOptions || initialState.killerOptions,
+          shanghaiOptions: parsedState.shanghaiOptions || initialState.shanghaiOptions,
+          donkeyDerbyOptions: parsedState.donkeyDerbyOptions || initialState.donkeyDerbyOptions
+        };
+      }
+      // Otherwise, just restore session stats
       return {
         ...initialState,
         sessionStats: parsedState.sessionStats || initialState.sessionStats
@@ -1021,6 +1035,12 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
     }
     
     case 'RESET_GAME': {
+      // Clear the saved game state from localStorage
+      localStorage.removeItem('throwdown_game_state');
+      localStorage.setItem('throwdown_game_state', JSON.stringify({
+        sessionStats: state.sessionStats
+      }));
+      
       return {
         ...initialState,
         sessionStats: state.sessionStats,
@@ -1165,12 +1185,18 @@ const GameContext = createContext<{
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(gameReducer, loadInitialState());
   
-  // Save session stats to localStorage when they change
+  // Save full game state to localStorage when it changes (for active games)
   useEffect(() => {
-    localStorage.setItem('throwdown_game_state', JSON.stringify({
-      sessionStats: state.sessionStats
-    }));
-  }, [state.sessionStats]);
+    // Only save if we have an active game
+    if (state.gameStatus === 'active' && state.players.length > 0) {
+      localStorage.setItem('throwdown_game_state', JSON.stringify(state));
+    } else if (state.gameStatus === 'complete' || state.gameStatus === 'setup') {
+      // Save only session stats when game is complete or in setup
+      localStorage.setItem('throwdown_game_state', JSON.stringify({
+        sessionStats: state.sessionStats
+      }));
+    }
+  }, [state]);
   
   return (
     <GameContext.Provider value={{ state, dispatch }}>

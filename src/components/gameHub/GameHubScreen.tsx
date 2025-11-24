@@ -99,6 +99,19 @@ const GameHubScreen: React.FC = () => {
   const [donkeyCustomFinish, setDonkeyCustomFinish] = useState<string>('12');
   const [gameCategory, setGameCategory] = useState<GameCategory>('x01');
   
+  // Update game type when category changes
+  const handleCategoryChange = (category: GameCategory) => {
+    setGameCategory(category);
+    // Automatically set the game type based on category
+    if (category === 'killer') {
+      setSelectedGameType('killer');
+    } else if (category === 'x01') {
+      setSelectedGameType('501'); // Default X01 game
+    } else if (category === 'other') {
+      setSelectedGameType('shanghai'); // Default other game
+    }
+  };
+  
   const handleGameTypeSelect = (gameType: GameType) => {
     setSelectedGameType(gameType);
     
@@ -203,7 +216,7 @@ const GameHubScreen: React.FC = () => {
             <Card.Content>
               <GameTypeSelector
                 activeCategory={gameCategory}
-                onCategoryChange={setGameCategory}
+                onCategoryChange={handleCategoryChange}
               />
               
               <ScrollableContent>

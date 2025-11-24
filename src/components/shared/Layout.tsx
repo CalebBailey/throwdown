@@ -193,9 +193,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, hideNav = false }) => 
         </Header>
       )}
       <Main>{children}</Main>
-      {!hideNav && (
+      {/* {!hideNav && (
         <Footer>ThrowDown Darts App &copy; {new Date().getFullYear()}</Footer>
-      )}
+      )} */}
     </LayoutContainer>
   );
 };
