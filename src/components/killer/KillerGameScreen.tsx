@@ -704,6 +704,7 @@ const KillerGameScreen: React.FC = () => {
                     currentPlayerId={currentPlayer?.id}
                     players={state.players}
                     onHitSegment={handleHitSegment}
+                    maxHits={requiredHits}
                   />
                 </DartboardContainer>
                 
