@@ -653,7 +653,7 @@ const KillerGameScreen: React.FC = () => {
                     <PlayerRow 
                       key={player.id} 
                       $active={index === state.currentPlayerIndex}
-                      $eliminated={player.lives === 0}
+                      $eliminated={player.isEliminated || false}
                     >
                       <PlayerColor color={player.colour} />
                       <PlayerInfo>
@@ -663,14 +663,14 @@ const KillerGameScreen: React.FC = () => {
                         </PlayerName>
                         <PlayerStats>
                           Segment: {player.segment} | 
-                          Lives: {player.lives || requiredHits}
+                          Lives: {player.isEliminated ? 'OUT' : (player.segmentHits || 0)}
                         </PlayerStats>
                       </PlayerInfo>
                       <PlayerStatusBadge 
                         $isKiller={player.isKiller || false}
-                        $eliminated={player.lives === 0}
+                        $eliminated={player.isEliminated || false}
                       >
-                        {player.isKiller ? 'KILLER' : `${player.segmentHits || 0}/${requiredHits}`}
+                        {player.isEliminated ? 'OUT' : player.isKiller ? 'KILLER' : `${player.segmentHits || 0}/${requiredHits}`}
                       </PlayerStatusBadge>
                     </PlayerRow>
                   ))}
