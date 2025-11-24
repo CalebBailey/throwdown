@@ -21,7 +21,7 @@ const Container = styled.div`
 
 const PageTitle = styled.h1`
   margin-bottom: ${props => props.theme.space.lg};
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
     font-size: 1.5rem;
@@ -64,7 +64,7 @@ const WinnerSection = styled.div`
 
 const WinnerName = styled.h2`
   font-size: ${props => props.theme.fontSizes.xxxl};
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
   margin-top: ${props => props.theme.space.md};
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
@@ -118,7 +118,7 @@ const StatValue = styled.div`
   font-family: ${props => props.theme.fonts.monospace};
   font-size: ${props => props.theme.fontSizes.xxl};
   font-weight: bold;
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
   margin: ${props => props.theme.space.md} 0;
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
@@ -150,7 +150,7 @@ const PlayerRow = styled.div<{ $winner: boolean }>`
   };
   border-left: 4px solid ${props => 
     props.$winner 
-      ? props.theme.colors.success 
+      ? props.theme.colours.success 
       : 'transparent'
   };
   border-radius: ${props => props.theme.borderRadius.md};
@@ -171,7 +171,7 @@ const MobilePlayerRow = styled.div<{ $winner: boolean }>`
   };
   border-left: 4px solid ${props => 
     props.$winner 
-      ? props.theme.colors.success 
+      ? props.theme.colours.success 
       : 'transparent'
   };
   border-radius: ${props => props.theme.borderRadius.md};
@@ -253,7 +253,7 @@ const StatHeader = styled.div`
   padding: ${props => props.theme.space.sm} ${props => props.theme.space.md};
   font-weight: 500;
   font-size: ${props => props.theme.fontSizes.sm};
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   opacity: 0.7;
   
   @media (max-width: ${props => props.theme.breakpoints.tablet}) {
@@ -294,7 +294,7 @@ const MobilePlayerRowComponent: React.FC<MobilePlayerRowProps> = ({ player, isWi
     <MobilePlayerRow $winner={isWinner}>
       <MobilePlayerHeader onClick={() => setExpanded(!expanded)}>
         <MobilePlayerInfo>
-          <PlayerColor color={player.color} />
+          <PlayerColor color={player.colour} />
           <PlayerName>{player.name} {isWinner && '🏆'}</PlayerName>
         </MobilePlayerInfo>
         {expanded ? <FiChevronUp /> : <FiChevronDown />}
@@ -422,7 +422,7 @@ const GameSummaryScreen: React.FC = () => {
           </SummaryHeader>
           
           <WinnerSection as={motion.div} variants={childVariants}>
-            <WinnerAvatar color={state.winner.color}>
+            <WinnerAvatar color={state.winner.colour}>
               {state.winner.name.charAt(0).toUpperCase()}
             </WinnerAvatar>
             <WinnerName>{state.winner.name} Wins!</WinnerName>
@@ -487,7 +487,7 @@ const GameSummaryScreen: React.FC = () => {
                   
                   return (
                     <PlayerRow key={`desktop-${player.id}`} $winner={isWinner}>
-                      <PlayerColor color={player.color} />
+                      <PlayerColor color={player.colour} />
                       <PlayerName>{player.name} {isWinner && '🏆'}</PlayerName>
                       <StatCell>{stats.threeDartAverage.toFixed(1)}</StatCell>
                       <StatCell>{stats.first9Average.toFixed(1)}</StatCell>

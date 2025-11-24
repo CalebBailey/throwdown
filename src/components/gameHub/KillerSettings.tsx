@@ -15,7 +15,7 @@ const SettingsLabel = styled.h2`
   align-items: center;
   gap: ${props => props.theme.space.sm};
   margin-bottom: ${props => props.theme.space.md};
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   font-size: ${props => props.theme.fontSizes.lg};
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
@@ -43,7 +43,7 @@ const LivesSetting = styled.div<{ $active: boolean }>`
 const GameIcon = styled.div`
   font-size: 2.5rem;
   margin-bottom: ${props => props.theme.space.sm};
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
   display: flex;
   justify-content: center;
   
@@ -92,8 +92,8 @@ const LivesOptions = styled.div`
 `;
 
 const LivesOption = styled.button<{ $active: boolean }>`
-  background-color: ${props => props.$active ? props.theme.colors.highlight : 'rgba(255, 255, 255, 0.1)'};
-  color: ${props => props.theme.colors.text};
+  background-color: ${props => props.$active ? props.theme.colours.highlight : 'rgba(255, 255, 255, 0.1)'};
+  color: ${props => props.theme.colours.text};
   border: none;
   border-radius: ${props => props.theme.borderRadius.md};
   padding: ${props => props.theme.space.sm} ${props => props.theme.space.md};

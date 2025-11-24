@@ -26,7 +26,7 @@ const HeaderBar = styled.div`
 `;
 
 const Title = styled.h1`
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   margin: 0;
   font-size: ${props => props.theme.fontSizes.xxl};
   

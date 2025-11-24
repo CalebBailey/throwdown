@@ -20,7 +20,7 @@ const Container = styled.div`
 
 const PageTitle = styled.h1`
   margin-bottom: ${props => props.theme.space.lg};
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
     font-size: 1.5rem;
@@ -63,7 +63,7 @@ const WinnerSection = styled.div`
 
 const WinnerName = styled.h2`
   font-size: ${props => props.theme.fontSizes.xxxl};
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
   margin-top: ${props => props.theme.space.md};
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
@@ -118,7 +118,7 @@ const StatValue = styled.div`
   font-family: ${props => props.theme.fonts.monospace};
   font-size: ${props => props.theme.fontSizes.xxl};
   font-weight: bold;
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
   margin: ${props => props.theme.space.md} 0;
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
@@ -150,7 +150,7 @@ const PlayerRow = styled.div<{ $winner: boolean }>`
   };
   border-left: 4px solid ${props => 
     props.$winner 
-      ? props.theme.colors.success 
+      ? props.theme.colours.success 
       : 'transparent'
   };
   border-radius: ${props => props.theme.borderRadius.md};
@@ -171,7 +171,7 @@ const MobilePlayerRow = styled.div<{ $winner: boolean }>`
   };
   border-left: 4px solid ${props => 
     props.$winner 
-      ? props.theme.colors.success 
+      ? props.theme.colours.success 
       : 'transparent'
   };
   border-radius: ${props => props.theme.borderRadius.md};
@@ -253,7 +253,7 @@ const StatHeader = styled.div`
   padding: ${props => props.theme.space.sm} ${props => props.theme.space.md};
   font-weight: 500;
   font-size: ${props => props.theme.fontSizes.sm};
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   opacity: 0.7;
   
   @media (max-width: ${props => props.theme.breakpoints.tablet}) {
@@ -283,7 +283,7 @@ const ButtonGroup = styled.div`
 const SegmentBadge = styled.span`
   display: inline-block;
   background-color: rgba(233, 69, 96, 0.2);
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
   border-radius: 4px;
   padding: 2px 6px;
   margin-left: ${props => props.theme.space.sm};
@@ -313,7 +313,7 @@ const SegmentBlock = styled.div<{ $active: boolean; $score: number }>`
       : 'rgba(255, 255, 255, 0.1)'
     : 'rgba(255, 255, 255, 0.05)'
   };
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   
   @media (max-width: ${props => props.theme.breakpoints.tablet}) {
     width: 20px;
@@ -325,7 +325,7 @@ const SegmentBlock = styled.div<{ $active: boolean; $score: number }>`
 // Additional styled components for the segment scorecard
 const ScoreCardTitle = styled.h3`
   margin: ${props => props.theme.space.md} 0;
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
 `;
 
 const ScoreGrid = styled.div`
@@ -343,7 +343,7 @@ const HeaderCell = styled.div`
   text-align: center;
   border-radius: 4px;
   font-weight: bold;
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
 `;
 
 const SegmentCell = styled.div<{ isHighest?: boolean }>`
@@ -351,7 +351,7 @@ const SegmentCell = styled.div<{ isHighest?: boolean }>`
   padding: 8px;
   text-align: center;
   border-radius: 4px;
-  color: ${props => props.isHighest ? props.theme.colors.highlight : props.theme.colors.text};
+  color: ${props => props.isHighest ? props.theme.colours.highlight : props.theme.colours.text};
   font-weight: ${props => props.isHighest ? 'bold' : 'normal'};
 `;
 
@@ -432,7 +432,7 @@ const MobilePlayerRowComponent: React.FC<MobilePlayerRowProps> = ({ player, isWi
     <MobilePlayerRow $winner={isWinner}>
       <MobilePlayerHeader onClick={() => setExpanded(!expanded)}>
         <MobilePlayerInfo>
-          <PlayerColor color={player.color} />
+          <PlayerColor color={player.colour} />
           <PlayerName>{player.name} {isWinner && '🏆'}</PlayerName>
           <div>{player.score} pts</div>
         </MobilePlayerInfo>
@@ -703,7 +703,7 @@ const ShanghaiGameSummaryScreen: React.FC = () => {
           </SummaryHeader>
           
           <WinnerSection as={motion.div} variants={childVariants}>
-            <WinnerAvatar color={state.winner.color}>
+            <WinnerAvatar color={state.winner.colour}>
               {state.winner.name.charAt(0).toUpperCase()}
             </WinnerAvatar>
             <WinnerName>{state.winner.name} Wins!</WinnerName>
@@ -785,7 +785,7 @@ const ShanghaiGameSummaryScreen: React.FC = () => {
                         <React.Fragment key={player.id}>
                           {/* Player name */}
                           <PlayerCell isActive={isWinner}>
-                            <PlayerDot color={player.color} />
+                            <PlayerDot color={player.colour} />
                             <div>{player.name}</div>
                           </PlayerCell>
                           
@@ -834,7 +834,7 @@ const ShanghaiGameSummaryScreen: React.FC = () => {
                     
                     return (
                       <PlayerRow key={`desktop-${player.id}`} $winner={isWinner}>
-                        <PlayerColor color={player.color} />
+                        <PlayerColor color={player.colour} />
                         <PlayerName>{player.name} {isWinner && '🏆'}</PlayerName>
                         <StatCell>{player.score || 0}</StatCell>
                         <StatCell>{player.singlesHit || 0}</StatCell>

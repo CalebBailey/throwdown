@@ -46,7 +46,7 @@ const MultiplierSelector = styled.div`
 
 const MultiplierButton = styled.button<{ $isActive: boolean }>`
   background-color: ${props => props.$isActive ? '#E94560' : 'rgba(30, 30, 30, 0.7)'};
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   border: none;
   padding: 12px 24px;
   border-radius: 10px;
@@ -158,7 +158,7 @@ const KillerDartboard: React.FC<KillerDartboardProps> = ({ players, currentPlaye
       
       // Fill sections based on hits/progress (fill from center outward)
       for (let i = 0; i < currentHits && i < maxHits; i++) {
-        sectionFills[i] = player.color; // Fill with player's color
+        sectionFills[i] = player.colour; // Fill with player's color
       }
       
       // Mark if segment can be targeted by current killer player
@@ -182,10 +182,10 @@ const KillerDartboard: React.FC<KillerDartboardProps> = ({ players, currentPlaye
           !player.isEliminated && (
             <StyledPlayerSegmentItem 
               key={player.id} 
-              color={player.color}
+              color={player.colour}
               isActive={player.id === currentPlayerId}
             >
-              <PlayerDot color={player.color} />
+              <PlayerDot color={player.colour} />
               <span>{player.name}: {player.segment}</span>
               {player.isKiller && <span> (Killer)</span>}
             </StyledPlayerSegmentItem>
@@ -347,7 +347,7 @@ const KillerDartboard: React.FC<KillerDartboardProps> = ({ players, currentPlaye
           {/* Player segment glow */}
           <filter id="playerGlow" x="-30%" y="-30%" width="160%" height="160%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse">
             <feGaussianBlur stdDeviation="5" result="blur" />
-            <feFlood floodColor={currentPlayer?.color || '#FFFFFF'} floodOpacity="0.9" result="glow" />
+            <feFlood floodColor={currentPlayer?.colour || '#FFFFFF'} floodOpacity="0.9" result="glow" />
             <feComposite in="glow" in2="blur" operator="in" result="coloredBlur" />
             <feMerge>
               <feMergeNode in="coloredBlur" />
@@ -368,7 +368,7 @@ const KillerDartboard: React.FC<KillerDartboardProps> = ({ players, currentPlaye
               primitiveUnits="userSpaceOnUse"
             >
             <feGaussianBlur stdDeviation="5" result="blur" />
-            <feFlood floodColor={player.color} floodOpacity="0.9" result="glow" />
+            <feFlood floodColor={player.colour} floodOpacity="0.9" result="glow" />
               <feComposite in="glow" in2="blur" operator="in" result="coloredBlur" />
               <feMerge>
                 <feMergeNode in="coloredBlur" />

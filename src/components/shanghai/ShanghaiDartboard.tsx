@@ -45,7 +45,7 @@ const MultiplierSelector = styled.div`
 
 const MultiplierButton = styled.button<{ $isActive: boolean }>`
   background-color: ${props => props.$isActive ? '#E94560' : 'rgba(30, 30, 30, 0.7)'};
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   border: none;
   padding: 12px 24px;
   border-radius: 10px;

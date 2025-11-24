@@ -77,12 +77,12 @@ const StyledButton = styled.button<{
     switch(props.$variant) {
       case 'secondary':
         return css`
-          background-color: ${props.theme.colors.accent};
-          color: ${props.theme.colors.text};
+          background-color: ${props.theme.colours.accent};
+          color: ${props.theme.colours.text};
           border: none;
           
           &:hover {
-            background-color: ${props.theme.colors.lightAccent};
+            background-color: ${props.theme.colours.lightAccent};
           }
           
           &:active {
@@ -90,7 +90,7 @@ const StyledButton = styled.button<{
           }
           
           &:disabled {
-            background-color: ${props.theme.colors.secondary};
+            background-color: ${props.theme.colours.secondary};
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
@@ -99,8 +99,8 @@ const StyledButton = styled.button<{
       case 'outline':
         return css`
           background-color: transparent;
-          color: ${props.theme.colors.text};
-          border: 2px solid ${props.theme.colors.text};
+          color: ${props.theme.colours.text};
+          border: 2px solid ${props.theme.colours.text};
           
           &:hover {
             background-color: rgba(255, 255, 255, 0.1);
@@ -119,7 +119,7 @@ const StyledButton = styled.button<{
       case 'text':
         return css`
           background-color: transparent;
-          color: ${props.theme.colors.text};
+          color: ${props.theme.colours.text};
           border: none;
           
           &:hover {
@@ -138,8 +138,8 @@ const StyledButton = styled.button<{
         `;
       default: // primary
         return css`
-          background-color: ${props.theme.colors.highlight};
-          color: ${props.theme.colors.text};
+          background-color: ${props.theme.colours.highlight};
+          color: ${props.theme.colours.text};
           border: none;
           
           &:hover {
@@ -151,7 +151,7 @@ const StyledButton = styled.button<{
           }
           
           &:disabled {
-            background-color: ${props.theme.colors.highlight};
+            background-color: ${props.theme.colours.highlight};
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;

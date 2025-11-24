@@ -12,8 +12,8 @@ const Banner = styled(motion.div)`
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: ${props => props.theme.colors.highlight};
-  color: ${props => props.theme.colors.text};
+  background-color: ${props => props.theme.colours.highlight};
+  color: ${props => props.theme.colours.text};
   padding: ${props => props.theme.space.md} ${props => props.theme.space.lg};
   border-radius: ${props => props.theme.borderRadius.md};
   box-shadow: ${props => props.theme.shadows.lg};

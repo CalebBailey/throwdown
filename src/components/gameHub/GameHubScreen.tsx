@@ -23,7 +23,7 @@ const Container = styled.div`
 
 const PageTitle = styled.h1`
   margin-bottom: ${props => props.theme.space.md};
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   font-size: ${props => props.theme.fontSizes.xxxl};
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
@@ -48,12 +48,12 @@ const ScrollableContent = styled.div`
   }
   
   &::-webkit-scrollbar-thumb {
-    background: ${props => props.theme.colors.highlight};
+    background: ${props => props.theme.colours.highlight};
     border-radius: 3px;
   }
   
   scrollbar-width: thin;
-  scrollbar-color: ${props => props.theme.colors.highlight} rgba(255, 255, 255, 0.05);
+  scrollbar-color: ${props => props.theme.colours.highlight} rgba(255, 255, 255, 0.05);
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
     max-height: calc(100vh - 220px);
@@ -202,9 +202,7 @@ const GameHubScreen: React.FC = () => {
   
   return (
     <Layout>
-      <Container>
-        <PageTitle>Game Hub</PageTitle>
-        
+      <Container>        
         <motion.div variants={itemAnimation} initial="hidden" animate="show">
           <Card>
             <Card.Header>

@@ -175,8 +175,8 @@ const checkoutData: Record<number, { primary: string[], backup: string[] | null 
   2: { primary: ['D1'], backup: null }
 };
 
-// Color palette (matching ColorPickerPopup)
-const PLAYER_COLORS = [
+// Colour palette (matching ColourPickerPopup)
+const PLAYER_COLOURS = [
   '#E94560', // Red (highlight)
   '#FF6B6B', // Coral red
   '#FFA500', // Orange
@@ -198,26 +198,26 @@ export const generateId = (): string => {
   return Math.random().toString(36).substring(2, 9);
 };
 
-// Get a random color from our predefined palette
-export const getRandomColor = (): string => {
-  return PLAYER_COLORS[Math.floor(Math.random() * PLAYER_COLORS.length)];
+// Get a random colour from our predefined palette
+export const getRandomColour = (): string => {
+  return PLAYER_COLOURS[Math.floor(Math.random() * PLAYER_COLOURS.length)];
 };
 
-// Get a unique color not used by any existing players
-export const getUniquePlayerColor = (existingPlayers: Array<{color: string}>): string => {
-  // Get colors already in use
-  const usedColors = new Set(existingPlayers.map(player => player.color));
+// Get a unique colour not used by any existing players
+export const getUniquePlayerColour = (existingPlayers: Array<{colour: string}>): string => {
+  // Get colours already in use
+  const usedColours = new Set(existingPlayers.map(player => player.colour));
   
-  // Find available colors
-  const availableColors = PLAYER_COLORS.filter(color => !usedColors.has(color));
+  // Find available colours
+  const availableColours = PLAYER_COLOURS.filter(colour => !usedColours.has(colour));
   
-  // If we have available colors, pick one randomly
-  if (availableColors.length > 0) {
-    return availableColors[Math.floor(Math.random() * availableColors.length)];
+  // If we have available colours, pick one randomly
+  if (availableColours.length > 0) {
+    return availableColours[Math.floor(Math.random() * availableColours.length)];
   }
   
-  // If all colors are used, just cycle through them again
-  return PLAYER_COLORS[existingPlayers.length % PLAYER_COLORS.length];
+  // If all colours are used, just cycle through them again
+  return PLAYER_COLOURS[existingPlayers.length % PLAYER_COLOURS.length];
 };
 
 // Shuffle array (for randomizing player order)

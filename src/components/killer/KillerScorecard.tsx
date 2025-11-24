@@ -262,7 +262,7 @@ const KillerScorecard: React.FC<KillerScorecardProps> = ({ players, currentPlaye
             isActive={player.id === currentPlayerId}
             isEliminated={player.isEliminated || false}
           >
-            <PlayerColor color={player.color} />
+            <PlayerColor color={player.colour} />
             
             <PlayerDetails>
               <StyledPlayerName isKiller={player.isKiller || false}>
@@ -293,7 +293,7 @@ const KillerScorecard: React.FC<KillerScorecardProps> = ({ players, currentPlaye
                       <StyledHitDot 
                         key={i} 
                         active={(player.segmentHits || 0) > i}
-                        color={player.color}
+                        color={player.colour}
                       />
                     ))}
                   </HitIndicators>

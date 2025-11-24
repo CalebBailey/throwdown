@@ -20,7 +20,7 @@ const Container = styled.div`
 
 const PageTitle = styled.h1`
   margin-bottom: ${props => props.theme.space.lg};
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
     font-size: 1.5rem;
@@ -50,7 +50,7 @@ const TrophyIcon = styled(FiAward)`
 `;
 
 const TargetIcon = styled(FiTarget)`
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
   margin-right: ${props => props.theme.space.sm};
 `;
 
@@ -68,7 +68,7 @@ const WinnerSection = styled.div`
 
 const WinnerName = styled.h2`
   font-size: ${props => props.theme.fontSizes.xxxl};
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
   margin-top: ${props => props.theme.space.md};
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
@@ -122,7 +122,7 @@ const StatValue = styled.div`
   font-family: ${props => props.theme.fonts.monospace};
   font-size: ${props => props.theme.fontSizes.xxl};
   font-weight: bold;
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
   margin: ${props => props.theme.space.md} 0;
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
@@ -154,7 +154,7 @@ const PlayerRow = styled.div<{ $winner: boolean }>`
   };
   border-left: 4px solid ${props => 
     props.$winner 
-      ? props.theme.colors.success 
+      ? props.theme.colours.success 
       : 'transparent'
   };
   border-radius: ${props => props.theme.borderRadius.md};
@@ -175,7 +175,7 @@ const MobilePlayerRow = styled.div<{ $winner: boolean }>`
   };
   border-left: 4px solid ${props => 
     props.$winner 
-      ? props.theme.colors.success 
+      ? props.theme.colours.success 
       : 'transparent'
   };
   border-radius: ${props => props.theme.borderRadius.md};
@@ -275,8 +275,8 @@ const PlayerStatus = styled.span<{ isKiller: boolean }>`
   };
   color: ${props => 
     props.isKiller 
-      ? props.theme.colors.error 
-      : props.theme.colors.textSecondary
+      ? props.theme.colours.error 
+      : props.theme.colours.textSecondary
   };
   padding: 2px 6px;
   border-radius: 4px;
@@ -290,7 +290,7 @@ const StatHeader = styled.div`
   padding: ${props => props.theme.space.sm} ${props => props.theme.space.md};
   font-weight: 500;
   font-size: ${props => props.theme.fontSizes.sm};
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   opacity: 0.7;
   
   @media (max-width: ${props => props.theme.breakpoints.tablet}) {
@@ -331,7 +331,7 @@ const MobilePlayerRowComponent: React.FC<MobilePlayerRowProps> = ({ player, isWi
     <MobilePlayerRow $winner={isWinner}>
       <MobilePlayerHeader onClick={() => setExpanded(!expanded)}>
         <MobilePlayerInfo>
-          <PlayerColor color={player.color} />
+          <PlayerColor color={player.colour} />
           <PlayerName>{player.name} {isWinner && '🏆'}</PlayerName>
           {player.isKiller ? (
             <PlayerStatus isKiller={true}>
@@ -509,7 +509,7 @@ const KillerGameSummaryScreen: React.FC = () => {
           </SummaryHeader>
           
           <WinnerSection as={motion.div} variants={childVariants}>
-            <WinnerAvatar color={state.winner.color}>
+            <WinnerAvatar color={state.winner.colour}>
               {state.winner.name.charAt(0).toUpperCase()}
             </WinnerAvatar>
             <WinnerName>{state.winner.name} Wins!</WinnerName>
@@ -587,7 +587,7 @@ const KillerGameSummaryScreen: React.FC = () => {
                     
                     return (
                       <PlayerRowComponent key={`desktop-${player.id}`} $winner={isWinner}>
-                        <PlayerColor color={player.color} />
+                        <PlayerColor color={player.colour} />
                         <PlayerName>{player.name} {isWinner && '🏆'}</PlayerName>
                         <StatCell>{player.segment}</StatCell>
                         <StatCell>{player.singlesHit || 0}</StatCell>

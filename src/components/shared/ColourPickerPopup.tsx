@@ -3,10 +3,10 @@ import styled from 'styled-components';
 import { CirclePicker, ColorResult } from 'react-color';
 import { motion, AnimatePresence } from 'framer-motion';
 
-interface ColorPickerPopupProps {
+interface ColourPickerPopupProps {
   isOpen: boolean;
-  currentColor: string;
-  onColorChange: (color: string) => void;
+  currentColour: string;
+  onColourChange: (colour: string) => void;
   onClose: () => void;
   anchorPosition: { top: number; left: number } | null;
 }
@@ -32,7 +32,7 @@ const PopupContainer = styled(motion.div)<{ top: number; left: number }>`
 const SpeechBubble = styled.div`
   background: rgba(22, 33, 62, 0.95);
   backdrop-filter: blur(10px);
-  border: 2px solid ${props => props.theme.colors.highlight};
+  border: 2px solid ${props => props.theme.colours.highlight};
   border-radius: ${props => props.theme.borderRadius.lg};
   padding: ${props => props.theme.space.md};
   box-shadow: ${props => props.theme.shadows.lg};
@@ -50,7 +50,7 @@ const SpeechBubble = styled.div`
     height: 0;
     border-left: 12px solid transparent;
     border-right: 12px solid transparent;
-    border-top: 12px solid ${props => props.theme.colors.highlight};
+    border-top: 12px solid ${props => props.theme.colours.highlight};
   }
   
   /* Speech bubble tail - inner fill */
@@ -71,7 +71,7 @@ const SpeechBubble = styled.div`
 
 const PickerTitle = styled.h4`
   font-size: ${props => props.theme.fontSizes.sm};
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   margin-bottom: ${props => props.theme.space.sm};
   text-align: center;
   font-weight: 500;
@@ -82,7 +82,7 @@ const StyledCirclePicker = styled.div`
     justify-content: center !important;
   }
   
-  /* Override react-color default styles */
+  /* Override react-colour default styles */
   span > div {
     border-radius: 50% !important;
     
@@ -94,8 +94,8 @@ const StyledCirclePicker = styled.div`
   }
 `;
 
-// Predefined color palette
-const COLORS = [
+// Predefined colour palette
+const COLOURS = [
   '#E94560', // Red (highlight)
   '#FF6B6B', // Coral red
   '#FFA500', // Orange
@@ -112,10 +112,10 @@ const COLORS = [
   '#FFFFFF', // White
 ];
 
-export const ColorPickerPopup: React.FC<ColorPickerPopupProps> = ({
+export const ColourPickerPopup: React.FC<ColourPickerPopupProps> = ({
   isOpen,
-  currentColor,
-  onColorChange,
+  currentColour,
+  onColourChange,
   onClose,
   anchorPosition,
 }) => {
@@ -145,8 +145,8 @@ export const ColorPickerPopup: React.FC<ColorPickerPopupProps> = ({
     };
   }, [isOpen, onClose]);
 
-  const handleColorChange = (color: ColorResult) => {
-    onColorChange(color.hex);
+  const handleColourChange = (colour: ColorResult) => {
+    onColourChange(colour.hex);
   };
 
   if (!anchorPosition) return null;
@@ -171,12 +171,12 @@ export const ColorPickerPopup: React.FC<ColorPickerPopupProps> = ({
             transition={{ duration: 0.2, ease: 'easeOut' }}
           >
             <SpeechBubble>
-              <PickerTitle>Choose a color</PickerTitle>
+              <PickerTitle>Choose a colour</PickerTitle>
               <StyledCirclePicker>
                 <CirclePicker
-                  color={currentColor}
-                  colors={COLORS}
-                  onChangeComplete={handleColorChange}
+                  color={currentColour}
+                  colors={COLOURS}
+                  onChangeComplete={handleColourChange}
                   width="280px"
                   circleSize={28}
                   circleSpacing={8}
@@ -190,4 +190,4 @@ export const ColorPickerPopup: React.FC<ColorPickerPopupProps> = ({
   );
 };
 
-export default ColorPickerPopup;
+export default ColourPickerPopup;

@@ -18,7 +18,7 @@ const SettingsLabel = styled.h2`
   align-items: center;
   gap: ${props => props.theme.space.sm};
   margin-bottom: ${props => props.theme.space.md};
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   font-size: ${props => props.theme.fontSizes.lg};
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
@@ -42,7 +42,7 @@ const GameSelectionArea = styled.div`
 
 const GameCard = styled(motion.div)<{ $active: boolean }>`
   background-color: ${props => props.$active ? 'rgba(233, 69, 96, 0.15)' : 'rgba(255, 255, 255, 0.05)'};
-  border: 2px solid ${props => props.$active ? props.theme.colors.highlight : 'transparent'};
+  border: 2px solid ${props => props.$active ? props.theme.colours.highlight : 'transparent'};
   border-radius: ${props => props.theme.borderRadius.md};
   padding: ${props => props.theme.space.md};
   cursor: pointer;
@@ -54,7 +54,7 @@ const GameCard = styled(motion.div)<{ $active: boolean }>`
   
   &:hover {
     background-color: ${props => props.$active ? 'rgba(233, 69, 96, 0.2)' : 'rgba(255, 255, 255, 0.08)'};
-    border-color: ${props => props.$active ? props.theme.colors.highlight : 'rgba(255, 255, 255, 0.2)'};
+    border-color: ${props => props.$active ? props.theme.colours.highlight : 'rgba(255, 255, 255, 0.2)'};
   }
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
@@ -65,7 +65,7 @@ const GameCard = styled(motion.div)<{ $active: boolean }>`
 const GameIcon = styled.div`
   font-size: 2.5rem;
   margin-bottom: ${props => props.theme.space.sm};
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
     font-size: 2rem;
@@ -110,8 +110,8 @@ const GameModeRow4 = styled.div`
 `;
 
 const GameOptionButton = styled.button<{ $active: boolean }>`
-  background-color: ${props => props.$active ? props.theme.colors.highlight : 'rgba(255, 255, 255, 0.05)'};
-  color: ${props => props.theme.colors.text};
+  background-color: ${props => props.$active ? props.theme.colours.highlight : 'rgba(255, 255, 255, 0.05)'};
+  color: ${props => props.theme.colours.text};
   padding: ${props => props.theme.space.sm};
   border: none;
   border-radius: ${props => props.theme.borderRadius.md};
@@ -148,7 +148,7 @@ const CustomScoreInput = styled.div`
     background-color: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: ${props => props.theme.borderRadius.sm};
-    color: ${props => props.theme.colors.text};
+    color: ${props => props.theme.colours.text};
     font-size: ${props => props.theme.fontSizes.sm};
     padding: ${props => props.theme.space.xs};
     width: 70px;
@@ -156,7 +156,7 @@ const CustomScoreInput = styled.div`
     
     &:focus {
       outline: none;
-      border-color: ${props => props.theme.colors.highlight};
+      border-color: ${props => props.theme.colours.highlight};
     }
     
     @media (max-width: ${props => props.theme.breakpoints.mobile}) {
@@ -174,7 +174,7 @@ const InfoText = styled.p`
   text-align: center;
   
   strong {
-    color: ${props => props.theme.colors.highlight};
+    color: ${props => props.theme.colours.highlight};
   }
 `;
 
