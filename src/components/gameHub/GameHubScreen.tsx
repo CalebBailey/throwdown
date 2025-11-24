@@ -466,6 +466,10 @@ const GameHubScreen: React.FC = () => {
   const [checkoutRate, setCheckoutRate] = useState<boolean>(true);
   const [twoLegsDifference, setTwoLegsDifference] = useState<boolean>(false);
   const [activeInput, setActiveInput] = useState<'legs' | 'sets'>('legs');
+  // Donkey Derby finish line configuration
+  const [donkeyFinishLine, setDonkeyFinishLine] = useState<number>(10);
+  const [donkeyFinishLineMode, setDonkeyFinishLineMode] = useState<'10' | '15' | 'custom'>('10');
+  const [donkeyCustomFinish, setDonkeyCustomFinish] = useState<string>('12');
   
   // New state for game category tabs
   const [gameCategory, setGameCategory] = useState<GameCategory>('x01');
@@ -543,11 +547,14 @@ const GameHubScreen: React.FC = () => {
       type: 'START_GAME',
       gameType: selectedGameType,
       gameOptions: finalGameOptions,
-      killerOptions
+      killerOptions,
+      donkeyDerbyOptions: selectedGameType === 'donkey_derby' ? { finishLine: donkeyFinishLine } : undefined
     });
     
     // Navigate to the appropriate game screen
-    if (gameCategory === 'x01') {
+    if (selectedGameType === 'donkey_derby') {
+      navigate('/games/donkey-derby');
+    } else if (gameCategory === 'x01') {
       navigate("/games/X01"); // Use generic X01 route (the logic handles different starting scores)
     } else if (gameCategory === 'killer') {
       navigate("/games/killer");
@@ -818,16 +825,61 @@ const GameHubScreen: React.FC = () => {
                       </GameDescription>
                     </GameCard>
                     
-                    <GameCard $active={false}>
+                    <GameCard 
+                      $active={selectedGameType === "donkey_derby"}
+                      onClick={() => setSelectedGameType("donkey_derby")}
+                    >
                       <GameIcon>
                         <FiTarget />
                       </GameIcon>
                       <GameTitle>Donkey Derby</GameTitle>
                       <GameDescription>
-                        Coming soon! Race-style game where players aim to hit sequential numbers from 1 to 20.
+                        Race-style game where players aim to hit their assigned segments to score points. First to reach the finish line wins!
                       </GameDescription>
                     </GameCard>
                   </GameSelectionArea>
+
+                  {selectedGameType === 'donkey_derby' && (
+                    <div style={{marginTop: '8px'}}>
+                      <SettingsLabel style={{marginTop: '16px'}}>DONKEY DERBY SETTINGS</SettingsLabel>
+                      <GameModeRow4>
+                        <GameOptionButton
+                          $active={donkeyFinishLineMode === '10'}
+                          onClick={() => { setDonkeyFinishLineMode('10'); setDonkeyFinishLine(10); }}
+                        >
+                          FINISH 10
+                        </GameOptionButton>
+                        <GameOptionButton
+                          $active={donkeyFinishLineMode === '15'}
+                          onClick={() => { setDonkeyFinishLineMode('15'); setDonkeyFinishLine(15); }}
+                        >
+                          FINISH 15
+                        </GameOptionButton>
+                        <GameOptionButton
+                          $active={donkeyFinishLineMode === 'custom'}
+                          onClick={() => { setDonkeyFinishLineMode('custom'); const v = parseInt(donkeyCustomFinish)||12; setDonkeyFinishLine(v); }}
+                        >
+                          CUSTOM
+                          {donkeyFinishLineMode === 'custom' && (
+                            <CustomScoreInput>
+                              <input
+                                type="number"
+                                min={2}
+                                max={50}
+                                value={donkeyCustomFinish}
+                                onChange={(e)=>{
+                                  const val = e.target.value; setDonkeyCustomFinish(val); const num = parseInt(val)||2; setDonkeyFinishLine(Math.min(50, Math.max(2, num))); }}
+                              />
+                            </CustomScoreInput>
+                          )}
+                        </GameOptionButton>
+                        <GameOptionButton $active={false} onClick={()=>{}}>
+                          <span style={{fontSize:'0.7rem',opacity:0.7,lineHeight:1.1}}>NODES SHOW UP TO 20</span>
+                        </GameOptionButton>
+                      </GameModeRow4>
+                      <p style={{fontSize:'0.75rem',opacity:0.6,marginTop:0}}>Finish line currently set to <strong>{donkeyFinishLine}</strong>. Track displays first 20 positions if larger.</p>
+                    </div>
+                  )}
                 </>
               )}
               
