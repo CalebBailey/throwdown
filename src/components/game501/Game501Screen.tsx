@@ -648,9 +648,8 @@ const Game501Screen: React.FC = () => {
                   </CurrentScore>
                 </AnimatePresence>
                 
-                {/* New simplified checkout suggestion */}
-                <SimplifiedCheckout $hasCheckout={liveRemainingScore <= 170 && displayedCheckoutSuggestions[0] !== 'NO OUTSHOT' && displayedCheckoutSuggestions[0] !== 'No checkout'}>
-                  {liveRemainingScore <= 170 && displayedCheckoutSuggestions[0] !== 'NO OUTSHOT' && displayedCheckoutSuggestions[0] !== 'No checkout' 
+                <SimplifiedCheckout $hasCheckout={state.currentThrow.darts.length < 3 && liveRemainingScore <= 170 && displayedCheckoutSuggestions[0] !== 'NO OUTSHOT' && displayedCheckoutSuggestions[0] !== 'No checkout'}>
+                  {state.currentThrow.darts.length < 3 && liveRemainingScore <= 170 && displayedCheckoutSuggestions[0] !== 'NO OUTSHOT' && displayedCheckoutSuggestions[0] !== 'No checkout' 
                     ? displayedCheckoutSuggestions.join(', ')
                     : ''}
                 </SimplifiedCheckout>

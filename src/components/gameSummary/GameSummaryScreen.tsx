@@ -139,7 +139,7 @@ const PlayersStatsTable = styled.div`
 // Desktop version of the player row (used for larger screens)
 const PlayerRow = styled.div<{ $winner: boolean }>`
   display: grid;
-  grid-template-columns: auto 1fr repeat(7, auto);
+  grid-template-columns: auto auto repeat(8, auto);
   gap: ${props => props.theme.space.md};
   align-items: center;
   padding: ${props => props.theme.space.md};
@@ -247,7 +247,7 @@ const PlayerName = styled.div`
 
 const StatHeader = styled.div`
   display: grid;
-  grid-template-columns: auto 1fr repeat(7, auto);
+  grid-template-columns: auto 1fr repeat(8, auto);
   gap: ${props => props.theme.space.md};
   align-items: center;
   padding: ${props => props.theme.space.sm} ${props => props.theme.space.md};
