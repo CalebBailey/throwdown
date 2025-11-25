@@ -745,7 +745,7 @@ const ShanghaiGameSummaryScreen: React.FC = () => {
                 
                 <StatCard>
                   <h3>Dart Accuracy</h3>
-                  <div className="player-stats-flex">
+                  <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '1rem' }}>
                     <div>
                       <h4>Singles</h4>
                       <StatValue>{gameStats.totalSingles}</StatValue>

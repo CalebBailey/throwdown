@@ -520,15 +520,27 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         const winner = playersStillIn[0];
         winner.wins = (winner.wins || 0) + 1;
         
+        // IMPORTANT: Record the current throw before ending the game
+        // so that darts thrown statistics are accurate
+        const winnerWithThrows = {
+          ...winner,
+          throws: [...winner.throws, [...state.currentThrow.darts]]
+        };
+        
+        // Update the winner in the players array
+        const finalPlayers = updatedPlayers.map(p => 
+          p.id === winner.id ? winnerWithThrows : p
+        );
+        
         // Update session stats
         const newPlayerWins = { ...state.sessionStats.playerWins };
         newPlayerWins[winner.id] = (newPlayerWins[winner.id] || 0) + 1;
         
         return {
           ...state,
-          players: updatedPlayers,
+          players: finalPlayers,
           gameStatus: 'complete',
-          winner,
+          winner: winnerWithThrows,
           sessionStats: {
             ...state.sessionStats,
             playerWins: newPlayerWins,

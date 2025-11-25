@@ -459,6 +459,13 @@ const DonkeyDerbyGameScreen: React.FC = () => {
       // Check for winner
       if (updatedPlayer.donkeyProgress >= finishLine) {
         updatedPlayer.wins = (updatedPlayer.wins || 0) + 1;
+        
+        // IMPORTANT: Record the current throw before ending the game
+        // so that darts thrown statistics are accurate
+        const newThrows = [...updatedPlayer.throws];
+        newThrows.push([...state.currentThrow.darts]);
+        updatedPlayer.throws = newThrows;
+        
         const updatedPlayers = [...state.players];
         updatedPlayers[state.currentPlayerIndex] = updatedPlayer;
         dispatch({ type: 'SET_PLAYER_ORDER', players: updatedPlayers });

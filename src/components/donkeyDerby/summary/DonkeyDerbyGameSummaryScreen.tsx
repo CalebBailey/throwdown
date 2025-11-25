@@ -719,7 +719,7 @@ const DonkeyDerbySummaryScreen: React.FC = () => {
                     <StatCard key={p.id}>
                       <h3 className="player-card-header">{p.name} {p.id===state.winner?.id && '🏆'}</h3>
                       <p className="player-segment-info">Segment {p.segment}</p>
-                      <div className="player-stats-row">
+                      <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '1rem' }}>
                         <div><small>Singles</small><StatValue>{p.singlesHit||0}</StatValue></div>
                         <div><small>Doubles</small><StatValue>{p.doublesHit||0}</StatValue></div>
                         <div><small>Triples</small><StatValue>{p.triplesHit||0}</StatValue></div>

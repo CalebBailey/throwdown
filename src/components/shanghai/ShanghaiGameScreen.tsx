@@ -450,10 +450,12 @@ const ShanghaiGameScreen: React.FC = () => {
     
     if (nextPlayerIndex === 0) {
       if (currentSegment === 9) {
+        // Game is ending, make sure all players have their final throws recorded
+        dispatch({ type: 'SET_PLAYER_ORDER', players: updatedPlayers });
+        
         const winner = [...updatedPlayers].sort((a, b) => b.score - a.score)[0];
         winner.wins = (winner.wins || 0) + 1;
         
-        dispatch({ type: 'SET_PLAYER_ORDER', players: updatedPlayers });
         dispatch({ type: 'END_GAME', winner: winner });
         setShowWinnerScreen(true);
         return;

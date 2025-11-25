@@ -171,9 +171,23 @@
 }
 
 .player-stats-flex {
-  display: flex;
-  justify-content: space-around;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
   margin-top: 1rem;
+  text-align: center;
+}
+
+.player-stats-flex > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.player-stats-flex h4 {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  color: #fff;
 }
 
 .player-card-header {
