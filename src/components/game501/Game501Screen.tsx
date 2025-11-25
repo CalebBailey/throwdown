@@ -365,9 +365,26 @@ const WinnerCard = styled(motion.div)`
   text-align: center;
   box-shadow: ${props => props.theme.shadows.lg};
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
+  
+  /* Custom scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: ${props => props.theme.colours.accent} transparent;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: ${props => props.theme.colours.accent};
+    border-radius: 10px;
+  }
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
     padding: ${props => props.theme.space.lg};
@@ -386,27 +403,8 @@ const WinnerHeader = styled.div`
 `;
 
 const WinnerStatsScrollable = styled.div`
-  overflow-y: auto;
+  /* Removed overflow-y: auto to prevent double scrollbar - WinnerCard now handles scrolling */
   flex-grow: 1;
-  padding-right: ${props => props.theme.space.sm}; /* Add padding for scrollbar */
-  margin-right: -${props => props.theme.space.sm}; /* Offset margin to maintain alignment */
-  
-  /* Custom scrollbar styling */
-  scrollbar-width: thin;
-  scrollbar-color: ${props => props.theme.colours.accent} transparent;
-  
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background-color: ${props => props.theme.colours.accent};
-    border-radius: 10px;
-  }
 `;
 
 const Game501Screen: React.FC = () => {
