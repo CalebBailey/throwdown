@@ -451,6 +451,15 @@ const DonkeyDerbyGameScreen: React.FC = () => {
     const updatedPlayer = { ...currentPlayer };
     const currentProgress = updatedPlayer.donkeyProgress || 0;
     
+    // Track dart statistics in real-time
+    if (multiplier === 'single') {
+      updatedPlayer.singlesHit = (updatedPlayer.singlesHit || 0) + 1;
+    } else if (multiplier === 'double') {
+      updatedPlayer.doublesHit = (updatedPlayer.doublesHit || 0) + 1;
+    } else if (multiplier === 'triple') {
+      updatedPlayer.triplesHit = (updatedPlayer.triplesHit || 0) + 1;
+    }
+    
     // Check if hit own segment (move forward)
     if (segment === currentPlayer.segment) {
       const multiplierValue = multiplier === 'double' ? 2 : multiplier === 'triple' ? 3 : 1;
@@ -463,7 +472,7 @@ const DonkeyDerbyGameScreen: React.FC = () => {
         // IMPORTANT: Record the current throw before ending the game
         // so that darts thrown statistics are accurate
         const newThrows = [...updatedPlayer.throws];
-        newThrows.push([...state.currentThrow.darts]);
+        newThrows.push([...state.currentThrow.darts, dartNotation]);
         updatedPlayer.throws = newThrows;
         
         const updatedPlayers = [...state.players];
@@ -499,6 +508,11 @@ const DonkeyDerbyGameScreen: React.FC = () => {
     newThrows.push([...state.currentThrow.darts]);
     updatedPlayer.throws = newThrows;
     
+    // Ensure dart statistics are preserved
+    updatedPlayer.singlesHit = updatedPlayer.singlesHit || 0;
+    updatedPlayer.doublesHit = updatedPlayer.doublesHit || 0;
+    updatedPlayer.triplesHit = updatedPlayer.triplesHit || 0;
+    
     const updatedPlayers = [...state.players];
     updatedPlayers[state.currentPlayerIndex] = updatedPlayer;
     
@@ -509,6 +523,27 @@ const DonkeyDerbyGameScreen: React.FC = () => {
   
   const handleUndoDart = () => {
     if (dartThrowCount > 0) {
+      // Get the last dart before removing it
+      const lastDart = state.currentThrow.darts[state.currentThrow.darts.length - 1];
+      
+      // Determine multiplier from the dart notation
+      const multiplier = lastDart[0]; // 'S', 'D', or 'T'
+      
+      // Update player statistics
+      const updatedPlayer = { ...currentPlayer };
+      if (multiplier === 'S') {
+        updatedPlayer.singlesHit = Math.max(0, (updatedPlayer.singlesHit || 0) - 1);
+      } else if (multiplier === 'D') {
+        updatedPlayer.doublesHit = Math.max(0, (updatedPlayer.doublesHit || 0) - 1);
+      } else if (multiplier === 'T') {
+        updatedPlayer.triplesHit = Math.max(0, (updatedPlayer.triplesHit || 0) - 1);
+      }
+      
+      // Update players array
+      const updatedPlayers = [...state.players];
+      updatedPlayers[state.currentPlayerIndex] = updatedPlayer;
+      dispatch({ type: 'SET_PLAYER_ORDER', players: updatedPlayers });
+      
       dispatch({ type: 'REMOVE_DART' });
       setDartThrowCount(prev => prev - 1);
     }
