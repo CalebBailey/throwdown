@@ -33,31 +33,8 @@ const PageTitle = styled.h1`
 `;
 
 const ScrollableContent = styled.div`
-  overflow-y: auto;
-  overflow-x: hidden;
+  /* Removed overflow and max-height to prevent double scrollbar */
   padding-right: ${props => props.theme.space.xs};
-  
-  /* Custom scrollbar */
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 3px;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: ${props => props.theme.colours.highlight};
-    border-radius: 3px;
-  }
-  
-  scrollbar-width: thin;
-  scrollbar-color: ${props => props.theme.colours.highlight} rgba(255, 255, 255, 0.05);
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    max-height: calc(100vh - 220px);
-  }
 `;
 
 const StartGameButton = styled(Button)`
