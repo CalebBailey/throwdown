@@ -32,7 +32,7 @@ const GameHeader = styled.div`
 `;
 
 const PageTitle = styled.h1`
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
     font-size: ${props => props.theme.fontSizes.xl};
@@ -76,7 +76,7 @@ const PlayerRow = styled.div<{ $active: boolean; $eliminated: boolean }>`
     props.$eliminated 
       ? 'rgba(255, 255, 255, 0.2)' 
       : props.$active 
-        ? props.theme.colors.highlight 
+        ? props.theme.colours.highlight 
         : 'transparent'
   };
   opacity: ${props => props.$eliminated ? 0.4 : 1};
@@ -116,10 +116,10 @@ const PlayerStatusBadge = styled.div<{ $isKiller: boolean; $eliminated: boolean 
     props.$eliminated 
       ? 'rgba(255, 255, 255, 0.1)' 
       : props.$isKiller 
-        ? props.theme.colors.highlight 
+        ? props.theme.colours.highlight 
         : 'rgba(255, 255, 255, 0.1)'
   };
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
 `;
 
 // Main game card
@@ -138,7 +138,7 @@ const CurrentPlayer = styled.div`
 
 const CurrentPlayerName = styled.h2`
   margin: 0;
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
 `;
 
 const CurrentPlayerAvatar = styled.div<{ color: string }>`
@@ -149,7 +149,7 @@ const CurrentPlayerAvatar = styled.div<{ color: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   font-weight: bold;
   font-size: ${props => props.theme.fontSizes.lg};
 `;
@@ -170,8 +170,8 @@ const InfoItem = styled.div`
 `;
 
 const DartCountBadge = styled.div`
-  background-color: ${props => props.theme.colors.highlight};
-  color: ${props => props.theme.colors.text};
+  background-color: ${props => props.theme.colours.highlight};
+  color: ${props => props.theme.colours.text};
   padding: ${props => props.theme.space.xs} ${props => props.theme.space.sm};
   border-radius: ${props => props.theme.borderRadius.pill};
   font-weight: bold;
@@ -208,7 +208,7 @@ const SetupOverlay = styled(motion.div)`
 `;
 
 const SetupCard = styled(motion.div)`
-  background-color: ${props => props.theme.colors.secondary};
+  background-color: ${props => props.theme.colours.secondary};
   border-radius: ${props => props.theme.borderRadius.lg};
   padding: ${props => props.theme.space.xl};
   max-width: 600px;
@@ -217,7 +217,7 @@ const SetupCard = styled(motion.div)`
 `;
 
 const SetupTitle = styled.h2`
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
   margin-bottom: ${props => props.theme.space.lg};
 `;
 
@@ -243,7 +243,7 @@ const SegmentNumber = styled.span`
   font-family: ${props => props.theme.fonts.monospace};
   font-size: ${props => props.theme.fontSizes.xl};
   font-weight: bold;
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
 `;
 
 const RulesContainer = styled.div`
@@ -282,7 +282,7 @@ const WinnerOverlay = styled(motion.div)`
 `;
 
 const WinnerCard = styled(motion.div)`
-  background-color: ${props => props.theme.colors.secondary};
+  background-color: ${props => props.theme.colours.secondary};
   border-radius: ${props => props.theme.borderRadius.lg};
   padding: ${props => props.theme.space.xl};
   width: 100%;
@@ -313,7 +313,7 @@ const WinnerStatsScrollable = styled.div`
   margin-right: -${props => props.theme.space.sm};
   
   scrollbar-width: thin;
-  scrollbar-color: ${props => props.theme.colors.accent} transparent;
+  scrollbar-color: ${props => props.theme.colours.accent} transparent;
   
   &::-webkit-scrollbar {
     width: 6px;
@@ -324,13 +324,13 @@ const WinnerStatsScrollable = styled.div`
   }
   
   &::-webkit-scrollbar-thumb {
-    background-color: ${props => props.theme.colors.accent};
+    background-color: ${props => props.theme.colours.accent};
     border-radius: 10px;
   }
 `;
 
 const WinnerTitle = styled(motion.h1)`
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
   font-size: ${props => props.theme.fontSizes.huge};
   margin-bottom: ${props => props.theme.space.xl};
   
@@ -365,7 +365,7 @@ const Medal = styled(motion.div)`
   position: absolute;
   bottom: -5px;
   right: -5px;
-  background-color: ${props => props.theme.colors.gold};
+  background-color: ${props => props.theme.colours.gold};
   color: white;
   width: 36px;
   height: 36px;
@@ -374,7 +374,7 @@ const Medal = styled(motion.div)`
   align-items: center;
   justify-content: center;
   font-size: ${props => props.theme.fontSizes.xl};
-  border: 2px solid ${props => props.theme.colors.text};
+  border: 2px solid ${props => props.theme.colours.text};
 `;
 
 const StatsContainer = styled(motion.div)`
@@ -411,7 +411,7 @@ const ScoreScroller = styled(motion.div)`
   overflow-x: auto;
   padding: ${props => props.theme.space.md} 0;
   scrollbar-width: thin;
-  scrollbar-color: ${props => props.theme.colors.accent} transparent;
+  scrollbar-color: ${props => props.theme.colours.accent} transparent;
   
   &::-webkit-scrollbar {
     height: 6px;
@@ -422,7 +422,7 @@ const ScoreScroller = styled(motion.div)`
   }
   
   &::-webkit-scrollbar-thumb {
-    background-color: ${props => props.theme.colors.accent};
+    background-color: ${props => props.theme.colours.accent};
     border-radius: 10px;
   }
 `;
@@ -432,7 +432,7 @@ const PlayerScoreBox = styled.div<{ $winner: boolean }>`
   flex-direction: column;
   align-items: center;
   padding: ${props => props.theme.space.md};
-  background-color: ${props => props.$winner ? `${props.theme.colors.highlight}40` : 'rgba(255, 255, 255, 0.05)'};
+  background-color: ${props => props.$winner ? `${props.theme.colours.highlight}40` : 'rgba(255, 255, 255, 0.05)'};
   border-radius: ${props => props.theme.borderRadius.md};
   min-width: 100px;
 `;
@@ -445,7 +445,7 @@ const PlayerScoreAvatar = styled.div<{ color: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   font-weight: bold;
   font-size: ${props => props.theme.fontSizes.md};
   margin-bottom: ${props => props.theme.space.sm};
@@ -454,7 +454,7 @@ const PlayerScoreAvatar = styled.div<{ color: string }>`
 const WinCount = styled.div`
   font-size: ${props => props.theme.fontSizes.xl};
   font-weight: bold;
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
   margin: ${props => props.theme.space.xs} 0;
 `;
 
@@ -616,7 +616,7 @@ const KillerGameScreen: React.FC = () => {
                 
                 <SegmentDisplay>
                   {state.players.map(player => (
-                    <PlayerSegmentChip key={player.id} color={player.color}>
+                    <PlayerSegmentChip key={player.id} color={player.colour}>
                       <span>{player.name}</span>
                       <SegmentNumber>{player.segment}</SegmentNumber>
                     </PlayerSegmentChip>
@@ -653,9 +653,9 @@ const KillerGameScreen: React.FC = () => {
                     <PlayerRow 
                       key={player.id} 
                       $active={index === state.currentPlayerIndex}
-                      $eliminated={player.lives === 0}
+                      $eliminated={player.isEliminated || false}
                     >
-                      <PlayerColor color={player.color} />
+                      <PlayerColor color={player.colour} />
                       <PlayerInfo>
                         <PlayerName>
                           {player.name}
@@ -663,14 +663,14 @@ const KillerGameScreen: React.FC = () => {
                         </PlayerName>
                         <PlayerStats>
                           Segment: {player.segment} | 
-                          Lives: {player.lives || requiredHits}
+                          Lives: {player.isEliminated ? 'OUT' : (player.segmentHits || 0)}
                         </PlayerStats>
                       </PlayerInfo>
                       <PlayerStatusBadge 
                         $isKiller={player.isKiller || false}
-                        $eliminated={player.lives === 0}
+                        $eliminated={player.isEliminated || false}
                       >
-                        {player.isKiller ? 'KILLER' : `${player.segmentHits || 0}/${requiredHits}`}
+                        {player.isEliminated ? 'OUT' : player.isKiller ? 'KILLER' : `${player.segmentHits || 0}/${requiredHits}`}
                       </PlayerStatusBadge>
                     </PlayerRow>
                   ))}
@@ -681,7 +681,7 @@ const KillerGameScreen: React.FC = () => {
             <MainGameCard>
               <Card.Content>
                 <CurrentPlayer>
-                  <CurrentPlayerAvatar color={currentPlayer?.color || '#ccc'}>
+                  <CurrentPlayerAvatar color={currentPlayer?.colour || '#ccc'}>
                     {currentPlayer?.name.charAt(0).toUpperCase()}
                   </CurrentPlayerAvatar>
                   <CurrentPlayerName>{currentPlayer?.name}'s turn</CurrentPlayerName>
@@ -752,7 +752,7 @@ const KillerGameScreen: React.FC = () => {
                   </WinnerTitle>
                   
                   <WinnerAvatar 
-                    color={state.winner.color}
+                    color={state.winner.colour}
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.4, type: 'spring' }}
@@ -771,12 +771,7 @@ const KillerGameScreen: React.FC = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.6 }}
-                    style={{ 
-                      color: '#fff', 
-                      fontSize: '2.5rem', 
-                      marginTop: '1rem',
-                      marginBottom: '0.5rem'
-                    }}
+                    className="winner-name"
                   >
                     {state.winner.name}
                   </motion.h2>
@@ -814,7 +809,7 @@ const KillerGameScreen: React.FC = () => {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 1.0 }}
                   >
-                    <motion.h3 style={{ marginBottom: '0.5rem' }}>Player Win Tallies</motion.h3>
+                    <motion.h3 className="player-tallies-header">Player Win Tallies</motion.h3>
                     <ScoreScroller
                       initial={{ x: 300 }}
                       animate={{ x: 0 }}
@@ -827,7 +822,7 @@ const KillerGameScreen: React.FC = () => {
                     >
                       {state.players.map(player => (
                         <PlayerScoreBox key={player.id} $winner={player.id === state.winner?.id}>
-                          <PlayerScoreAvatar color={player.color}>
+                          <PlayerScoreAvatar color={player.colour}>
                             {player.name.charAt(0).toUpperCase()}
                           </PlayerScoreAvatar>
                           <div>{player.name}</div>

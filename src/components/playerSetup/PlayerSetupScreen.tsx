@@ -6,9 +6,9 @@ import { FiPlus, FiShuffle, FiTrash2, FiArrowRight } from 'react-icons/fi';
 import Layout from '../shared/Layout';
 import Card from '../shared/Card';
 import Button from '../shared/Button';
-import ColorPickerPopup from '../shared/ColorPickerPopup';
+import ColourPickerPopup from '../shared/ColourPickerPopup';
 import { useGameContext } from '../../context/GameContext';
-import { generateId, getUniquePlayerColor, shuffleArray } from '../../utils/gameUtils';
+import { generateId, getUniquePlayerColour, shuffleArray } from '../../utils/gameUtils';
 
 const Container = styled.div`
   max-width: 800px;
@@ -17,7 +17,7 @@ const Container = styled.div`
 
 const PageTitle = styled.h1`
   margin-bottom: ${props => props.theme.space.lg};
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
 `;
 
 const PlayerGrid = styled.div`
@@ -32,7 +32,7 @@ const PlayerGrid = styled.div`
 `;
 
 const PlayerCard = styled(motion.div)<{ color: string }>`
-  background-color: ${props => props.theme.colors.secondary};
+  background-color: ${props => props.theme.colours.secondary};
   border-radius: ${props => props.theme.borderRadius.md};
   padding: ${props => props.theme.space.md};
   display: flex;
@@ -93,12 +93,12 @@ const Input = styled.input`
   border-radius: ${props => props.theme.borderRadius.md};
   border: 1px solid rgba(255, 255, 255, 0.2);
   background-color: rgba(255, 255, 255, 0.1);
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   font-size: ${props => props.theme.fontSizes.md};
   
   &:focus {
     outline: none;
-    border-color: ${props => props.theme.colors.highlight};
+    border-color: ${props => props.theme.colours.highlight};
     box-shadow: 0 0 0 2px rgba(233, 69, 96, 0.25);
   }
 `;
@@ -127,18 +127,18 @@ const PlayerSetupScreen: React.FC = () => {
   const navigate = useNavigate();
   const { state, dispatch } = useGameContext();
   const [newPlayerName, setNewPlayerName] = useState('');
-  const [colorPickerState, setColorPickerState] = useState<{
+  const [colourPickerState, setColourPickerState] = useState<{
     isOpen: boolean;
     playerId: string | null;
-    currentColor: string;
+    currentColour: string;
     position: { top: number; left: number } | null;
   }>({
     isOpen: false,
     playerId: null,
-    currentColor: '',
+    currentColour: '',
     position: null,
   });
-  const colorCircleRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const colourCircleRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   
   const handleAddPlayer = (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,7 +148,7 @@ const PlayerSetupScreen: React.FC = () => {
     const player = {
       id: generateId(),
       name: newPlayerName.trim(),
-      color: getUniquePlayerColor(state.players),
+      colour: getUniquePlayerColour(state.players),
       wins: 0,
       lastScore: 0,
       legs: 0,
@@ -176,43 +176,43 @@ const PlayerSetupScreen: React.FC = () => {
     dispatch({ type: 'SET_PLAYER_ORDER', players: shuffledPlayers });
   };
   
-  const handleColorClick = (playerId: string, color: string) => {
-    // Find the color circle element to position the popup correctly
-    const colorCircle = colorCircleRefs.current[playerId];
+  const handleColourClick = (playerId: string, colour: string) => {
+    // Find the colour circle element to position the popup correctly
+    const colourCircle = colourCircleRefs.current[playerId];
     
-    if (!colorCircle) return;
+    if (!colourCircle) return;
     
-    const rect = colorCircle.getBoundingClientRect();
-    // Position at the center of the color circle
+    const rect = colourCircle.getBoundingClientRect();
+    // Position at the centre of the colour circle
     const position = {
       top: rect.top + rect.height / 2,
       left: rect.left + rect.width / 2,
     };
     
-    setColorPickerState({
+    setColourPickerState({
       isOpen: true,
       playerId,
-      currentColor: color,
+      currentColour: colour,
       position,
     });
   };
   
-  const handleColorChange = (newColor: string) => {
-    if (colorPickerState.playerId) {
+  const handleColourChange = (newColour: string) => {
+    if (colourPickerState.playerId) {
       dispatch({ 
-        type: 'UPDATE_PLAYER_COLOR', 
-        id: colorPickerState.playerId, 
-        color: newColor 
+        type: 'UPDATE_PLAYER_COLOUR', 
+        id: colourPickerState.playerId, 
+        colour: newColour 
       });
-      setColorPickerState(prev => ({ ...prev, currentColor: newColor }));
+      setColourPickerState(prev => ({ ...prev, currentColour: newColour }));
     }
   };
   
-  const handleCloseColorPicker = () => {
-    setColorPickerState({
+  const handleCloseColourPicker = () => {
+    setColourPickerState({
       isOpen: false,
       playerId: null,
-      currentColor: '',
+      currentColour: '',
       position: null,
     });
   };
@@ -270,15 +270,15 @@ const PlayerSetupScreen: React.FC = () => {
                 <PlayerCard 
                   key={player.id} 
                   variants={itemAnimation}
-                  color={player.color}
-                  onClick={() => handleColorClick(player.id, player.color)}
-                  title="Click to change color"
+                  color={player.colour}
+                  onClick={() => handleColourClick(player.id, player.colour)}
+                  title="Click to change colour"
                 >
                   <PlayerInfo>
                     <PlayerColor 
-                      color={player.color}
+                      color={player.colour}
                       ref={(el) => {
-                        if (el) colorCircleRefs.current[player.id] = el;
+                        if (el) colourCircleRefs.current[player.id] = el;
                       }}
                     />
                     <PlayerName>{player.name}</PlayerName>
@@ -326,12 +326,12 @@ const PlayerSetupScreen: React.FC = () => {
         </Card>
       </Container>
       
-      <ColorPickerPopup
-        isOpen={colorPickerState.isOpen}
-        currentColor={colorPickerState.currentColor}
-        onColorChange={handleColorChange}
-        onClose={handleCloseColorPicker}
-        anchorPosition={colorPickerState.position}
+      <ColourPickerPopup
+        isOpen={colourPickerState.isOpen}
+        currentColour={colourPickerState.currentColour}
+        onColourChange={handleColourChange}
+        onClose={handleCloseColourPicker}
+        anchorPosition={colourPickerState.position}
       />
     </Layout>
   );

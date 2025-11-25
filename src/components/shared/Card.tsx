@@ -15,10 +15,10 @@ const StyledCard = styled.div<{
   $clickable?: boolean;
   $fullWidth?: boolean;
 }>`
-  background-color: ${props => props.theme.colors.secondary};
+  background-color: ${props => props.theme.colours.secondary};
   border-radius: ${props => props.theme.borderRadius.lg};
   padding: ${props => props.theme.space.lg};
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   width: ${props => props.$fullWidth ? '100%' : 'auto'};
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   

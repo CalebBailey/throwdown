@@ -1,8 +1,8 @@
 import { createGlobalStyle } from 'styled-components';
 
-// Color palette from design brief
+// Colour palette from design brief
 export const theme = {
-  colors: {
+  colours: {
     primary: '#1A1A2E',         // Dark blue base
     secondary: '#16213E',       // Slightly lighter blue
     accent: '#0F3460',          // Highlight blue
@@ -75,8 +75,8 @@ export const GlobalStyle = createGlobalStyle`
   
   body {
     font-family: ${theme.fonts.primary};
-    background: ${theme.colors.background};
-    color: ${theme.colors.text};
+    background: ${theme.colours.background};
+    color: ${theme.colours.text};
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -95,12 +95,12 @@ export const GlobalStyle = createGlobalStyle`
   }
   
   a {
-    color: ${theme.colors.highlight};
+    color: ${theme.colours.highlight};
     text-decoration: none;
     transition: color 0.2s ease-in-out;
     
     &:hover {
-      color: ${theme.colors.accent};
+      color: ${theme.colours.accent};
     }
   }
   

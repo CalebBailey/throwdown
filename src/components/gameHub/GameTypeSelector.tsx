@@ -21,8 +21,8 @@ const GameTypeTabs = styled.div`
 `;
 
 const GameTypeTab = styled.button<{ $active: boolean }>`
-  background-color: ${props => props.$active ? props.theme.colors.highlight : 'transparent'};
-  color: ${props => props.theme.colors.text};
+  background-color: ${props => props.$active ? props.theme.colours.highlight : 'transparent'};
+  color: ${props => props.theme.colours.text};
   border: none;
   padding: ${props => props.theme.space.sm} ${props => props.theme.space.md};
   cursor: pointer;

@@ -89,8 +89,8 @@ export const PlayerListSection: React.FC<PlayerListSectionProps> = ({
       {players.length > 0 ? (
         <PlayerGrid>
           {players.map((player, index) => (
-            <PlayerChip key={player.id} color={player.color}>
-              <PlayerDot color={player.color} />
+            <PlayerChip key={player.id} color={player.colour}>
+              <PlayerDot color={player.colour} />
               <span>{index + 1}. {player.name}</span>
             </PlayerChip>
           ))}

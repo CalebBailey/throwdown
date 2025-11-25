@@ -17,7 +17,7 @@ const LayoutContainer = styled.div`
 `;
 
 const Header = styled.header`
-  background-color: ${props => props.theme.colors.primary};
+  background-color: ${props => props.theme.colours.primary};
   padding: ${props => props.theme.space.md};
   box-shadow: ${props => props.theme.shadows.md};
   display: flex;
@@ -37,7 +37,7 @@ const Logo = styled.div`
   font-family: ${props => props.theme.fonts.headings};
   font-size: ${props => props.theme.fontSizes.xl};
   font-weight: 800;
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
 
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
     font-size: ${props => props.theme.fontSizes.lg};
@@ -53,7 +53,7 @@ const Navigation = styled.nav<{ $isOpen: boolean }>`
     top: 0;
     right: ${props => props.$isOpen ? '0' : '-70%'};
     flex-direction: column;
-    background-color: ${props => props.theme.colors.secondary};
+    background-color: ${props => props.theme.colours.secondary};
     height: 100vh;
     width: 70%;
     padding: ${props => props.theme.space.xl};
@@ -67,7 +67,7 @@ const NavItem = styled(Link)<{ $active?: boolean }>`
   display: flex;
   align-items: center;
   gap: ${props => props.theme.space.xs};
-  color: ${props => props.$active ? props.theme.colors.highlight : props.theme.colors.text};
+  color: ${props => props.$active ? props.theme.colours.highlight : props.theme.colours.text};
   text-decoration: none;
   padding: ${props => `${props.theme.space.xs} ${props.theme.space.sm}`};
   border-radius: ${props => props.theme.borderRadius.md};
@@ -75,7 +75,7 @@ const NavItem = styled(Link)<{ $active?: boolean }>`
   
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
-    color: ${props => props.$active ? props.theme.colors.highlight : props.theme.colors.text};
+    color: ${props => props.$active ? props.theme.colours.highlight : props.theme.colours.text};
   }
   
   svg {
@@ -92,7 +92,7 @@ const MenuButton = styled.button`
   display: none;
   background: none;
   border: none;
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   font-size: 1.5rem;
   cursor: pointer;
   z-index: 30;
@@ -134,7 +134,7 @@ const Main = styled.main`
 `;
 
 const Footer = styled.footer`
-  background-color: ${props => props.theme.colors.primary};
+  background-color: ${props => props.theme.colours.primary};
   padding: ${props => props.theme.space.sm} ${props => props.theme.space.md};
   text-align: center;
   font-size: ${props => props.theme.fontSizes.sm};
@@ -165,7 +165,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, hideNav = false }) => 
     <LayoutContainer>
       {!hideNav && (
         <Header>
-          <Link to="/" style={{ textDecoration: 'none' }}>
+          <Link to="/" className="no-decoration">
             <Logo>THROWDOWN</Logo>
           </Link>
           <MenuButton onClick={toggleMenu}>

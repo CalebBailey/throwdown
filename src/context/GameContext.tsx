@@ -5,7 +5,7 @@ import { calculateScore, dartNotationToScore } from '../utils/gameUtils';
 export interface Player {
   id: string;
   name: string;
-  color: string;
+  colour: string;
   score: number;
   throws: string[][]; // Changed from number[][] to string[][] for dart notations
   averageScore: number;
@@ -93,7 +93,7 @@ export interface GameState {
 export type GameAction =
   | { type: 'ADD_PLAYER'; player: Omit<Player, 'score' | 'throws' | 'averageScore' | 'highestScore'> }
   | { type: 'REMOVE_PLAYER'; id: string }
-  | { type: 'UPDATE_PLAYER_COLOR'; id: string; color: string }
+  | { type: 'UPDATE_PLAYER_COLOUR'; id: string; colour: string }
   | { type: 'SET_PLAYER_ORDER'; players: Player[] }
   | { type: 'START_GAME'; gameType: GameType; gameOptions: GameOptions; killerOptions?: KillerOptions; shanghaiOptions?: ShanghaiOptions; donkeyDerbyOptions?: { finishLine: number } }
   | { type: 'ADD_DART'; dart: string }
@@ -252,11 +252,11 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       };
     }
     
-    case 'UPDATE_PLAYER_COLOR': {
+    case 'UPDATE_PLAYER_COLOUR': {
       return {
         ...state,
         players: state.players.map(player =>
-          player.id === action.id ? { ...player, color: action.color } : player
+          player.id === action.id ? { ...player, colour: action.colour } : player
         )
       };
     }
@@ -520,15 +520,27 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         const winner = playersStillIn[0];
         winner.wins = (winner.wins || 0) + 1;
         
+        // IMPORTANT: Record the current throw before ending the game
+        // so that darts thrown statistics are accurate
+        const winnerWithThrows = {
+          ...winner,
+          throws: [...winner.throws, [...state.currentThrow.darts]]
+        };
+        
+        // Update the winner in the players array
+        const finalPlayers = updatedPlayers.map(p => 
+          p.id === winner.id ? winnerWithThrows : p
+        );
+        
         // Update session stats
         const newPlayerWins = { ...state.sessionStats.playerWins };
         newPlayerWins[winner.id] = (newPlayerWins[winner.id] || 0) + 1;
         
         return {
           ...state,
-          players: updatedPlayers,
+          players: finalPlayers,
           gameStatus: 'complete',
-          winner,
+          winner: winnerWithThrows,
           sessionStats: {
             ...state.sessionStats,
             playerWins: newPlayerWins,

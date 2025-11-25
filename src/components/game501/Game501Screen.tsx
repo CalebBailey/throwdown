@@ -30,7 +30,7 @@ const GameHeader = styled.div`
 `;
 
 const PageTitle = styled.h1`
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
     font-size: ${props => props.theme.fontSizes.xl};
@@ -64,8 +64,8 @@ const GameOptionsInfo = styled.div`
 `;
 
 const OptionsTag = styled.span<{ $enabled: boolean }>`
-  background-color: ${props => props.$enabled ? props.theme.colors.accent : 'rgba(255, 255, 255, 0.1)'};
-  color: ${props => props.$enabled ? props.theme.colors.text : props.theme.colors.text};
+  background-color: ${props => props.$enabled ? props.theme.colours.accent : 'rgba(255, 255, 255, 0.1)'};
+  color: ${props => props.$enabled ? props.theme.colours.text : props.theme.colours.text};
   padding: ${props => `${props.theme.space.xs} ${props.theme.space.sm}`};
   border-radius: ${props => props.theme.borderRadius.pill};
   font-size: ${props => props.theme.fontSizes.sm};
@@ -104,9 +104,9 @@ const PlayerRow = styled.div<{ $active: boolean; $winner: boolean }>`
   background-color: ${props => props.$active ? 'rgba(255, 255, 255, 0.1)' : 'transparent'};
   border-left: 4px solid ${props => 
     props.$winner 
-      ? props.theme.colors.success
+      ? props.theme.colours.success
       : props.$active 
-        ? props.theme.colors.highlight 
+        ? props.theme.colours.highlight 
         : 'transparent'
   };
   transition: all 0.2s ease;
@@ -139,7 +139,7 @@ const PlayerScore = styled.div<{ $winner: boolean }>`
   font-family: ${props => props.theme.fonts.monospace};
   font-size: ${props => props.theme.fontSizes.xl};
   font-weight: bold;
-  color: ${props => props.$winner ? props.theme.colors.success : props.theme.colors.text};
+  color: ${props => props.$winner ? props.theme.colours.success : props.theme.colours.text};
 `;
 
 const MainGameCard = styled(Card)`
@@ -157,7 +157,7 @@ const CurrentPlayer = styled.div`
 
 const CurrentPlayerName = styled.h2`
   margin: 0;
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
 `;
 
 const CurrentPlayerAvatar = styled.div<{ color: string }>`
@@ -168,7 +168,7 @@ const CurrentPlayerAvatar = styled.div<{ color: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   font-weight: bold;
   font-size: ${props => props.theme.fontSizes.lg};
 `;
@@ -186,7 +186,7 @@ const CurrentScore = styled(motion.div)`
   font-size: 4rem;
   font-weight: bold;
   text-align: center;
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   margin-bottom: 0; /* Changed from lg to 0 to position suggestion box directly below */
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
@@ -204,7 +204,7 @@ const SimplifiedCheckout = styled.div<{ $hasCheckout: boolean }>`
   max-width: 200px;
   margin: 4px auto ${props => props.theme.space.lg};
   background-color: ${props => props.$hasCheckout 
-    ? `${props.theme.colors.highlight}40` /* 40 adds transparency - equivalent to 25% opacity */
+    ? `${props.theme.colours.highlight}40` /* 40 adds transparency - equivalent to 25% opacity */
     : 'rgba(255, 255, 255, 0.05)'};
   border-radius: ${props => props.theme.borderRadius.sm};
   display: flex;
@@ -213,7 +213,7 @@ const SimplifiedCheckout = styled.div<{ $hasCheckout: boolean }>`
   font-family: ${props => props.theme.fonts.monospace};
   font-size: ${props => props.theme.fontSizes.md};
   font-weight: 500;
-  color: ${props => props.$hasCheckout ? props.theme.colors.highlight : 'rgba(255, 255, 255, 0.3)'};
+  color: ${props => props.$hasCheckout ? props.theme.colours.highlight : 'rgba(255, 255, 255, 0.3)'};
   transition: all 0.2s ease;
 `;
 
@@ -232,7 +232,7 @@ const ScoreInput = styled.input`
   background-color: rgba(255, 255, 255, 0.1);
   border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: ${props => props.theme.borderRadius.md};
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   font-size: ${props => props.theme.fontSizes.xxxl};
   font-family: ${props => props.theme.fonts.monospace};
   text-align: center;
@@ -240,7 +240,7 @@ const ScoreInput = styled.input`
   
   &:focus {
     outline: none;
-    border-color: ${props => props.theme.colors.highlight};
+    border-color: ${props => props.theme.colours.highlight};
   }
 `;
 
@@ -253,7 +253,7 @@ const ButtonGroup = styled.div`
 const CheckoutSuggestion = styled.div`
   margin-top: ${props => props.theme.space.lg};
   padding: ${props => props.theme.space.md};
-  background-color: ${props => props.theme.colors.accent};
+  background-color: ${props => props.theme.colours.accent};
   border-radius: ${props => props.theme.borderRadius.md};
   text-align: center;
 `;
@@ -272,7 +272,7 @@ const SuggestionPath = styled.div`
 `;
 
 const DartThrow = styled.span`
-  background-color: ${props => props.theme.colors.primary};
+  background-color: ${props => props.theme.colours.primary};
   padding: ${props => `${props.theme.space.xs} ${props.theme.space.sm}`};
   border-radius: ${props => props.theme.borderRadius.sm};
   font-weight: 500;
@@ -293,7 +293,7 @@ const GameOverlay = styled(motion.div)`
 `;
 
 const GameOverCard = styled(motion.div)`
-  background-color: ${props => props.theme.colors.secondary};
+  background-color: ${props => props.theme.colours.secondary};
   border-radius: ${props => props.theme.borderRadius.lg};
   padding: ${props => props.theme.space.xl};
   width: 100%;
@@ -304,7 +304,7 @@ const GameOverCard = styled(motion.div)`
 
 const WinnerName = styled.h2`
   font-size: ${props => props.theme.fontSizes.xxxl};
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
   margin-bottom: ${props => props.theme.space.lg};
 `;
 
@@ -335,7 +335,7 @@ const StatValue = styled.div`
 const CurrentThrowTotal = styled.div`
   font-size: ${props => props.theme.fontSizes.xxl};
   font-weight: bold;
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
   text-align: center;
 `;
 
@@ -356,7 +356,7 @@ const WinnerOverlay = styled(motion.div)`
 `;
 
 const WinnerCard = styled(motion.div)`
-  background-color: ${props => props.theme.colors.secondary};
+  background-color: ${props => props.theme.colours.secondary};
   border-radius: ${props => props.theme.borderRadius.lg};
   padding: ${props => props.theme.space.xl};
   width: 100%;
@@ -393,7 +393,7 @@ const WinnerStatsScrollable = styled.div`
   
   /* Custom scrollbar styling */
   scrollbar-width: thin;
-  scrollbar-color: ${props => props.theme.colors.accent} transparent;
+  scrollbar-color: ${props => props.theme.colours.accent} transparent;
   
   &::-webkit-scrollbar {
     width: 6px;
@@ -404,7 +404,7 @@ const WinnerStatsScrollable = styled.div`
   }
   
   &::-webkit-scrollbar-thumb {
-    background-color: ${props => props.theme.colors.accent};
+    background-color: ${props => props.theme.colours.accent};
     border-radius: 10px;
   }
 `;
@@ -605,7 +605,7 @@ const Game501Screen: React.FC = () => {
                     $active={index === state.currentPlayerIndex} 
                     $winner={state.winner?.id === player.id}
                   >
-                    <PlayerColor color={player.color} />
+                    <PlayerColor color={player.colour} />
                     <PlayerInfo>
                       <PlayerName>{player.name}</PlayerName>
                       <PlayerStats>
@@ -629,7 +629,7 @@ const Game501Screen: React.FC = () => {
           <MainGameCard>
             <Card.Content>
               <CurrentPlayer>
-                <CurrentPlayerAvatar color={currentPlayer?.color || '#ccc'}>
+                <CurrentPlayerAvatar color={currentPlayer?.colour || '#ccc'}>
                   {currentPlayer?.name.charAt(0).toUpperCase()}
                 </CurrentPlayerAvatar>
                 <CurrentPlayerName>{currentPlayer?.name}'s turn</CurrentPlayerName>
@@ -648,9 +648,8 @@ const Game501Screen: React.FC = () => {
                   </CurrentScore>
                 </AnimatePresence>
                 
-                {/* New simplified checkout suggestion */}
-                <SimplifiedCheckout $hasCheckout={liveRemainingScore <= 170 && displayedCheckoutSuggestions[0] !== 'NO OUTSHOT' && displayedCheckoutSuggestions[0] !== 'No checkout'}>
-                  {liveRemainingScore <= 170 && displayedCheckoutSuggestions[0] !== 'NO OUTSHOT' && displayedCheckoutSuggestions[0] !== 'No checkout' 
+                <SimplifiedCheckout $hasCheckout={state.currentThrow.darts.length < 3 && liveRemainingScore <= 170 && displayedCheckoutSuggestions[0] !== 'NO OUTSHOT' && displayedCheckoutSuggestions[0] !== 'No checkout'}>
+                  {state.currentThrow.darts.length < 3 && liveRemainingScore <= 170 && displayedCheckoutSuggestions[0] !== 'NO OUTSHOT' && displayedCheckoutSuggestions[0] !== 'No checkout' 
                     ? displayedCheckoutSuggestions.join(', ')
                     : ''}
                 </SimplifiedCheckout>
@@ -735,11 +734,7 @@ const Game501Screen: React.FC = () => {
                       <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        style={{ 
-                          color: '#FF4C4C', 
-                          textAlign: 'center',
-                          marginTop: '8px'
-                        }}
+                        className="error-message"
                       >
                         {error}
                       </motion.div>
@@ -806,7 +801,7 @@ const Game501Screen: React.FC = () => {
                   </WinnerTitle>
                   
                   <WinnerAvatar 
-                    color={state.winner.color}
+                    color={state.winner.colour}
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.4, type: 'spring' }}
@@ -826,12 +821,7 @@ const Game501Screen: React.FC = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.6 }}
-                    style={{ 
-                      color: '#fff', 
-                      fontSize: '2.5rem', 
-                      marginTop: '1rem',
-                      marginBottom: '0.5rem'
-                    }}
+                    className="winner-name"
                   >
                     {state.winner.name}
                   </motion.h2>
@@ -866,7 +856,7 @@ const Game501Screen: React.FC = () => {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 1.0 }}
                   >
-                    <motion.h3 style={{ marginBottom: '0.5rem' }}>Player Win Tallies</motion.h3>
+                    <motion.h3 className="player-tallies-header">Player Win Tallies</motion.h3>
                     <ScoreScroller
                       initial={{ x: 300 }}
                       animate={{ x: 0 }}
@@ -879,7 +869,7 @@ const Game501Screen: React.FC = () => {
                     >
                       {state.players.map(player => (
                         <PlayerScoreBox key={player.id} $winner={player.id === state.winner?.id}>
-                          <PlayerScoreAvatar color={player.color}>
+                          <PlayerScoreAvatar color={player.colour}>
                             {player.name.charAt(0).toUpperCase()}
                           </PlayerScoreAvatar>
                           <div>{player.name}</div>
@@ -890,7 +880,7 @@ const Game501Screen: React.FC = () => {
                     </ScoreScroller>
                   </PlayerScoreTally>
                   
-                  <ButtonGroup style={{ marginTop: '2rem' }}>
+                  <ButtonGroup className="game-over-buttons">
                     {/* <Button
                       variant="outline"
                       startIcon={<FiArrowLeft />}
@@ -969,14 +959,14 @@ const DartSlots = styled.div`
 const DartSlot = styled.div<{ $filled: boolean; $index: number }>`
   width: 70px;
   height: 60px; /* Reduced from 70px to 60px */
-  border: 2px solid ${props => props.$filled ? props.theme.colors.highlight : 'rgba(255, 255, 255, 0.2)'};
+  border: 2px solid ${props => props.$filled ? props.theme.colours.highlight : 'rgba(255, 255, 255, 0.2)'};
   border-radius: ${props => props.theme.borderRadius.md};
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: ${props => props.theme.fonts.monospace};
   font-size: ${props => props.theme.fontSizes.lg};
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   background-color: ${props => props.$filled ? 'rgba(255, 255, 255, 0.1)' : 'transparent'};
   position: relative;
   
@@ -987,7 +977,7 @@ const DartSlot = styled.div<{ $filled: boolean; $index: number }>`
     left: 8px;
     font-size: ${props => props.theme.fontSizes.xs};
     color: rgba(255, 255, 255, 0.6);
-    background: ${props => props.theme.colors.secondary};
+    background: ${props => props.theme.colours.secondary};
     padding: 0 4px;
   }
   
@@ -1027,16 +1017,16 @@ const ScoreTabs = styled.div`
 const ScoreTab = styled.button<{ $active: boolean }>`
   flex: 1;
   padding: ${props => props.theme.space.sm}; /* Reduced from md to sm */
-  background-color: ${props => props.$active ? props.theme.colors.highlight : 'rgba(0, 0, 0, 0.2)'};
+  background-color: ${props => props.$active ? props.theme.colours.highlight : 'rgba(0, 0, 0, 0.2)'};
   border: none;
   border-radius: ${props => props.theme.borderRadius.sm};
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   font-weight: ${props => props.$active ? 'bold' : 'normal'};
   cursor: pointer;
   transition: all 0.2s ease;
   
   &:hover {
-    background-color: ${props => props.$active ? props.theme.colors.highlight : 'rgba(255, 255, 255, 0.1)'};
+    background-color: ${props => props.$active ? props.theme.colours.highlight : 'rgba(255, 255, 255, 0.1)'};
   }
 `;
 
@@ -1052,7 +1042,7 @@ const NumberButton = styled.button`
   background-color: rgba(255, 255, 255, 0.1);
   border: none;
   border-radius: ${props => props.theme.borderRadius.sm};
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   font-size: ${props => props.theme.fontSizes.md};
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1062,7 +1052,7 @@ const NumberButton = styled.button`
   }
   
   &:active {
-    background-color: ${props => props.theme.colors.primary};
+    background-color: ${props => props.theme.colours.primary};
   }
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
@@ -1087,12 +1077,12 @@ const BottomControlRow = styled.div`
 const BackButton = styled.button`
   background-color: transparent;
   border: none;
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   cursor: pointer;
   transition: all 0.2s ease;
   
   &:hover {
-    color: ${props => props.theme.colors.highlight};
+    color: ${props => props.theme.colours.highlight};
   }
 `;
 
@@ -1110,7 +1100,7 @@ const MissButton = styled(BackButton)`
 `;
 
 const WinnerTitle = styled(motion.h1)`
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
   font-size: ${props => props.theme.fontSizes.huge};
   margin-bottom: ${props => props.theme.space.xl};
   
@@ -1174,7 +1164,7 @@ const Medal = styled(motion.div)<{ position: number }>`
   position: absolute;
   bottom: -5px;
   right: -5px;
-  background-color: ${props => props.theme.colors.gold};
+  background-color: ${props => props.theme.colours.gold};
   color: white;
   width: 36px;
   height: 36px;
@@ -1183,7 +1173,7 @@ const Medal = styled(motion.div)<{ position: number }>`
   align-items: center;
   justify-content: center;
   font-size: ${props => props.theme.fontSizes.xl};
-  border: 2px solid ${props => props.theme.colors.text};
+  border: 2px solid ${props => props.theme.colours.text};
 `;
 
 const StatsContainer = styled(motion.div)`
@@ -1203,7 +1193,7 @@ const ScoreScroller = styled(motion.div)`
   overflow-x: auto;
   padding: ${props => props.theme.space.md} 0;
   scrollbar-width: thin;
-  scrollbar-color: ${props => props.theme.colors.accent} transparent;
+  scrollbar-color: ${props => props.theme.colours.accent} transparent;
   
   &::-webkit-scrollbar {
     height: 6px;
@@ -1214,7 +1204,7 @@ const ScoreScroller = styled(motion.div)`
   }
   
   &::-webkit-scrollbar-thumb {
-    background-color: ${props => props.theme.colors.accent};
+    background-color: ${props => props.theme.colours.accent};
     border-radius: 10px;
   }
 `;
@@ -1224,7 +1214,7 @@ const PlayerScoreBox = styled.div<{ $winner: boolean }>`
   flex-direction: column;
   align-items: center;
   padding: ${props => props.theme.space.md};
-  background-color: ${props => props.$winner ? `${props.theme.colors.highlight}40` : 'rgba(255, 255, 255, 0.05)'};
+  background-color: ${props => props.$winner ? `${props.theme.colours.highlight}40` : 'rgba(255, 255, 255, 0.05)'};
   border-radius: ${props => props.theme.borderRadius.md};
   min-width: 100px;
 `;
@@ -1237,7 +1227,7 @@ const PlayerScoreAvatar = styled.div<{ color: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   font-weight: bold;
   font-size: ${props => props.theme.fontSizes.md};
   margin-bottom: ${props => props.theme.space.sm};
@@ -1246,6 +1236,6 @@ const PlayerScoreAvatar = styled.div<{ color: string }>`
 const WinCount = styled.div`
   font-size: ${props => props.theme.fontSizes.xl};
   font-weight: bold;
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
   margin: ${props => props.theme.space.xs} 0;
 `;

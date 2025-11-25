@@ -30,7 +30,7 @@ const AppLogo = styled(motion.div)`
   font-family: ${props => props.theme.fonts.headings};
   font-weight: 800;
   font-size: ${props => props.theme.fontSizes.huge};
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
   margin-bottom: ${props => props.theme.space.lg};
   display: flex;
   align-items: center;
@@ -141,7 +141,7 @@ const StatValue = styled.div`
   font-family: ${props => props.theme.fonts.monospace};
   font-size: ${props => props.theme.fontSizes.xxl};
   font-weight: bold;
-  color: ${props => props.theme.colors.highlight};
+  color: ${props => props.theme.colours.highlight};
   margin: ${props => props.theme.space.md} 0;
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
@@ -214,7 +214,7 @@ const HomeScreen: React.FC = () => {
           <Tagline variants={itemVariants}>
             The ultimate darts scoring experience
           </Tagline>
-          <motion.div variants={itemVariants} style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+          <motion.div variants={itemVariants} className="full-width-centered">
             <ButtonGroup>
               <Button 
                 size="large" 

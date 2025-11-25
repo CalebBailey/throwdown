@@ -24,7 +24,7 @@ const Title = styled.h3`
   margin-top: 0;
   margin-bottom: 16px;
   padding-left: 3px;
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -62,7 +62,7 @@ const HeaderCell = styled.th`
   text-align: center;
   border-radius: 4px;
   font-weight: bold;
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
 `;
 
 const PlayerHeaderCell = styled(HeaderCell)<{ color: string; isActive?: boolean }>`
@@ -70,7 +70,7 @@ const PlayerHeaderCell = styled(HeaderCell)<{ color: string; isActive?: boolean 
   
   ${props => props.isActive && `
     background-color: rgba(233, 69, 96, 0.2);
-    color: ${props.theme.colors.highlight};
+    color: ${props.theme.colours.highlight};
   `}
 `;
 
@@ -79,7 +79,7 @@ const SegmentCell = styled.td<{ isActive?: boolean }>`
   padding: 8px;
   text-align: center;
   border-radius: 4px;
-  color: ${props => props.isActive ? props.theme.colors.highlight : props.theme.colors.text};
+  color: ${props => props.isActive ? props.theme.colours.highlight : props.theme.colours.text};
   font-weight: ${props => props.isActive ? 'bold' : 'normal'};
 `;
 
@@ -89,7 +89,7 @@ const ScoreCell = styled.td<{ isActive?: boolean }>`
   text-align: center;
   border-radius: 4px;
   transition: background-color 0.3s ease;
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
 `;
 
 const TotalScoreCell = styled(ScoreCell)`
@@ -199,7 +199,7 @@ const ShanghaiScorecard: React.FC<ShanghaiScorecardProps> = ({ players, currentP
             {players.map(player => (
               <PlayerHeaderCell 
                 key={player.id} 
-                color={player.color}
+                color={player.colour}
                 isActive={player.id === currentPlayerId}
               >
                 {player.name}
@@ -260,7 +260,7 @@ const ShanghaiScorecard: React.FC<ShanghaiScorecardProps> = ({ players, currentP
             <React.Fragment key={player.id}>
               {/* Player name */}
               <PlayerCell isActive={isActive}>
-                <PlayerDot color={player.color} />
+                <PlayerDot color={player.colour} />
                 <div>{player.name}</div>
               </PlayerCell>
               

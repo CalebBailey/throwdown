@@ -50,7 +50,7 @@ const LegendItem = styled.div<{ color: string; $active: boolean }>`
   padding: 4px 8px;
   border-radius: 6px;
   font-size: 12px;
-  border: 1px solid ${p => p.$active ? p.theme.colors.highlight : 'transparent'};
+  border: 1px solid ${p => p.$active ? p.theme.colours.highlight : 'transparent'};
 `;
 
 const ColorDot = styled.span<{ color: string }>`
@@ -68,8 +68,8 @@ const MultiplierSelector = styled.div`
 `;
 
 const MultBtn = styled.button<{ $active: boolean }>`
-  background: ${p => p.$active ? p.theme.colors.highlight : 'rgba(30,30,30,0.7)'};
-  color: ${p => p.theme.colors.text};
+  background: ${p => p.$active ? p.theme.colours.highlight : 'rgba(30,30,30,0.7)'};
+  color: ${p => p.theme.colours.text};
   border: none;
   padding: 10px 18px;
   border-radius: 8px;
@@ -124,14 +124,14 @@ const DonkeyDerbyDartboard: React.FC<DonkeyDerbyDartboardProps> = ({ players, cu
             return `M ${outerStartX} ${outerStartY} A ${outerR} ${outerR} 0 ${largeArcFlag} 1 ${outerEndX} ${outerEndY} L ${innerEndX} ${innerEndY} A ${innerR} ${innerR} 0 ${largeArcFlag} 0 ${innerStartX} ${innerStartY} Z`;
           };
 
-          const fill = owner ? owner.color : segmentBase;
+          const fill = owner ? owner.colour : segmentBase;
           const stroke = isCurrentPlayers ? '#E94560' : '#222';
           const strokeWidth = isCurrentPlayers ? 2 : 0.5;
 
           return (
-            <g key={segmentNumber} onClick={() => handleClick(segmentNumber)} style={{ cursor: 'pointer' }}>
+            <g key={segmentNumber} onClick={() => handleClick(segmentNumber)} className="cursor-pointer">
               <path d={createArcPath(mainSegmentOuterRadius, innerBullRadius)} fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
-              <SegmentText x={textX} y={textY} style={{ fill: isCurrentPlayers ? '#E94560' : '#FFF' }}>{segmentNumber}</SegmentText>
+              <SegmentText x={textX} y={textY} className={isCurrentPlayers ? 'text-current-player' : 'text-default'}>{segmentNumber}</SegmentText>
             </g>
           );
         })}
@@ -140,8 +140,8 @@ const DonkeyDerbyDartboard: React.FC<DonkeyDerbyDartboardProps> = ({ players, cu
       </BoardSvg>
       <Legend>
         {players.map(p => (
-          <LegendItem key={p.id} color={p.color} $active={p.id === currentPlayer.id}>
-            <ColorDot color={p.color} /> {p.name}: {p.segment}
+          <LegendItem key={p.id} color={p.colour} $active={p.id === currentPlayer.id}>
+            <ColorDot color={p.colour} /> {p.name}: {p.segment}
           </LegendItem>
         ))}
       </Legend>

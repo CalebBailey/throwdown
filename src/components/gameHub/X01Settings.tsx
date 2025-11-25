@@ -25,7 +25,7 @@ const SettingsLabel = styled.h2`
   align-items: center;
   gap: ${props => props.theme.space.sm};
   margin-bottom: ${props => props.theme.space.md};
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   font-size: ${props => props.theme.fontSizes.lg};
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
@@ -95,8 +95,8 @@ const GameModeRow3 = styled.div`
 `;
 
 const GameOptionButton = styled.button<{ $active: boolean }>`
-  background-color: ${props => props.$active ? props.theme.colors.highlight : 'rgba(255, 255, 255, 0.05)'};
-  color: ${props => props.theme.colors.text};
+  background-color: ${props => props.$active ? props.theme.colours.highlight : 'rgba(255, 255, 255, 0.05)'};
+  color: ${props => props.theme.colours.text};
   padding: ${props => props.theme.space.sm};
   border: none;
   border-radius: ${props => props.theme.borderRadius.md};
@@ -122,10 +122,10 @@ const GameOptionButton = styled.button<{ $active: boolean }>`
 `;
 
 const NumberInput = styled.input`
-  background-color: ${props => props.theme.colors.highlight};
+  background-color: ${props => props.theme.colours.highlight};
   border: none;
   border-radius: ${props => props.theme.borderRadius.md};
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colours.text};
   font-size: ${props => props.theme.fontSizes.md};
   font-weight: bold;
   text-align: center;
@@ -134,7 +134,7 @@ const NumberInput = styled.input`
   min-height: 44px;
   
   &:focus {
-    outline: 2px solid ${props => props.theme.colors.lightHighlight};
+    outline: 2px solid ${props => props.theme.colours.lightHighlight};
   }
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
@@ -156,7 +156,7 @@ const CustomScoreInput = styled.div`
     background-color: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: ${props => props.theme.borderRadius.sm};
-    color: ${props => props.theme.colors.text};
+    color: ${props => props.theme.colours.text};
     font-size: ${props => props.theme.fontSizes.sm};
     padding: ${props => props.theme.space.xs};
     width: 80px;
@@ -164,7 +164,7 @@ const CustomScoreInput = styled.div`
     
     &:focus {
       outline: none;
-      border-color: ${props => props.theme.colors.highlight};
+      border-color: ${props => props.theme.colours.highlight};
     }
     
     @media (max-width: ${props => props.theme.breakpoints.mobile}) {
@@ -193,7 +193,7 @@ const ToggleRow = styled.div`
 const ToggleSwitch = styled.div<{ $on: boolean }>`
   width: 48px;
   height: 24px;
-  background-color: ${props => props.$on ? props.theme.colors.highlight : 'rgba(255, 255, 255, 0.2)'};
+  background-color: ${props => props.$on ? props.theme.colours.highlight : 'rgba(255, 255, 255, 0.2)'};
   border-radius: 12px;
   position: relative;
   cursor: pointer;

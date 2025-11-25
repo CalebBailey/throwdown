@@ -152,7 +152,7 @@ const PlayerItem = styled(motion.div)<{ isActive: boolean; isEliminated: boolean
   display: flex;
   align-items: center;
   position: relative;
-  opacity: ${props => props.isEliminated ? 0.5 : 1};
+  opacity: ${props => props.isEliminated ? 0.4 : 1};
   
   ${props => props.isEliminated && `
     &:after {
@@ -262,7 +262,7 @@ const KillerScorecard: React.FC<KillerScorecardProps> = ({ players, currentPlaye
             isActive={player.id === currentPlayerId}
             isEliminated={player.isEliminated || false}
           >
-            <PlayerColor color={player.color} />
+            <PlayerColor color={player.colour} />
             
             <PlayerDetails>
               <StyledPlayerName isKiller={player.isKiller || false}>
@@ -276,24 +276,30 @@ const KillerScorecard: React.FC<KillerScorecardProps> = ({ players, currentPlaye
               
               <PlayerSegment>
                 Segment: <StyledSegmentNumber active={player.id === currentPlayerId}>{player.segment}</StyledSegmentNumber>
+                {' | Lives: '}
+                {player.isEliminated ? (
+                  <span className="text-danger">OUT</span>
+                ) : (
+                  player.segmentHits || 0
+                )}
               </PlayerSegment>
               
               {!player.isKiller ? (
                 // Progress to become a killer
                 <ProgressContainer>
                   <ProgressLabel>
-                    {player.segmentHits || 0}/{maxHits}
+                    {player.isEliminated ? 'OUT' : `${player.segmentHits || 0}/${maxHits}`}
                   </ProgressLabel>
                   <StyledProgressBar 
-                    progress={(player.segmentHits || 0) / maxHits} 
+                    progress={player.isEliminated ? 0 : (player.segmentHits || 0) / maxHits} 
                     isKiller={false} 
                   />
                   <HitIndicators>
                     {Array.from({ length: maxHits }).map((_, i) => (
                       <StyledHitDot 
                         key={i} 
-                        active={(player.segmentHits || 0) > i}
-                        color={player.color}
+                        active={!player.isEliminated && (player.segmentHits || 0) > i}
+                        color={player.colour}
                       />
                     ))}
                   </HitIndicators>
