@@ -247,7 +247,7 @@ const PlayerName = styled.div`
 
 const StatHeader = styled.div`
   display: grid;
-  grid-template-columns: auto 1fr repeat(8, auto);
+  grid-template-columns: auto auto repeat(8, auto);
   gap: ${props => props.theme.space.md};
   align-items: center;
   padding: ${props => props.theme.space.sm} ${props => props.theme.space.md};
@@ -255,7 +255,8 @@ const StatHeader = styled.div`
   font-size: ${props => props.theme.fontSizes.sm};
   color: ${props => props.theme.colours.text};
   opacity: 0.7;
-  
+  margin-left: 30px;
+
   @media (max-width: ${props => props.theme.breakpoints.tablet}) {
     display: none; /* Hide header on mobile */
   }
