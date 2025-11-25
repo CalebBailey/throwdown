@@ -276,7 +276,7 @@ const PlayerStatus = styled.span<{ isKiller: boolean }>`
   color: ${props => 
     props.isKiller 
       ? props.theme.colours.error 
-      : props.theme.colours.textSecondary
+      : props.theme.colours.secondary
   };
   padding: 2px 6px;
   border-radius: 4px;
@@ -551,7 +551,7 @@ const KillerGameSummaryScreen: React.FC = () => {
                 
                 <StatCard>
                   <h3>Dart Accuracy</h3>
-                  <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '1rem' }}>
+                  <div className="player-stats-flex">
                     <div>
                       <h4>Singles</h4>
                       <StatValue>{gameStats.totalSingles}</StatValue>

@@ -278,7 +278,7 @@ const KillerScorecard: React.FC<KillerScorecardProps> = ({ players, currentPlaye
                 Segment: <StyledSegmentNumber active={player.id === currentPlayerId}>{player.segment}</StyledSegmentNumber>
                 {' | Lives: '}
                 {player.isEliminated ? (
-                  <span style={{ color: '#E94560', fontWeight: 'bold' }}>OUT</span>
+                  <span className="text-danger">OUT</span>
                 ) : (
                   player.segmentHits || 0
                 )}

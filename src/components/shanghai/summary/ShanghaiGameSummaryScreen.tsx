@@ -484,8 +484,8 @@ const MobilePlayerRowComponent: React.FC<MobilePlayerRowProps> = ({ player, isWi
         </MobileStatsGrid>
         
         {/* Segment chart showing which segments were hit */}
-        <div style={{ marginTop: '10px' }}>
-          <MobileStatLabel style={{ marginBottom: '5px' }}>Segment Progress</MobileStatLabel>
+        <div className="segment-progress-container">
+          <MobileStatLabel className="segment-progress-label">Segment Progress</MobileStatLabel>
           <SegmentChart>
             {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(segment => {
               const score = player.shanghaiSegmentScores && player.shanghaiSegmentScores[segment] 
@@ -745,7 +745,7 @@ const ShanghaiGameSummaryScreen: React.FC = () => {
                 
                 <StatCard>
                   <h3>Dart Accuracy</h3>
-                  <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '1rem' }}>
+                  <div className="player-stats-flex">
                     <div>
                       <h4>Singles</h4>
                       <StatValue>{gameStats.totalSingles}</StatValue>

@@ -190,7 +190,8 @@ const ShanghaiDartboard: React.FC<ShanghaiDartboardProps> = ({ currentPlayer, cu
                 stroke="#222"
                 strokeWidth="0.5"
                 onClick={() => handleSegmentClick(segmentNumber)}
-                style={{ cursor: isActive ? 'pointer' : 'default', filter: segmentFilter }}
+                className={isActive ? 'cursor-pointer' : 'cursor-default'}
+                style={{ filter: segmentFilter }}
               />
               
               {/* Segment number text - positioned outside the board */}
@@ -217,7 +218,7 @@ const ShanghaiDartboard: React.FC<ShanghaiDartboardProps> = ({ currentPlayer, cu
           fill={bullseyeOuterColor}
           stroke="#222"
           strokeWidth="0.5"
-          style={{ cursor: 'pointer' }}
+          className="cursor-pointer"
           onClick={() => handleSegmentClick(25)} // Bullseye is traditionally 25 points
         />
         
@@ -229,7 +230,7 @@ const ShanghaiDartboard: React.FC<ShanghaiDartboardProps> = ({ currentPlayer, cu
           fill={bullseyeInnerColor}
           stroke="#222"
           strokeWidth="0.5"
-          style={{ cursor: 'pointer' }}
+          className="cursor-pointer"
           onClick={() => handleSegmentClick(50)} // Double bullseye is 50 points
         />
         

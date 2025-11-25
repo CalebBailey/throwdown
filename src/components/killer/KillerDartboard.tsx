@@ -264,7 +264,8 @@ const KillerDartboard: React.FC<KillerDartboardProps> = ({ players, currentPlaye
                 stroke="#222"
                 strokeWidth="0.5"
                 onClick={() => handleSegmentClick(segmentNumber)}
-                style={{ cursor: 'pointer', filter: segmentFilter }}
+                className="cursor-pointer"
+                style={{ filter: segmentFilter }}
               />
               
               {/* Section divider lines */}
@@ -300,7 +301,7 @@ const KillerDartboard: React.FC<KillerDartboardProps> = ({ players, currentPlaye
                     fill={fill}
                     stroke="none"
                     onClick={() => handleSegmentClick(segmentNumber)}
-                    style={{ cursor: 'pointer' }}
+                    className="cursor-pointer"
                   />
                 );
               })}
@@ -328,7 +329,7 @@ const KillerDartboard: React.FC<KillerDartboardProps> = ({ players, currentPlaye
           fill={bullseyeOuterColor}
           stroke="#222"
           strokeWidth="0.5"
-          style={{ cursor: 'pointer' }}
+          className="cursor-pointer"
         />
         
         {/* Inner bullseye (red) */}
@@ -339,7 +340,7 @@ const KillerDartboard: React.FC<KillerDartboardProps> = ({ players, currentPlaye
           fill={bullseyeInnerColor}
           stroke="#222"
           strokeWidth="0.5"
-          style={{ cursor: 'pointer' }}
+          className="cursor-pointer"
         />
         
         {/* Highlight effects for segments */}

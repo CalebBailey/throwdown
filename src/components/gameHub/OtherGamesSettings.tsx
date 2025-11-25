@@ -271,7 +271,7 @@ export const OtherGamesSettings: React.FC<OtherGamesSettingsProps> = ({
               )}
             </GameOptionButton>
             <GameOptionButton $active={false} onClick={() => {}}>
-              <span style={{fontSize:'0.65rem', opacity: 0.7, lineHeight: 1.1}}>
+              <span className="small-text">
                 DISPLAY UP TO 20
               </span>
             </GameOptionButton>

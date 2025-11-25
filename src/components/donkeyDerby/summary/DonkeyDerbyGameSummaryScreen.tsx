@@ -484,8 +484,8 @@ const MobilePlayerRowComponent: React.FC<MobilePlayerRowProps> = ({ player, isWi
         </MobileStatsGrid>
         
         {/* Segment chart showing which segments were hit */}
-        <div style={{ marginTop: '10px' }}>
-          <MobileStatLabel style={{ marginBottom: '5px' }}>Segment Progress</MobileStatLabel>
+        <div className="segment-progress-container">
+          <MobileStatLabel className="segment-progress-label">Segment Progress</MobileStatLabel>
           <SegmentChart>
             {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(segment => {
               const score = player.shanghaiSegmentScores && player.shanghaiSegmentScores[segment] 
@@ -717,21 +717,21 @@ const DonkeyDerbySummaryScreen: React.FC = () => {
                 <StatsGrid>
                   {sortedPlayers.map(p => (
                     <StatCard key={p.id}>
-                      <h3 style={{margin:'4px 0'}}>{p.name} {p.id===state.winner?.id && '🏆'}</h3>
-                      <p style={{margin:'0 0 8px'}}>Segment {p.segment}</p>
-                      <div style={{display:'flex',justifyContent:'space-around'}}>
+                      <h3 className="player-card-header">{p.name} {p.id===state.winner?.id && '🏆'}</h3>
+                      <p className="player-segment-info">Segment {p.segment}</p>
+                      <div className="player-stats-row">
                         <div><small>Singles</small><StatValue>{p.singlesHit||0}</StatValue></div>
                         <div><small>Doubles</small><StatValue>{p.doublesHit||0}</StatValue></div>
                         <div><small>Triples</small><StatValue>{p.triplesHit||0}</StatValue></div>
                       </div>
-                      <p style={{marginTop:8}}>Progress: {p.donkeyProgress}/{state.donkeyDerbyOptions?.finishLine}</p>
+                      <p className="player-progress-text">Progress: {p.donkeyProgress}/{state.donkeyDerbyOptions?.finishLine}</p>
                     </StatCard>
                   ))}
                 </StatsGrid>
                 <PlayersStatsTable>
                   {sortedPlayers.map(p => (
                     <PlayerRow key={p.id} $winner={p.id===state.winner?.id}>
-                      <PlayerColor color={p.color} />
+                      <PlayerColor color={p.colour} />
                       <PlayerName>{p.name} {p.id===state.winner?.id && '🏆'}</PlayerName>
                       <StatCell>{p.donkeyProgress}/{state.donkeyDerbyOptions?.finishLine}</StatCell>
                       <StatCell>{p.singlesHit||0}</StatCell>

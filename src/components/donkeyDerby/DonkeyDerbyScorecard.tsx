@@ -23,15 +23,15 @@ const Avatar = styled.div<{color:string}>`
 const DonkeyDerbyScorecard: React.FC<{players:Player[];currentId?:string;finishLine:number}> = ({players,currentId,finishLine}) => {
   return (
     <Wrapper>
-      <h3 style={{marginTop:0}}>Standings</h3>
+      <h3 className="margin-top-0">Standings</h3>
       {players.map(p=>{
         const pct=((p.donkeyProgress||0)/finishLine)*100;
         return (
           <Row key={p.id} active={p.id===currentId}>
-            <Avatar color={p.color}>{p.name[0]}</Avatar>
-            <div style={{width:38}}>{p.segment}</div>
-            <Bar><Fill pct={pct} color={p.color} /></Bar>
-            <div style={{width:60,textAlign:'right'}}>{p.donkeyProgress||0}/{finishLine}</div>
+            <Avatar color={p.colour}>{p.name[0]}</Avatar>
+            <div className="width-38">{p.segment}</div>
+            <Bar><Fill pct={pct} color={p.colour} /></Bar>
+            <div className="width-60 text-right">{p.donkeyProgress||0}/{finishLine}</div>
           </Row>
         );
       })}

@@ -214,7 +214,7 @@ const HomeScreen: React.FC = () => {
           <Tagline variants={itemVariants}>
             The ultimate darts scoring experience
           </Tagline>
-          <motion.div variants={itemVariants} style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+          <motion.div variants={itemVariants} className="full-width-centered">
             <ButtonGroup>
               <Button 
                 size="large" 

@@ -735,11 +735,7 @@ const Game501Screen: React.FC = () => {
                       <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        style={{ 
-                          color: '#FF4C4C', 
-                          textAlign: 'center',
-                          marginTop: '8px'
-                        }}
+                        className="error-message"
                       >
                         {error}
                       </motion.div>
@@ -826,12 +822,7 @@ const Game501Screen: React.FC = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.6 }}
-                    style={{ 
-                      color: '#fff', 
-                      fontSize: '2.5rem', 
-                      marginTop: '1rem',
-                      marginBottom: '0.5rem'
-                    }}
+                    className="winner-name"
                   >
                     {state.winner.name}
                   </motion.h2>
@@ -866,7 +857,7 @@ const Game501Screen: React.FC = () => {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 1.0 }}
                   >
-                    <motion.h3 style={{ marginBottom: '0.5rem' }}>Player Win Tallies</motion.h3>
+                    <motion.h3 className="player-tallies-header">Player Win Tallies</motion.h3>
                     <ScoreScroller
                       initial={{ x: 300 }}
                       animate={{ x: 0 }}
@@ -890,7 +881,7 @@ const Game501Screen: React.FC = () => {
                     </ScoreScroller>
                   </PlayerScoreTally>
                   
-                  <ButtonGroup style={{ marginTop: '2rem' }}>
+                  <ButtonGroup className="game-over-buttons">
                     {/* <Button
                       variant="outline"
                       startIcon={<FiArrowLeft />}

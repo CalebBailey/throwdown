@@ -165,7 +165,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, hideNav = false }) => 
     <LayoutContainer>
       {!hideNav && (
         <Header>
-          <Link to="/" style={{ textDecoration: 'none' }}>
+          <Link to="/" className="no-decoration">
             <Logo>THROWDOWN</Logo>
           </Link>
           <MenuButton onClick={toggleMenu}>

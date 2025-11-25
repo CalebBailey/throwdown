@@ -673,12 +673,7 @@ const DonkeyDerbyGameScreen: React.FC = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.6 }}
-                    style={{ 
-                      color: '#fff', 
-                      fontSize: '2.5rem', 
-                      marginTop: '1rem',
-                      marginBottom: '0.5rem'
-                    }}
+                    className="winner-name"
                   >
                     {state.winner.name}
                   </motion.h2>
@@ -714,7 +709,7 @@ const DonkeyDerbyGameScreen: React.FC = () => {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 1.0 }}
                   >
-                    <motion.h3 style={{ marginBottom: '0.5rem' }}>Player Win Tallies</motion.h3>
+                    <motion.h3 className="player-tallies-header">Player Win Tallies</motion.h3>
                     <ScoreScroller
                       initial={{ x: 300 }}
                       animate={{ x: 0 }}

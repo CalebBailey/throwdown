@@ -40,3 +40,186 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Layout & Flex Utilities */
+.full-width-centered {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-space-around {
+  display: flex;
+  justify-content: space-around;
+}
+
+.flex-space-between {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Text & Typography */
+.text-danger {
+  color: #E94560;
+  font-weight: bold;
+}
+
+.text-current-player {
+  fill: #E94560;
+}
+
+.text-default {
+  fill: #FFF;
+}
+
+.small-text {
+  font-size: 0.65rem;
+  opacity: 0.7;
+  line-height: 1.1;
+}
+
+.no-decoration {
+  text-decoration: none;
+}
+
+/* Cursor States */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-default {
+  cursor: default;
+}
+
+/* SVG Filters */
+.svg-pointer-filter {
+  cursor: pointer;
+  filter: var(--segment-filter, none);
+}
+
+/* Spacing Utilities */
+.margin-top-05 {
+  margin-top: 0.5rem;
+}
+
+.margin-top-1 {
+  margin-top: 1rem;
+}
+
+.margin-top-2 {
+  margin-top: 2rem;
+}
+
+.margin-top-10 {
+  margin-top: 10px;
+}
+
+.margin-bottom-05 {
+  margin-bottom: 0.5rem;
+}
+
+.margin-bottom-5 {
+  margin-bottom: 5px;
+}
+
+.margin-bottom-8 {
+  margin-bottom: 8px;
+}
+
+.margin-top-0 {
+  margin-top: 0;
+}
+
+.margin-4-0 {
+  margin: 4px 0;
+}
+
+.margin-0-0-8 {
+  margin: 0 0 8px;
+}
+
+.margin-top-8 {
+  margin-top: 8px;
+}
+
+/* Width Utilities */
+.width-38 {
+  width: 38px;
+}
+
+.width-60 {
+  width: 60px;
+}
+
+.text-right {
+  text-align: right;
+}
+
+/* Game-Specific Styles */
+.segment-progress-container {
+  margin-top: 10px;
+}
+
+.segment-progress-label {
+  margin-bottom: 5px;
+}
+
+.player-stats-flex {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1rem;
+}
+
+.player-card-header {
+  margin: 4px 0;
+}
+
+.player-segment-info {
+  margin: 0 0 8px;
+}
+
+.player-stats-row {
+  display: flex;
+  justify-content: space-around;
+}
+
+.player-progress-text {
+  margin-top: 8px;
+}
+
+/* Interactive Elements */
+.dartboard-segment {
+  cursor: pointer;
+}
+
+.dartboard-segment-inactive {
+  cursor: default;
+}
+
+/* Motion & Animation Containers */
+.player-tallies-header {
+  margin-bottom: 0.5rem;
+}
+
+.game-over-buttons {
+  margin-top: 2rem;
+}
+
+.winner-name {
+  color: #fff;
+  font-size: 2.5rem;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.error-message {
+  color: #FF4C4C;
+  text-align: center;
+  margin-top: 8px;
+}
