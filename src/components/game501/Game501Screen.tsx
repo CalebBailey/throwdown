@@ -435,6 +435,26 @@ const Game501Screen: React.FC = () => {
   
   // Calculate the live remaining score (taking into account current throw)
   const liveRemainingScore = Math.max(0, currentPlayer ? currentPlayer.score - currentThrowScore : 0);
+  
+  // Check if current throw would result in a bust
+  const wouldBust = React.useMemo(() => {
+    if (!currentPlayer || state.currentThrow.darts.length === 0) return false;
+    
+    const newScore = currentPlayer.score - currentThrowScore;
+    
+    // Check for bust conditions
+    let isBust = newScore < 0 || newScore === 1;
+    
+    if (newScore === 0) {
+      if (state.gameOptions.outMode === 'double' && !state.currentThrow.darts.some(dart => dart.startsWith('D'))) {
+        isBust = true;
+      } else if (state.gameOptions.outMode === 'master' && !state.currentThrow.darts.some(dart => dart.startsWith('D') || dart.startsWith('T'))) {
+        isBust = true;
+      }
+    }
+    
+    return isBust;
+  }, [currentPlayer, currentThrowScore, state.currentThrow.darts, state.gameOptions.outMode]);
 
   // Get checkout suggestions based on the live score and remaining darts
   const checkoutSuggestions = getCheckoutSuggestions(
@@ -612,7 +632,11 @@ const Game501Screen: React.FC = () => {
                       <PlayerStats>
                         Avg: {player.threeDartAverage.toFixed(1)} | 
                         High: {player.highestScore} <br />
-                        {player.lastScore > 0 && `Last: ${player.lastScore} | `}
+                        {player.lastThrowBust 
+                          ? 'Last: BUST | '
+                          : player.lastScore > 0 
+                            ? `Last: ${player.lastScore} | `
+                            : ''}
                         {state.gameOptions.sets > 1 
                           ? `Sets: ${player.sets} | Legs: ${player.legs}`
                           : `Legs: ${player.legs}`}
@@ -639,13 +663,13 @@ const Game501Screen: React.FC = () => {
               <ScoreSection>
                 <AnimatePresence mode="wait">
                   <CurrentScore
-                    key={`score-${currentPlayer?.id}-${liveRemainingScore}-${state.currentThrow.darts.join('-')}`}
+                    key={`score-${currentPlayer?.id}-${liveRemainingScore}-${state.currentThrow.darts.join('-')}-${wouldBust}`}
                     initial="initial"
                     animate="animate"
                     exit="exit"
                     variants={scoreAnimation}
                   >
-                    {liveRemainingScore}
+                    {wouldBust ? 'BUST' : liveRemainingScore}
                   </CurrentScore>
                 </AnimatePresence>
                 
