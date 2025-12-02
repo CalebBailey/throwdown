@@ -445,7 +445,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       if (segment === currentPlayer.segment) {
         // Add hits to become a killer
         const currentHits = currentPlayer.segmentHits || 0;
-        const newHits = currentHits + hitValue;
+        const newHits = Math.min(maxHits, currentHits + hitValue); // Cap at maxHits
         
         // Update player status
         updatedPlayers[state.currentPlayerIndex] = {

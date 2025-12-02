@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -413,13 +413,16 @@ const Game501Screen: React.FC = () => {
   const [activeScoreTab, setActiveScoreTab] = useState<'single' | 'double' | 'triple' | 'special'>('single');
   const [error, setError] = useState<string | null>(null);
   const [showRestoredBanner, setShowRestoredBanner] = useState(false);
+  const isInitialMount = useRef(true);
   
-  // Check if we're restoring a game
+  // Check if we're restoring a game - only on the very first mount
   useEffect(() => {
-    if (state.gameStatus === 'active' && state.players.length > 0 && state.currentTurn > 1) {
+    // Only show the banner if this is the initial mount AND we have a game in progress past turn 1
+    if (isInitialMount.current && state.gameStatus === 'active' && state.players.length > 0 && state.currentTurn > 1) {
       setShowRestoredBanner(true);
       setTimeout(() => setShowRestoredBanner(false), 5000);
     }
+    isInitialMount.current = false;
   }, []); // Only run once on mount
   
   // Get the current player
