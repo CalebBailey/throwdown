@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -471,16 +471,18 @@ const KillerGameScreen: React.FC = () => {
   const [dartThrowCount, setDartThrowCount] = useState(0);
   const [showWinnerScreen, setShowWinnerScreen] = useState(false);
   const [showRestoredBanner, setShowRestoredBanner] = useState(false);
+  const isInitialMount = useRef(true);
   
   const currentPlayer = state.players[state.currentPlayerIndex];
   const requiredHits = state.killerOptions?.maxHits || 3;
   
-  // Check if we're restoring a game and skip setup if so
+  // Check if we're restoring a game and skip setup if so - only on the very first mount
   useEffect(() => {
     if (state.gameType === 'killer' && state.gameStatus === 'active') {
       const allPlayersHaveSegments = state.players.every(p => p.segment !== undefined);
       
-      if (allPlayersHaveSegments && state.currentTurn > 1) {
+      // Only show the banner if this is the initial mount AND we have a game in progress
+      if (allPlayersHaveSegments && state.currentTurn > 1 && isInitialMount.current) {
         // We're restoring an in-progress game, skip setup screen
         setShowSetup(false);
         setShowRestoredBanner(true);
@@ -489,6 +491,7 @@ const KillerGameScreen: React.FC = () => {
         setTimeout(() => setShowRestoredBanner(false), 5000);
       }
     }
+    isInitialMount.current = false;
   }, [state.gameType, state.gameStatus, state.players, state.currentTurn]);
   
   const handleSetupComplete = () => {
