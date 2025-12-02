@@ -11,6 +11,7 @@ export interface Player {
   averageScore: number;
   highestScore: number;
   lastScore: number; // Last score thrown
+  lastThrowBust?: boolean; // Whether the last throw was a bust
   wins: number;
   legs: number;
   sets: number;
@@ -620,14 +621,15 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
   const dartsCount = allDarts.length;
       
       // Calculate scores for various statistics
-      const totalScore = newThrows.reduce((sum, turn) => {
-        return sum + turn.reduce((turnSum, dart) => turnSum + dartNotationToScore(dart), 0);
-      }, 0);
+      // For three-dart average, we need to calculate the actual points scored (not thrown)
+      // This means we need to track which throws were busts
+      // For now, we calculate based on the difference between starting score and current score
+      const pointsScored = state.gameOptions.startingScore - (isBust ? currentPlayer.score : newScore);
       
       // Calculate averages
       const turnCount = newThrows.length;
-      const averageScore = turnCount > 0 ? totalScore / turnCount : 0;
-  const threeDartAverage = dartsCount > 0 ? (totalScore / dartsCount) * 3 : 0;
+      const averageScore = turnCount > 0 ? pointsScored / turnCount : 0;
+  const threeDartAverage = dartsCount > 0 ? (pointsScored / dartsCount) * 3 : 0;
       
       // Calculate first 9 dart average
       const first9Darts = newThrows.slice(0, 3).flat();
@@ -639,7 +641,8 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         turnDarts.reduce((sum, dart) => sum + dartNotationToScore(dart), 0)
       );
       const highestScore = turnScores.length > 0 ? Math.max(...turnScores, 0) : 0;
-      const lastScore = score; // Current throw score
+      // If bust, last score should be 0 (no points scored), otherwise use the actual score
+      const lastScore = isBust ? 0 : score;
       
       // Track checkout statistics
       let checkoutsCompleted = currentPlayer.checkoutsCompleted || 0;
@@ -691,6 +694,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         averageScore,
         highestScore,
         lastScore,
+        lastThrowBust: isBust, // Track if this throw was a bust
         threeDartAverage,
         first9Average,
         checkoutRate,
@@ -781,7 +785,8 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
             const playersWithScoresReset = playersWithLegsReset.map(player => ({
               ...player,
               score: state.gameOptions.startingScore,
-              throws: []
+              throws: [],
+              lastThrowBust: false
             }));
             
             // For next leg, advance the leg starter index according to standard darts rules
@@ -833,7 +838,8 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
           const playersWithScoresReset = playersWithLegUpdate.map(player => ({
             ...player,
             score: state.gameOptions.startingScore,
-            throws: []
+            throws: [],
+            lastThrowBust: false
           }));
           
           // For next leg, advance the leg starter index according to standard darts rules
