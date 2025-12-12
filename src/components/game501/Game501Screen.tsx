@@ -2,13 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiArrowRight, FiCheck, FiX, FiArrowLeft, FiTarget, FiDelete, FiAward, FiTrendingUp } from 'react-icons/fi';
+import { FiArrowRight, FiCheck, FiArrowLeft, FiTarget, FiAward } from 'react-icons/fi';
 import Layout from '../shared/Layout';
 import Button from '../shared/Button';
 import Card from '../shared/Card';
 import GameRestoredBanner from '../shared/GameRestoredBanner';
 import { useGameContext } from '../../context/GameContext';
-import { isScoreValid, getCheckoutSuggestions, dartNotationToScore, calculateScore } from '../../utils/gameUtils';
+import { getCheckoutSuggestions, dartNotationToScore } from '../../utils/gameUtils';
 
 const Container = styled.div`
   max-width: 1000px;
@@ -34,18 +34,6 @@ const PageTitle = styled.h1`
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
     font-size: ${props => props.theme.fontSizes.xl};
-  }
-`;
-
-const GameInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${props => props.theme.space.md};
-  font-size: ${props => props.theme.fontSizes.lg};
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    font-size: ${props => props.theme.fontSizes.md};
-    gap: ${props => props.theme.space.sm};
   }
 `;
 
@@ -217,102 +205,10 @@ const SimplifiedCheckout = styled.div<{ $hasCheckout: boolean }>`
   transition: all 0.2s ease;
 `;
 
-const ScoreEntryContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
-`;
-
-const ScoreInput = styled.input`
-  width: 100%;
-  padding: ${props => props.theme.space.lg};
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: ${props => props.theme.borderRadius.md};
-  color: ${props => props.theme.colours.text};
-  font-size: ${props => props.theme.fontSizes.xxxl};
-  font-family: ${props => props.theme.fonts.monospace};
-  text-align: center;
-  margin-bottom: ${props => props.theme.space.md};
-  
-  &:focus {
-    outline: none;
-    border-color: ${props => props.theme.colours.highlight};
-  }
-`;
-
 const ButtonGroup = styled.div`
   display: flex;
   gap: ${props => props.theme.space.md};
   width: 100%;
-`;
-
-const CheckoutSuggestion = styled.div`
-  margin-top: ${props => props.theme.space.lg};
-  padding: ${props => props.theme.space.md};
-  background-color: ${props => props.theme.colours.accent};
-  border-radius: ${props => props.theme.borderRadius.md};
-  text-align: center;
-`;
-
-const SuggestionTitle = styled.h4`
-  margin-bottom: ${props => props.theme.space.xs};
-  font-size: ${props => props.theme.fontSizes.md};
-`;
-
-const SuggestionPath = styled.div`
-  font-family: ${props => props.theme.fonts.monospace};
-  display: flex;
-  gap: ${props => props.theme.space.sm};
-  justify-content: center;
-  margin-top: ${props => props.theme.space.xs};
-`;
-
-const DartThrow = styled.span`
-  background-color: ${props => props.theme.colours.primary};
-  padding: ${props => `${props.theme.space.xs} ${props.theme.space.sm}`};
-  border-radius: ${props => props.theme.borderRadius.sm};
-  font-weight: 500;
-`;
-
-const GameOverlay = styled(motion.div)`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: ${props => props.theme.space.md};
-  z-index: 100;
-`;
-
-const GameOverCard = styled(motion.div)`
-  background-color: ${props => props.theme.colours.secondary};
-  border-radius: ${props => props.theme.borderRadius.lg};
-  padding: ${props => props.theme.space.xl};
-  width: 100%;
-  max-width: 500px;
-  text-align: center;
-  box-shadow: ${props => props.theme.shadows.lg};
-`;
-
-const WinnerName = styled.h2`
-  font-size: ${props => props.theme.fontSizes.xxxl};
-  color: ${props => props.theme.colours.highlight};
-  margin-bottom: ${props => props.theme.space.lg};
-`;
-
-const WinnerStatsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: ${props => props.theme.space.md};
-  margin: ${props => props.theme.space.xl} 0;
 `;
 
 const StatBox = styled.div`
@@ -508,15 +404,6 @@ const Game501Screen: React.FC = () => {
     setActiveScoreTab(tab);
   };
   
-  // Handle undo score (for entire turn)
-  const handleUndoScore = () => {
-    dispatch({
-      type: 'UNDO_SCORE',
-      playerId: currentPlayer.id
-    });
-    setError(null);
-  };
-  
   // Handle game exit
   const handleExitGame = () => {
     if (window.confirm('Are you sure you want to exit? Game progress will be lost.')) {
@@ -563,16 +450,6 @@ const Game501Screen: React.FC = () => {
     initial: { opacity: 0 },
     animate: { opacity: 1 },
     exit: { opacity: 0 }
-  };
-  
-  const cardAnimation = {
-    initial: { opacity: 0, y: 50 },
-    animate: { 
-      opacity: 1, 
-      y: 0,
-      transition: { type: 'spring', stiffness: 300, damping: 20 }
-    },
-    exit: { opacity: 0, y: 50 }
   };
   
   return (
@@ -1165,13 +1042,6 @@ const WinnerAvatar = styled(motion.div)<{ color: string }>`
     height: 80px;
     font-size: ${props => props.theme.fontSizes.xxl};
   }
-`;
-
-const ContinueButton = styled(Button)`
-  position: absolute;
-  top: ${props => props.theme.space.md};
-  right: ${props => props.theme.space.md};
-  z-index: 10;
 `;
 
 // Winner screen styled components

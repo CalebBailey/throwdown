@@ -8,6 +8,7 @@ export interface Player {
   colour: string;
   score: number;
   throws: string[][]; // Changed from number[][] to string[][] for dart notations
+  allGameDarts: string[]; // All darts thrown across all legs in the game
   averageScore: number;
   highestScore: number;
   lastScore: number; // Last score thrown
@@ -92,7 +93,7 @@ export interface GameState {
 
 // Actions
 export type GameAction =
-  | { type: 'ADD_PLAYER'; player: Omit<Player, 'score' | 'throws' | 'averageScore' | 'highestScore'> }
+  | { type: 'ADD_PLAYER'; player: Omit<Player, 'score' | 'throws' | 'allGameDarts' | 'averageScore' | 'highestScore'> }
   | { type: 'REMOVE_PLAYER'; id: string }
   | { type: 'UPDATE_PLAYER_COLOUR'; id: string; colour: string }
   | { type: 'SET_PLAYER_ORDER'; players: Player[] }
@@ -228,6 +229,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         ...player,
         score: state.gameOptions.startingScore,
         throws: [],
+        allGameDarts: [],
         averageScore: 0,
         highestScore: 0,
         lastScore: 0,
@@ -280,8 +282,19 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         ...player,
         score: gameOptions.startingScore,
         throws: [],
+        allGameDarts: [],
         averageScore: 0,
         highestScore: 0,
+        lastScore: 0,
+        lastThrowBust: false,
+        threeDartAverage: 0,
+        first9Average: 0,
+        checkoutRate: 0,
+        checkoutsCompleted: 0,
+        checkoutAttempts: 0,
+        highestFinish: 0,
+        bestLeg: 0,
+        worstLeg: 0,
         legs: 0,
         sets: 0,
         donkeyProgress: 0
@@ -616,30 +629,36 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       }
       newThrows[state.currentTurn - 1] = dartsThrown;
       
-      // Calculate total darts thrown in all legs
-  const allDarts = newThrows.flat();
-  const dartsCount = allDarts.length;
+      // Update allGameDarts with the new darts thrown
+      const newAllGameDarts = [...currentPlayer.allGameDarts, ...dartsThrown];
       
-      // Calculate scores for various statistics
-      // For three-dart average, we need to calculate the actual points scored (not thrown)
-      // This means we need to track which throws were busts
-      // For now, we calculate based on the difference between starting score and current score
+      // Calculate total darts thrown across ALL legs of the game
+      const allGameDartsCount = newAllGameDarts.length;
+      
+      // Calculate total score from all darts thrown in the game
+      const totalGameScore = newAllGameDarts.reduce((sum, dart) => sum + dartNotationToScore(dart), 0);
+      
+      // Calculate averages based on ALL darts in the game
+      const threeDartAverage = allGameDartsCount > 0 ? (totalGameScore / allGameDartsCount) * 3 : 0;
+      
+      // Calculate current leg stats
+      const allDarts = newThrows.flat();
+      const dartsCount = allDarts.length;
       const pointsScored = state.gameOptions.startingScore - (isBust ? currentPlayer.score : newScore);
-      
-      // Calculate averages
       const turnCount = newThrows.length;
       const averageScore = turnCount > 0 ? pointsScored / turnCount : 0;
-  const threeDartAverage = dartsCount > 0 ? (pointsScored / dartsCount) * 3 : 0;
       
-      // Calculate first 9 dart average
-      const first9Darts = newThrows.slice(0, 3).flat();
+      // Calculate first 9 dart average (from current leg only)
+      const first9Darts = newThrows.slice(0, 3).filter(turn => turn !== undefined).flat();
       const first9Score = first9Darts.reduce((sum, dart) => sum + dartNotationToScore(dart), 0);
       const first9Average = first9Darts.length > 0 ? (first9Score / first9Darts.length) * 3 : 0;
       
       // Find the highest score in a single turn
-      const turnScores = newThrows.map(turnDarts => 
-        turnDarts.reduce((sum, dart) => sum + dartNotationToScore(dart), 0)
-      );
+      const turnScores = newThrows
+        .filter(turnDarts => turnDarts !== undefined)
+        .map(turnDarts => 
+          turnDarts.reduce((sum, dart) => sum + dartNotationToScore(dart), 0)
+        );
       const highestScore = turnScores.length > 0 ? Math.max(...turnScores, 0) : 0;
       // If bust, last score should be 0 (no points scored), otherwise use the actual score
       const lastScore = isBust ? 0 : score;
@@ -690,6 +709,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       const updatedPlayer = {
         ...currentPlayer,
         throws: newThrows,
+        allGameDarts: newAllGameDarts,
         score: isBust ? currentPlayer.score : Math.max(0, newScore),
         averageScore,
         highestScore,
@@ -786,6 +806,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
               ...player,
               score: state.gameOptions.startingScore,
               throws: [],
+              // Keep allGameDarts to maintain overall game statistics
               lastThrowBust: false
             }));
             
@@ -839,6 +860,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
             ...player,
             score: state.gameOptions.startingScore,
             throws: [],
+            // Keep allGameDarts to maintain overall game statistics
             lastThrowBust: false
           }));
           
@@ -995,10 +1017,16 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       const newThrows = [...player.throws];
       newThrows[currentRoundIndex] = [];
       
-      // Calculate stats
-  // Flattened darts not required for current average calculation
+      // Remove the undone darts from allGameDarts
+      const dartsToRemoveCount = currentRoundDarts.length;
+      const newAllGameDarts = player.allGameDarts.slice(0, -dartsToRemoveCount);
       
-      // Calculate average per throw (turn) instead of per dart
+      // Calculate overall game stats from all darts
+      const allGameDartsCount = newAllGameDarts.length;
+      const totalGameScore = newAllGameDarts.reduce((sum, dart) => sum + dartNotationToScore(dart), 0);
+      const threeDartAverage = allGameDartsCount > 0 ? (totalGameScore / allGameDartsCount) * 3 : 0;
+      
+      // Calculate stats for current leg
       const totalTurnScores = newThrows.reduce((sum, turn) => {
         return sum + turn.reduce((turnSum, dart) => turnSum + dartNotationToScore(dart), 0);
       }, 0);
@@ -1015,8 +1043,10 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       const updatedPlayer = {
         ...player,
         throws: newThrows,
+        allGameDarts: newAllGameDarts,
         score: player.score + scoreToAdd,
         averageScore,
+        threeDartAverage,
         highestScore
       };
       
@@ -1076,8 +1106,21 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
           ...player,
           score: state.gameOptions.startingScore,
           throws: [],
+          allGameDarts: [], // Reset all game darts for new game
           averageScore: 0,
-          highestScore: 0
+          highestScore: 0,
+          lastScore: 0,
+          lastThrowBust: false,
+          threeDartAverage: 0,
+          first9Average: 0,
+          checkoutRate: 0,
+          checkoutsCompleted: 0,
+          checkoutAttempts: 0,
+          highestFinish: 0,
+          bestLeg: 0,
+          worstLeg: 0,
+          legs: 0,
+          sets: 0
         })),
         gameStatus: "setup",
         currentThrow: { darts: [], isComplete: false }
@@ -1211,7 +1254,7 @@ const GameContext = createContext<{
 
 // Provider component
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [state, dispatch] = useReducer(gameReducer, loadInitialState());
+  const [state, dispatch] = useReducer(gameReducer, null, loadInitialState);
   
   // Save full game state to localStorage when it changes (for active games)
   useEffect(() => {

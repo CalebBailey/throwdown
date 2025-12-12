@@ -63,24 +63,24 @@ const ScoreboardCard = styled(Card)`
 const PlayersList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${props => props.theme.space.sm};
+  gap: ${props => props.theme.space.md};
 `;
 
-const PlayerRow = styled.div<{ $active: boolean; $eliminated: boolean }>`
+const PlayerRaceLane = styled.div<{ $active: boolean; $eliminated?: boolean }>`
   display: flex;
-  align-items: center;
-  padding: ${props => props.theme.space.sm} ${props => props.theme.space.md};
+  flex-direction: column;
+  padding: ${props => props.theme.space.sm};
   border-radius: ${props => props.theme.borderRadius.md};
   background-color: ${props => props.$active ? 'rgba(255, 255, 255, 0.1)' : 'transparent'};
-  border-left: 4px solid ${props => 
-    props.$eliminated 
-      ? 'rgba(255, 255, 255, 0.2)' 
-      : props.$active 
-        ? props.theme.colours.highlight 
-        : 'transparent'
-  };
+  border-left: 4px solid ${props => props.$active ? props.theme.colours.highlight : 'transparent'};
   opacity: ${props => props.$eliminated ? 0.4 : 1};
   transition: all 0.2s ease;
+`;
+
+const PlayerHeader = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: ${props => props.theme.space.xs};
 `;
 
 const PlayerColor = styled.div<{ color: string }>`
@@ -88,38 +88,60 @@ const PlayerColor = styled.div<{ color: string }>`
   height: 16px;
   border-radius: 50%;
   background-color: ${props => props.color};
-  margin-right: ${props => props.theme.space.md};
-`;
-
-const PlayerInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  margin-right: ${props => props.theme.space.sm};
 `;
 
 const PlayerName = styled.span`
   font-weight: 500;
+  flex: 1;
 `;
 
-const PlayerStats = styled.span`
-  font-size: ${props => props.theme.fontSizes.sm};
-  opacity: 0.7;
-`;
-
-const PlayerStatusBadge = styled.div<{ $isKiller: boolean; $eliminated: boolean }>`
+const PlayerProgress = styled.span`
   font-family: ${props => props.theme.fonts.monospace};
   font-size: ${props => props.theme.fontSizes.lg};
   font-weight: bold;
-  padding: ${props => props.theme.space.xs} ${props => props.theme.space.sm};
-  border-radius: ${props => props.theme.borderRadius.sm};
-  background-color: ${props => 
-    props.$eliminated 
-      ? 'rgba(255, 255, 255, 0.1)' 
-      : props.$isKiller 
-        ? props.theme.colours.highlight 
-        : 'rgba(255, 255, 255, 0.1)'
-  };
   color: ${props => props.theme.colours.text};
+`;
+
+const ProgressTrack = styled.div`
+  position: relative;
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: ${props => props.theme.borderRadius.pill};
+  overflow: hidden;
+`;
+
+const ProgressBar = styled(motion.div)<{ color: string; $isKiller?: boolean }>`
+  height: 100%;
+  background-color: ${props => props.$isKiller ? '#E94560' : props.color};
+  border-radius: ${props => props.theme.borderRadius.pill};
+  position: relative;
+  box-shadow: ${props => props.$isKiller ? '0 0 10px rgba(233, 69, 96, 0.8), 0 0 20px rgba(233, 69, 96, 0.4)' : 'none'};
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.3) 50%,
+      transparent 100%
+    );
+    animation: shimmer 2s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
 `;
 
 // Main game card
@@ -651,31 +673,37 @@ const KillerGameScreen: React.FC = () => {
               
               <Card.Content>
                 <PlayersList>
-                  {state.players.map((player, index) => (
-                    <PlayerRow 
-                      key={player.id} 
-                      $active={index === state.currentPlayerIndex}
-                      $eliminated={player.isEliminated || false}
-                    >
-                      <PlayerColor color={player.colour} />
-                      <PlayerInfo>
-                        <PlayerName>
-                          {player.name}
-                          {player.isKiller && ' 💀'}
-                        </PlayerName>
-                        <PlayerStats>
-                          Segment: {player.segment} | 
-                          Lives: {player.isEliminated ? 'OUT' : (player.segmentHits || 0)}
-                        </PlayerStats>
-                      </PlayerInfo>
-                      <PlayerStatusBadge 
-                        $isKiller={player.isKiller || false}
-                        $eliminated={player.isEliminated || false}
+                  {state.players.map((player, index) => {
+                    const hits = player.segmentHits || 0;
+                    const progressPercent = player.isKiller 
+                      ? 100 
+                      : player.isEliminated 
+                        ? 0 
+                        : (hits / requiredHits) * 100;
+                    
+                    return (
+                      <PlayerRaceLane 
+                        key={player.id} 
+                        $active={index === state.currentPlayerIndex}
+                        $eliminated={player.isEliminated}
                       >
-                        {player.isEliminated ? 'OUT' : player.isKiller ? 'KILLER' : `${player.segmentHits || 0}/${requiredHits}`}
-                      </PlayerStatusBadge>
-                    </PlayerRow>
-                  ))}
+                        <PlayerHeader>
+                          <PlayerColor color={player.colour} />
+                          <PlayerName>{player.name}</PlayerName>
+                          <PlayerProgress>{hits} / {requiredHits}</PlayerProgress>
+                        </PlayerHeader>
+                        <ProgressTrack>
+                          <ProgressBar
+                            color={player.colour}
+                            $isKiller={player.isKiller}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${progressPercent}%` }}
+                            transition={{ type: 'spring', stiffness: 100 }}
+                          />
+                        </ProgressTrack>
+                      </PlayerRaceLane>
+                    );
+                  })}
                 </PlayersList>
               </Card.Content>
             </ScoreboardCard>

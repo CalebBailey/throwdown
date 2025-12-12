@@ -676,12 +676,6 @@ const ShanghaiGameSummaryScreen: React.FC = () => {
     return bestSegment;
   };
   
-  // Calculate segment completion rate
-  const getCompletedSegments = (player: any): number => {
-    if (!player.shanghaiSegmentScores) return 0;
-    return Object.keys(player.shanghaiSegmentScores).length;
-  };
-  
   const gameStats = calculateGameStats();
   
   if (!state.winner) return null;
