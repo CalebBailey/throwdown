@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { FiTarget, FiX } from 'react-icons/fi';
 import { Player } from '../../context/GameContext';
 
 interface KillerScorecardProps {
@@ -20,9 +19,15 @@ const ScorecardContainer = styled.div`
 
 const Title = styled.h2`
   font-size: 1.25rem;
-  margin: 0 0 16px 0;
-  padding-bottom: 12px;
+  margin: 0 0 8px 0;
+  padding-bottom: 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const Subtitle = styled.div`
+  font-size: 0.95rem;
+  margin-bottom: 16px;
+  opacity: 0.8;
 `;
 
 const PlayerList = styled.div`
@@ -31,205 +36,119 @@ const PlayerList = styled.div`
   gap: 12px;
 `;
 
-const PlayerName = styled.div<{ isKiller: boolean }>`
-  font-weight: ${props => props.isKiller ? 'bold' : 'normal'};
+const PlayerRow = styled.div<{ $active: boolean }>`
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  background: ${p => p.$active ? 'rgba(233, 69, 96, 0.15)' : 'rgba(255, 255, 255, 0.05)'};
+  border-left: 4px solid ${p => p.$active ? '#E94560' : 'transparent'};
+  transition: all 0.2s ease;
 `;
 
-const KillerIndicator = styled.span`
-  color: #E94560;
-  font-size: 0.8rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-`;
-
-const PlayerSegment = styled.div`
-  font-size: 0.8rem;
-  opacity: 0.7;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const SegmentNumber = styled.span<{ active: boolean }>`
-  font-weight: ${props => props.active ? 'bold' : 'normal'};
-  color: ${props => props.active ? '#E94560' : 'inherit'};
-  padding: 2px 4px;
-  border-radius: 3px;
-  background-color: ${props => props.active ? 'rgba(233, 69, 96, 0.1)' : 'transparent'};
-`;
-
-const ProgressContainer = styled.div`
-  margin-top: 4px;
-  width: 100%;
-  background-color: rgba(0, 0, 0, 0.3);
-  height: 8px;
-  border-radius: 4px;
-  overflow: hidden;
-  position: relative;
-`;
-
-const ProgressLabel = styled.div`
-  position: absolute;
-  right: 4px;
-  top: -18px;
-  font-size: 0.7rem;
-  background-color: rgba(0, 0, 0, 0.5);
-  padding: 1px 4px;
-  border-radius: 3px;
-  color: rgba(255, 255, 255, 0.8);
-`;
-
-const PlayerColor = styled.div<{ color: string }>`
-  width: 16px;
-  height: 16px;
+const PlayerAvatar = styled.div<{ color: string }>`
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background-color: ${props => props.color};
-  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  font-weight: bold;
+  font-size: 1rem;
   flex-shrink: 0;
 `;
 
-const PlayerDetails = styled.div`
-  flex-grow: 1;
+const SegmentLabel = styled.div`
+  min-width: 38px;
+  text-align: center;
+  font-weight: 500;
+  opacity: 0.9;
 `;
 
-const StatusIndicator = styled.div`
-  display: flex;
-  align-items: center;
-  margin-left: auto;
-  font-size: 0.8rem;
-  color: #E94560;
-  font-weight: bold;
+const ProgressTrack = styled.div`
+  flex: 1;
+  height: 10px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  position: relative;
+  overflow: hidden;
 `;
 
-const EliminatedIndicator = styled.div`
-  position: absolute;
-  right: 8px;
-  top: 8px;
-  background-color: rgba(233, 69, 96, 0.8);
-  color: white;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-weight: bold;
-  z-index: 5;
-`;
-
-const ProgressBar = styled.div<{ progress: number; isKiller: boolean }>`
+const ProgressBar = styled(motion.div)<{ color: string; isKiller: boolean }>`
   height: 100%;
-  width: ${props => `${props.progress * 100}%`};
-  background: ${props => props.isKiller 
-    ? 'linear-gradient(to right, #E94560, #FF7B92)' 
-    : 'linear-gradient(to right, #4E8397, #6BB3C8)'};
-  border-radius: 4px;
-  transition: width 0.5s ease, background-color 0.5s ease;
-  position: relative;
-`;
-
-const HitIndicators = styled.div`
-  display: flex;
-  gap: 2px;
-  margin-top: 4px;
-  justify-content: flex-end;
-`;
-
-const HitDot = styled.div<{ active: boolean, color: string }>`
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: ${props => props.active ? props.color : 'rgba(255, 255, 255, 0.2)'};
+  background-color: ${props => props.isKiller ? '#E94560' : props.color};
+  border-radius: 5px;
+  position: absolute;
+  top: 0;
+  left: 0;
   transition: background-color 0.3s ease;
+  box-shadow: ${props => props.isKiller ? '0 0 10px rgba(233, 69, 96, 0.8), 0 0 20px rgba(233, 69, 96, 0.4)' : 'none'};
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.3) 50%,
+      transparent 100%
+    );
+    animation: shimmer 2s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
 `;
 
-const PlayerItem = styled(motion.div)<{ isActive: boolean; isEliminated: boolean }>`
-  padding: 12px;
-  border-radius: 10px;
-  background-color: ${props => props.isActive ? 'rgba(255, 255, 255, 0.1)' : 'rgba(15, 15, 15, 0.5)'};
-  border: 1px solid ${props => props.isActive ? 'rgba(233, 69, 96, 0.5)' : 'transparent'};
-  display: flex;
-  align-items: center;
-  position: relative;
-  opacity: ${props => props.isEliminated ? 0.4 : 1};
-  
-  ${props => props.isEliminated && `
-    &:after {
-      content: '';
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 50%;
-      border-top: 1px solid rgba(255, 255, 255, 0.3);
-      z-index: 1;
-    }
-  `}
+const ScoreLabel = styled.div`
+  min-width: 60px;
+  text-align: right;
+  font-weight: 500;
+  opacity: 0.9;
 `;
 
 // Wrapper components to avoid DOM prop warnings
-interface PlayerNameWrapperProps {
-  isKiller: boolean;
+interface PlayerRowWrapperProps {
+  active: boolean;
   children: React.ReactNode;
   [key: string]: any;
 }
 
 interface ProgressBarWrapperProps {
-  progress: number;
+  percentage: number;
+  color: string;
   isKiller: boolean;
   [key: string]: any;
 }
 
-interface PlayerItemWrapperProps {
-  isActive: boolean;
-  isEliminated: boolean;
-  children: React.ReactNode;
-  [key: string]: any;
-}
-
-interface SegmentNumberWrapperProps {
-  active: boolean;
-  children: React.ReactNode;
-  [key: string]: any;
-}
-
-interface HitDotWrapperProps {
-  active: boolean;
-  color: string;
-  [key: string]: any;
-}
-
-const StyledPlayerName = ({ isKiller, children, ...props }: PlayerNameWrapperProps) => (
-  <PlayerName isKiller={isKiller} {...props}>
+const StyledPlayerRow = ({ active, children, ...props }: PlayerRowWrapperProps) => (
+  <PlayerRow $active={active} {...props}>
     {children}
-  </PlayerName>
+  </PlayerRow>
 );
 
-const StyledProgressBar = ({ progress, isKiller, ...props }: ProgressBarWrapperProps) => (
-  <ProgressBar progress={progress} isKiller={isKiller} {...props} />
-);
-
-const StyledPlayerItem = ({ isActive, isEliminated, children, ...props }: PlayerItemWrapperProps) => (
-  <PlayerItem 
-    isActive={isActive} 
-    isEliminated={isEliminated} 
-    initial={{ opacity: 0, y: 10 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.3 }}
-    {...props}
-  >
-    {children}
-  </PlayerItem>
-);
-
-const StyledSegmentNumber = ({ active, children, ...props }: SegmentNumberWrapperProps) => (
-  <SegmentNumber active={active} {...props}>
-    {children}
-  </SegmentNumber>
-);
-
-const StyledHitDot = ({ active, color, ...props}: HitDotWrapperProps) => (
-  <HitDot active={active} color={color} {...props} />
+const StyledProgressBar = ({ percentage, color, isKiller, ...props }: ProgressBarWrapperProps) => (
+  <ProgressBar 
+    color={color} 
+    isKiller={isKiller}
+    initial={{ width: 0 }}
+    animate={{ width: `${percentage}%` }}
+    transition={{ duration: 0.5, ease: "easeOut" }}
+    {...props} 
+  />
 );
 
 const KillerScorecard: React.FC<KillerScorecardProps> = ({ players, currentPlayerId, maxHits }) => {
@@ -254,71 +173,41 @@ const KillerScorecard: React.FC<KillerScorecardProps> = ({ players, currentPlaye
   return (
     <ScorecardContainer>
       <Title>Player Status</Title>
+      <Subtitle>Required: {maxHits} hits</Subtitle>
       
       <PlayerList>
-        {sortedPlayers.map(player => (
-          <StyledPlayerItem
-            key={player.id}
-            isActive={player.id === currentPlayerId}
-            isEliminated={player.isEliminated || false}
-          >
-            <PlayerColor color={player.colour} />
-            
-            <PlayerDetails>
-              <StyledPlayerName isKiller={player.isKiller || false}>
-                {player.name}
-                {player.isKiller && (
-                  <KillerIndicator>
-                    <FiTarget /> Killer
-                  </KillerIndicator>
-                )}
-              </StyledPlayerName>
+        {sortedPlayers.map(player => {
+          const percentage = player.isKiller 
+            ? 100 
+            : player.isEliminated 
+              ? 0 
+              : ((player.segmentHits || 0) / maxHits) * 100;
+          
+          return (
+            <StyledPlayerRow
+              key={player.id}
+              active={player.id === currentPlayerId}
+            >
+              <PlayerAvatar color={player.colour}>
+                {player.name[0]}
+              </PlayerAvatar>
               
-              <PlayerSegment>
-                Segment: <StyledSegmentNumber active={player.id === currentPlayerId}>{player.segment}</StyledSegmentNumber>
-                {' | Lives: '}
-                {player.isEliminated ? (
-                  <span className="text-danger">OUT</span>
-                ) : (
-                  player.segmentHits || 0
-                )}
-              </PlayerSegment>
+              <SegmentLabel>{player.segment}</SegmentLabel>
               
-              {!player.isKiller ? (
-                // Progress to become a killer
-                <ProgressContainer>
-                  <ProgressLabel>
-                    {player.isEliminated ? 'OUT' : `${player.segmentHits || 0}/${maxHits}`}
-                  </ProgressLabel>
-                  <StyledProgressBar 
-                    progress={player.isEliminated ? 0 : (player.segmentHits || 0) / maxHits} 
-                    isKiller={false} 
-                  />
-                  <HitIndicators>
-                    {Array.from({ length: maxHits }).map((_, i) => (
-                      <StyledHitDot 
-                        key={i} 
-                        active={!player.isEliminated && (player.segmentHits || 0) > i}
-                        color={player.colour}
-                      />
-                    ))}
-                  </HitIndicators>
-                </ProgressContainer>
-              ) : (
-                // Status indicator for killers
-                <StatusIndicator>
-                  <FiTarget /> Hunting
-                </StatusIndicator>
-              )}
-            </PlayerDetails>
-            
-            {player.isEliminated && (
-              <EliminatedIndicator>
-                <FiX /> Out
-              </EliminatedIndicator>
-            )}
-          </StyledPlayerItem>
-        ))}
+              <ProgressTrack>
+                <StyledProgressBar 
+                  percentage={percentage}
+                  color={player.colour}
+                  isKiller={player.isKiller || false} 
+                />
+              </ProgressTrack>
+              
+              <ScoreLabel>
+                {player.segmentHits || 0}/{maxHits}
+              </ScoreLabel>
+            </StyledPlayerRow>
+          );
+        })}
       </PlayerList>
     </ScorecardContainer>
   );

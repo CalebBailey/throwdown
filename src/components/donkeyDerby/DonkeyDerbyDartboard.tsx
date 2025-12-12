@@ -34,52 +34,85 @@ const SegmentText = styled.text`
   user-select: none;
 `;
 
-const Legend = styled.div`
+const PlayerSegmentInfo = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
-  margin-top: 12px;
+  gap: 16px;
+  margin: 12px 0;
 `;
 
-const LegendItem = styled.div<{ color: string; $active: boolean }>`
+const PlayerSegmentItem = styled.div<{ color: string; $isActive: boolean }>`
   display: flex;
   align-items: center;
-  gap: 4px;
-  background: ${p => p.$active ? 'rgba(233,69,96,0.2)' : 'rgba(255,255,255,0.05)'};
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  border: 1px solid ${p => p.$active ? p.theme.colours.highlight : 'transparent'};
+  gap: 8px;
+  background-color: rgba(30, 30, 30, 0.7);
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 2px solid ${props => props.$isActive ? props.color : 'transparent'};
 `;
 
-const ColorDot = styled.span<{ color: string }>`
-  width: 10px;
-  height: 10px;
+const PlayerDot = styled.div<{ color: string }>`
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  background: ${p => p.color};
+  background-color: ${props => props.color};
 `;
 
 const MultiplierSelector = styled.div`
   display: flex;
   justify-content: center;
-  gap: 12px;
-  margin-top: 14px;
+  gap: 16px;
+  margin-top: 12px;
+  width: 120%;
 `;
 
-const MultBtn = styled.button<{ $active: boolean }>`
-  background: ${p => p.$active ? p.theme.colours.highlight : 'rgba(30,30,30,0.7)'};
-  color: ${p => p.theme.colours.text};
+const MultiplierButton = styled.button<{ $isActive: boolean }>`
+  background-color: ${props => props.$isActive ? '#E94560' : 'rgba(30, 30, 30, 0.7)'};
+  color: ${props => props.theme.colours.text};
   border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
+  padding: 12px 24px;
+  border-radius: 10px;
   cursor: pointer;
-  font-weight: ${p => p.$active ? 'bold' : 400};
-  &:hover { background: ${p => !p.$active && 'rgba(60,60,60,0.7)'}; }
+  font-weight: ${props => props.$isActive ? 'bold' : 'normal'};
+  flex: 1;
+  max-width: 150px;
+  
+  &:hover {
+    background-color: ${props => !props.$isActive && 'rgba(60, 60, 60, 0.7)'};
+  }
 `;
+
+// Define interface for the segment item wrapper component props
+interface SegmentItemWrapperProps {
+  color: string;
+  isActive: boolean;
+  children: React.ReactNode;
+  [key: string]: any;
+}
+
+const StyledPlayerSegmentItem = ({ color, isActive, children, ...props }: SegmentItemWrapperProps) => (
+  <PlayerSegmentItem color={color} $isActive={isActive} {...props}>
+    {children}
+  </PlayerSegmentItem>
+);
+
+interface MultiplierButtonWrapperProps {
+  isActive: boolean;
+  children: React.ReactNode;
+  onClick: () => void;
+  [key: string]: any;
+}
+
+const StyledMultiplierButton = ({ isActive, children, onClick, ...props }: MultiplierButtonWrapperProps) => (
+  <MultiplierButton $isActive={isActive} onClick={onClick} {...props}>
+    {children}
+  </MultiplierButton>
+);
+
 
 const DonkeyDerbyDartboard: React.FC<DonkeyDerbyDartboardProps> = ({ players, currentPlayer, onHitSegment }) => {
-  const [mult, setMult] = useState<'single' | 'double' | 'triple'>('single');
+  const [selectedMultiplier, setSelectedMultiplier] = useState<'single' | 'double' | 'triple'>('single');
   const boardRadius = 220;
   const numberRadius = boardRadius + 26;
   const outerDoubleRingInnerRadius = boardRadius - 8;
@@ -87,7 +120,7 @@ const DonkeyDerbyDartboard: React.FC<DonkeyDerbyDartboardProps> = ({ players, cu
   const innerBullRadius = 32;
   const bullseyeRadius = 15;
 
-  const handleClick = (seg: number) => onHitSegment(seg, mult);
+  const handleClick = (seg: number) => onHitSegment(seg, selectedMultiplier);
   const segmentBase = '#263d5a';
   const bullOuter = '#19304e';
   const bullInner = '#0c1e36';
@@ -97,6 +130,20 @@ const DonkeyDerbyDartboard: React.FC<DonkeyDerbyDartboardProps> = ({ players, cu
 
   return (
     <DartboardContainer>
+      {/* Player segments info panel */}
+      <PlayerSegmentInfo>
+        {players.map(player => (
+          <StyledPlayerSegmentItem 
+            key={player.id} 
+            color={player.colour}
+            isActive={player.id === currentPlayer.id}
+          >
+            <PlayerDot color={player.colour} />
+            <span>{player.name}: {player.segment}</span>
+          </StyledPlayerSegmentItem>
+        ))}
+      </PlayerSegmentInfo>
+      
       <BoardSvg viewBox="0 0 550 550">
         <circle cx="275" cy="275" r={boardRadius + 10} fill="#121212" />
         {SEGMENT_ORDER.map((segmentNumber, index) => {
@@ -138,19 +185,26 @@ const DonkeyDerbyDartboard: React.FC<DonkeyDerbyDartboardProps> = ({ players, cu
         <circle cx="275" cy="275" r={innerBullRadius} fill={bullOuter} />
         <circle cx="275" cy="275" r={bullseyeRadius} fill={bullInner} />
       </BoardSvg>
-      <Legend>
-        {players.map(p => (
-          <LegendItem key={p.id} color={p.colour} $active={p.id === currentPlayer.id}>
-            <ColorDot color={p.colour} /> {p.name}: {p.segment}
-          </LegendItem>
-        ))}
-      </Legend>
+      
       <MultiplierSelector>
-        {(['single','double','triple'] as const).map(m => (
-          <MultBtn key={m} $active={mult===m} onClick={() => setMult(m)}>
-            {m.charAt(0).toUpperCase()+m.slice(1)} {m==='single'?'(1)':m==='double'?'(2)':'(3)'}
-          </MultBtn>
-        ))}
+        <StyledMultiplierButton
+          isActive={selectedMultiplier === 'single'}
+          onClick={() => setSelectedMultiplier('single')}
+        >
+          Single (x1)
+        </StyledMultiplierButton>
+        <StyledMultiplierButton
+          isActive={selectedMultiplier === 'double'}
+          onClick={() => setSelectedMultiplier('double')}
+        >
+          Double (x2)
+        </StyledMultiplierButton>
+        <StyledMultiplierButton
+          isActive={selectedMultiplier === 'triple'}
+          onClick={() => setSelectedMultiplier('triple')}
+        >
+          Triple (x3)
+        </StyledMultiplierButton>
       </MultiplierSelector>
     </DartboardContainer>
   );

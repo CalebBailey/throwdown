@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Player } from '../../context/GameContext';
 
 // Standard dartboard segment order (clockwise, starting at top with 20)
 const SEGMENT_ORDER = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
 
 interface ShanghaiDartboardProps {
-  currentPlayer: Player;
   currentSegment: number;
   onHitSegment: (segment: number, multiplier: string) => void;
 }
@@ -40,7 +38,7 @@ const MultiplierSelector = styled.div`
   justify-content: center;
   gap: 16px;
   margin-top: 12px;
-  width: 100%;
+  width: 120%;
 `;
 
 const MultiplierButton = styled.button<{ $isActive: boolean }>`
@@ -92,7 +90,7 @@ const StyledMultiplierButton = ({ isActive, children, onClick, ...props }: Multi
   </MultiplierButton>
 );
 
-const ShanghaiDartboard: React.FC<ShanghaiDartboardProps> = ({ currentPlayer, currentSegment, onHitSegment }) => {
+const ShanghaiDartboard: React.FC<ShanghaiDartboardProps> = ({ currentSegment, onHitSegment }) => {
   const [selectedMultiplier, setSelectedMultiplier] = useState<'single' | 'double' | 'triple'>('single');
   
   const handleSegmentClick = (segment: number) => {

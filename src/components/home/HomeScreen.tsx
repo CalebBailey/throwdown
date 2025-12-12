@@ -2,11 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiArrowRight, FiTarget, FiUsers } from 'react-icons/fi';
+import { FiUsers } from 'react-icons/fi';
 import Layout from '../shared/Layout';
 import Button from '../shared/Button';
-import { useGameContext } from '../../context/GameContext';
-import Card from '../shared/Card';
 import logo from '../../assets/images/ThrowDownLogoNoBkgd.png';
 
 const HeroSection = styled.div`
@@ -101,66 +99,11 @@ const ButtonGroup = styled.div`
   }
 `;
 
-const SessionStats = styled(motion.div)`
-  margin-top: ${props => props.theme.space.xxl};
-  width: 100%;
-  max-width: 800px;
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    margin-top: ${props => props.theme.space.xl};
-  }
-  
-  @media (max-height: 600px) and (orientation: landscape) {
-    margin-top: ${props => props.theme.space.lg};
-  }
-`;
-
-const StatsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: ${props => props.theme.space.md};
-  margin-top: ${props => props.theme.space.lg};
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: ${props => props.theme.space.sm};
-    margin-top: ${props => props.theme.space.md};
-  }
-`;
-
-const StatCard = styled(Card)`
-  text-align: center;
-  padding: ${props => props.theme.space.md};
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    padding: ${props => props.theme.space.sm};
-  }
-`;
-
-const StatValue = styled.div`
-  font-family: ${props => props.theme.fonts.monospace};
-  font-size: ${props => props.theme.fontSizes.xxl};
-  font-weight: bold;
-  color: ${props => props.theme.colours.highlight};
-  margin: ${props => props.theme.space.md} 0;
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    font-size: ${props => props.theme.fontSizes.xl};
-    margin: ${props => props.theme.space.sm} 0;
-  }
-`;
-
 const HomeScreen: React.FC = () => {
   const navigate = useNavigate();
-  const { state } = useGameContext();
   
   const handleAddPlayers = () => {
     navigate('/players');
-  };
-  
-  const handleQuickStart = () => {
-    // Navigate to X01 game with default settings
-    navigate('/games/X01');
   };
   
   // Animation variants
@@ -223,47 +166,9 @@ const HomeScreen: React.FC = () => {
               >
                 Add Players
               </Button>
-              {/* <Button 
-                variant="secondary" 
-                size="large" 
-                onClick={handleQuickStart}
-                startIcon={<FiArrowRight />}
-              >
-                Quick Start 501
-              </Button> */}
             </ButtonGroup>
           </motion.div>
         </HeroSection>
-{/*         
-        {state.sessionStats.gamesPlayed > 0 && (
-          <SessionStats variants={itemVariants}>
-            <Card>
-              <Card.Header>
-                <Card.Title>Session Statistics</Card.Title>
-                <Card.Subtitle>Your current gaming session</Card.Subtitle>
-              </Card.Header>
-              <Card.Content>
-                <StatsGrid>
-                  <StatCard>
-                    <h4>Games Played</h4>
-                    <StatValue>{state.sessionStats.gamesPlayed}</StatValue>
-                  </StatCard>
-                  {Object.entries(state.sessionStats.playerWins)
-                    .sort(([, a], [, b]) => b - a)
-                    .slice(0, 3)
-                    .map(([playerId, wins]) => {
-                      const player = state.players.find(p => p.id === playerId);
-                      return player ? (
-                        <StatCard key={playerId}>
-                          <h4>{player.name}</h4>
-                          <StatValue>{wins} {wins === 1 ? 'win' : 'wins'}</StatCard>
-                      ) : null;
-                    })}
-                </StatsGrid>
-              </Card.Content>
-            </Card>
-          </SessionStats>
-        )} */}
       </motion.div>
     </Layout>
   );

@@ -21,17 +21,6 @@ const Container = styled.div`
   margin: 0 auto;
 `;
 
-const PageTitle = styled.h1`
-  margin-bottom: ${props => props.theme.space.md};
-  color: ${props => props.theme.colours.text};
-  font-size: ${props => props.theme.fontSizes.xxxl};
-  
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    margin-bottom: ${props => props.theme.space.sm};
-    font-size: ${props => props.theme.fontSizes.xxl};
-  }
-`;
-
 const ScrollableContent = styled.div`
   /* Removed overflow and max-height to prevent double scrollbar */
   padding-right: ${props => props.theme.space.xs};

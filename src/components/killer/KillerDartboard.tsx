@@ -41,7 +41,7 @@ const MultiplierSelector = styled.div`
   justify-content: center;
   gap: 16px;
   margin-top: 12px;
-  width: 100%;
+  width: 120%;
 `;
 
 const MultiplierButton = styled.button<{ $isActive: boolean }>`

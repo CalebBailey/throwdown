@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link, useLocation } from 'react-router-dom';
-import { FiSettings, FiHome, FiGrid, FiUsers, FiMenu, FiX } from 'react-icons/fi';
+import { FiHome, FiGrid, FiUsers, FiMenu, FiX } from 'react-icons/fi';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -130,20 +130,6 @@ const Main = styled.main`
 
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
     padding: ${props => props.theme.space.md} ${props => props.theme.space.sm};
-  }
-`;
-
-const Footer = styled.footer`
-  background-color: ${props => props.theme.colours.primary};
-  padding: ${props => props.theme.space.sm} ${props => props.theme.space.md};
-  text-align: center;
-  font-size: ${props => props.theme.fontSizes.sm};
-  color: rgba(255, 255, 255, 0.6);
-  flex-shrink: 0;
-
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    padding: ${props => props.theme.space.xs} ${props => props.theme.space.sm};
-    font-size: ${props => props.theme.fontSizes.xs};
   }
 `;
 

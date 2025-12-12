@@ -7,7 +7,6 @@ import Layout from '../shared/Layout';
 import Button from '../shared/Button';
 import Card from '../shared/Card';
 import ShanghaiDartboard from './ShanghaiDartboard';
-import ShanghaiScorecard from './ShanghaiScorecard';
 import { useGameContext } from '../../context/GameContext';
 
 // 501-style container
@@ -594,7 +593,6 @@ const ShanghaiGameScreen: React.FC = () => {
               
               <DartboardContainer>
                 <ShanghaiDartboard
-                  currentPlayer={currentPlayer}
                   currentSegment={currentSegment}
                   onHitSegment={handleHitSegment}
                 />
