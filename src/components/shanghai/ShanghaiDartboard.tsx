@@ -18,9 +18,10 @@ const DartboardContainer = styled.div`
 `;
 
 const BoardSvg = styled.svg`
-  max-width: 500px;
+  max-width: 50vh;
   width: 100%;
-  height: auto;
+  max-height: 50vh;
+  height: 100%;
   aspect-ratio: 1 / 1;
 `;
 

@@ -19,9 +19,10 @@ const DartboardContainer = styled.div`
 `;
 
 const BoardSvg = styled.svg`
-  max-width: 500px;
+  max-width: 50vh;
   width: 100%;
-  height: auto;
+  max-height: 50vh;
+  height: 100%;
   aspect-ratio: 1 / 1;
 `;
 
@@ -130,20 +131,6 @@ const DonkeyDerbyDartboard: React.FC<DonkeyDerbyDartboardProps> = ({ players, cu
 
   return (
     <DartboardContainer>
-      {/* Player segments info panel */}
-      <PlayerSegmentInfo>
-        {players.map(player => (
-          <StyledPlayerSegmentItem 
-            key={player.id} 
-            color={player.colour}
-            isActive={player.id === currentPlayer.id}
-          >
-            <PlayerDot color={player.colour} />
-            <span>{player.name}: {player.segment}</span>
-          </StyledPlayerSegmentItem>
-        ))}
-      </PlayerSegmentInfo>
-      
       <BoardSvg viewBox="0 0 550 550">
         <circle cx="275" cy="275" r={boardRadius + 10} fill="#121212" />
         {SEGMENT_ORDER.map((segmentNumber, index) => {
@@ -185,6 +172,20 @@ const DonkeyDerbyDartboard: React.FC<DonkeyDerbyDartboardProps> = ({ players, cu
         <circle cx="275" cy="275" r={innerBullRadius} fill={bullOuter} />
         <circle cx="275" cy="275" r={bullseyeRadius} fill={bullInner} />
       </BoardSvg>
+      
+      {/* Player segments info panel */}
+      <PlayerSegmentInfo>
+        {players.map(player => (
+          <StyledPlayerSegmentItem 
+            key={player.id} 
+            color={player.colour}
+            isActive={player.id === currentPlayer.id}
+          >
+            <PlayerDot color={player.colour} />
+            <span>{player.name}: {player.segment}</span>
+          </StyledPlayerSegmentItem>
+        ))}
+      </PlayerSegmentInfo>
       
       <MultiplierSelector>
         <StyledMultiplierButton
