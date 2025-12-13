@@ -659,7 +659,9 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         .map(turnDarts => 
           turnDarts.reduce((sum, dart) => sum + dartNotationToScore(dart), 0)
         );
-      const highestScore = turnScores.length > 0 ? Math.max(...turnScores, 0) : 0;
+      const currentLegHighestScore = turnScores.length > 0 ? Math.max(...turnScores, 0) : 0;
+      // Keep the maximum between current leg's highest and player's existing highest
+      const highestScore = Math.max(currentLegHighestScore, currentPlayer.highestScore || 0);
       // If bust, last score should be 0 (no points scored), otherwise use the actual score
       const lastScore = isBust ? 0 : score;
       
