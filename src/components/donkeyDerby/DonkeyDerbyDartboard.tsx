@@ -158,19 +158,155 @@ const DonkeyDerbyDartboard: React.FC<DonkeyDerbyDartboardProps> = ({ players, cu
             return `M ${outerStartX} ${outerStartY} A ${outerR} ${outerR} 0 ${largeArcFlag} 1 ${outerEndX} ${outerEndY} L ${innerEndX} ${innerEndY} A ${innerR} ${innerR} 0 ${largeArcFlag} 0 ${innerStartX} ${innerStartY} Z`;
           };
 
-          const fill = owner ? owner.colour : segmentBase;
-          const stroke = isCurrentPlayers ? '#E94560' : '#222';
-          const strokeWidth = isCurrentPlayers ? 2 : 0.5;
+          const stroke = isCurrentPlayers ? '#ffffffff' : '#222';
+          const strokeWidth = isCurrentPlayers ? 3 : 0.5;
+
+          // Determine fill and glow filter
+          let fill = segmentBase;
+          let segmentFilter = 'none';
+          
+          if (owner) {
+            // Use gradient fill for owned segments
+            if (isCurrentPlayers) {
+              fill = `url(#gradient-current-${segmentNumber})`;
+              segmentFilter = 'url(#currentPlayerGlow)';
+            } else {
+              fill = `url(#gradient-${owner.id}-${segmentNumber})`;
+              segmentFilter = `url(#playerGlow-${owner.id})`;
+            }
+          }
 
           return (
             <g key={segmentNumber} onClick={() => handleClick(segmentNumber)} className="cursor-pointer">
-              <path d={createArcPath(mainSegmentOuterRadius, innerBullRadius)} fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
+              <path 
+                d={createArcPath(mainSegmentOuterRadius, innerBullRadius)} 
+                fill={fill} 
+                stroke={stroke} 
+                strokeWidth={strokeWidth}
+                style={{ filter: segmentFilter }}
+              />
               <SegmentText x={textX} y={textY} className={isCurrentPlayers ? 'text-current-player' : 'text-default'}>{segmentNumber}</SegmentText>
             </g>
           );
         })}
         <circle cx="275" cy="275" r={innerBullRadius} fill={bullOuter} />
         <circle cx="275" cy="275" r={bullseyeRadius} fill={bullInner} />
+        
+        {/* Glow effects for segments */}
+        <defs>
+          {/* Animated gradients for each player's segments */}
+          {SEGMENT_ORDER.map((segmentNumber, index) => {
+            const owner = segmentOwnerMap[segmentNumber];
+            if (!owner) return null;
+            
+            const isCurrentPlayers = owner.id === currentPlayer.id;
+            const gradientId = isCurrentPlayers ? `gradient-current-${segmentNumber}` : `gradient-${owner.id}-${segmentNumber}`;
+            
+            // Calculate the angle for this segment (same as used for positioning)
+            const segmentAngle = 18;
+            const startAngle = 270 - 9 + (index * segmentAngle);
+            const midAngle = startAngle + segmentAngle / 2;
+            const angleRad = midAngle * Math.PI / 180;
+            
+            // Calculate gradient direction based on the segment angle
+            // For current player: point outward (toward numbers) - wave moves outward
+            // For other players: point inward (toward center) - wave moves inward
+            const x1 = isCurrentPlayers ? 50 - 50 * Math.cos(angleRad) : 50 + 50 * Math.cos(angleRad);
+            const y1 = isCurrentPlayers ? 50 - 50 * Math.sin(angleRad) : 50 + 50 * Math.sin(angleRad);
+            const x2 = isCurrentPlayers ? 50 + 50 * Math.cos(angleRad) : 50 - 50 * Math.cos(angleRad);
+            const y2 = isCurrentPlayers ? 50 + 50 * Math.sin(angleRad) : 50 - 50 * Math.sin(angleRad);
+            
+            return (
+              <linearGradient 
+                key={gradientId}
+                id={gradientId}
+                x1={`${x1}%`}
+                y1={`${y1}%`}
+                x2={`${x2}%`}
+                y2={`${y2}%`}
+              >
+                {isCurrentPlayers ? (
+                  // Current player - wave moving outward (center to edge)
+                  <>
+                    <stop offset="0%" stopColor={owner.colour} stopOpacity="0.3">
+                      <animate attributeName="stop-opacity" values="0.3;1;0.9;0.3" dur="2s" repeatCount="indefinite" />
+                    </stop>
+                    <stop offset="20%" stopColor={owner.colour} stopOpacity="0.5">
+                      <animate attributeName="stop-opacity" values="0.5;0.3;1;0.9;0.5" dur="2s" repeatCount="indefinite" />
+                    </stop>
+                    <stop offset="40%" stopColor={owner.colour} stopOpacity="0.7">
+                      <animate attributeName="stop-opacity" values="0.7;0.5;0.3;1;0.9;0.7" dur="2s" repeatCount="indefinite" />
+                    </stop>
+                    <stop offset="60%" stopColor={owner.colour} stopOpacity="0.9">
+                      <animate attributeName="stop-opacity" values="0.9;0.7;0.5;0.3;1;0.9" dur="2s" repeatCount="indefinite" />
+                    </stop>
+                    <stop offset="80%" stopColor={owner.colour} stopOpacity="1">
+                      <animate attributeName="stop-opacity" values="1;0.9;0.7;0.5;0.3;1" dur="2s" repeatCount="indefinite" />
+                    </stop>
+                    <stop offset="100%" stopColor={owner.colour} stopOpacity="0.8">
+                      <animate attributeName="stop-opacity" values="0.8;1;0.9;0.7;0.5;0.8" dur="2s" repeatCount="indefinite" />
+                    </stop>
+                  </>
+                ) : (
+                  // Other players - wave moving inward (edge to center) - reversed animation
+                  <>
+                    <stop offset="0%" stopColor={owner.colour} stopOpacity="0.8">
+                      <animate attributeName="stop-opacity" values="0.8;0.5;0.7;0.9;1;0.8" dur="2s" repeatCount="indefinite" />
+                    </stop>
+                    <stop offset="20%" stopColor={owner.colour} stopOpacity="1">
+                      <animate attributeName="stop-opacity" values="1;0.3;0.5;0.7;0.9;1" dur="2s" repeatCount="indefinite" />
+                    </stop>
+                    <stop offset="40%" stopColor={owner.colour} stopOpacity="0.9">
+                      <animate attributeName="stop-opacity" values="0.9;1;0.3;0.5;0.7;0.9" dur="2s" repeatCount="indefinite" />
+                    </stop>
+                    <stop offset="60%" stopColor={owner.colour} stopOpacity="0.7">
+                      <animate attributeName="stop-opacity" values="0.7;0.9;1;0.3;0.5;0.7" dur="2s" repeatCount="indefinite" />
+                    </stop>
+                    <stop offset="80%" stopColor={owner.colour} stopOpacity="0.5">
+                      <animate attributeName="stop-opacity" values="0.5;0.7;0.9;1;0.3;0.5" dur="2s" repeatCount="indefinite" />
+                    </stop>
+                    <stop offset="100%" stopColor={owner.colour} stopOpacity="0.3">
+                      <animate attributeName="stop-opacity" values="0.3;0.9;0.5;0.7;1;0.3" dur="2s" repeatCount="indefinite" />
+                    </stop>
+                  </>
+                )}
+              </linearGradient>
+            );
+          })}
+          
+          {/* Current player segment glow - enhanced and more visible */}
+          <filter id="currentPlayerGlow" x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse">
+            <feGaussianBlur stdDeviation="8" result="blur" />
+            <feFlood floodColor={currentPlayer.colour} floodOpacity="1" result="glow" />
+            <feComposite in="glow" in2="blur" operator="in" result="coloredBlur" />
+            <feMerge>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          
+          {/* Create individual glow filters for each player's owned segments - brighter */}
+          {players.map(player => (
+            <filter 
+              key={`playerGlow-${player.id}`} 
+              id={`playerGlow-${player.id}`} 
+              x="-40%" 
+              y="-40%" 
+              width="180%" 
+              height="180%" 
+              filterUnits="objectBoundingBox"
+              primitiveUnits="userSpaceOnUse"
+            >
+              <feGaussianBlur stdDeviation="6" result="blur" />
+              <feFlood floodColor={player.colour} floodOpacity="0.9" result="glow" />
+              <feComposite in="glow" in2="blur" operator="in" result="coloredBlur" />
+              <feMerge>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          ))}
+        </defs>
       </BoardSvg>
       
       {/* Player segments info panel */}
