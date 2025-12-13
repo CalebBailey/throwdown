@@ -306,7 +306,7 @@ const KillerDartboard: React.FC<KillerDartboardProps> = ({ players, currentPlaye
           );
         })}
         
-        {/* Outer bullseye (green) */}
+        {/* Outer bullseye */}
         <circle 
           cx="275" 
           cy="275" 
@@ -317,7 +317,7 @@ const KillerDartboard: React.FC<KillerDartboardProps> = ({ players, currentPlaye
           className="cursor-pointer"
         />
         
-        {/* Inner bullseye (red) */}
+        {/* Inner bullseye */}
         <circle 
           cx="275" 
           cy="275" 
