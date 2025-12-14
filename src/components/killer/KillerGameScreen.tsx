@@ -7,17 +7,17 @@ import Layout from '../shared/Layout';
 import Button from '../shared/Button';
 import Card from '../shared/Card';
 import KillerDartboard from './KillerDartboard';
+import KillerPopup from './KillerPopup';
+import EliminatedPopup from './EliminatedPopup';
 import GameRestoredBanner from '../shared/GameRestoredBanner';
 import { useGameContext } from '../../context/GameContext';
 
-// 501-style container
 const Container = styled.div`
   max-width: 1000px;
   margin: 0 auto;
   height: 100%;
 `;
 
-// 501-style header
 const GameHeader = styled.div`
   display: flex;
   justify-content: space-between;
@@ -39,7 +39,6 @@ const PageTitle = styled.h1`
   }
 `;
 
-// 501-style grid layout
 const GameGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr;
@@ -50,7 +49,6 @@ const GameGrid = styled.div`
   }
 `;
 
-// 501-style scoreboard
 const ScoreboardCard = styled(Card)`
   grid-row: 2;
   height: fit-content;
@@ -287,7 +285,7 @@ const RulesList = styled.ul`
   }
 `;
 
-// Winner screen - 501 style
+// Winner screen
 const WinnerOverlay = styled(motion.div)`
   position: fixed;
   top: 0;
@@ -493,7 +491,12 @@ const KillerGameScreen: React.FC = () => {
   const [dartThrowCount, setDartThrowCount] = useState(0);
   const [showWinnerScreen, setShowWinnerScreen] = useState(false);
   const [showRestoredBanner, setShowRestoredBanner] = useState(false);
+  const [showKillerPopup, setShowKillerPopup] = useState(false);
+  const [showEliminatedPopup, setShowEliminatedPopup] = useState(false);
+  const [eliminatedPlayerInfo, setEliminatedPlayerInfo] = useState<{ name: string; color: string } | null>(null);
   const isInitialMount = useRef(true);
+  const previousKillersRef = useRef<Set<string>>(new Set());
+  const previousEliminatedRef = useRef<Set<string>>(new Set());
   
   const currentPlayer = state.players[state.currentPlayerIndex];
   const requiredHits = state.killerOptions?.maxHits || 3;
@@ -600,17 +603,77 @@ const KillerGameScreen: React.FC = () => {
   
   const handleGoToSummary = () => navigate('/killer/summary');
   
-  // Check for winner
+  // Check for winner - delay to allow eliminated popup to finish
   useEffect(() => {
     if (state.gameStatus === 'complete' && state.winner && !showWinnerScreen) {
-      setShowWinnerScreen(true);
+      // Always delay winner screen to allow eliminated popup to finish
+      const timer = setTimeout(() => {
+        setShowWinnerScreen(true);
+      }, 2300); // Wait for eliminated popup to finish (2000ms) + buffer
+      return () => clearTimeout(timer);
     }
-  }, [state.gameStatus, state.winner]);
+  }, [state.gameStatus, state.winner, showWinnerScreen]);
+  
+  // Check for new killers and show popup
+  useEffect(() => {
+    const currentKillers = new Set(
+      state.players.filter(p => p.isKiller).map(p => p.id)
+    );
+    
+    // Check if there's a new killer
+    currentKillers.forEach(killerId => {
+      if (!previousKillersRef.current.has(killerId)) {
+        // New killer detected!
+        setShowKillerPopup(true);
+      }
+    });
+    
+    // Update the reference for next comparison
+    previousKillersRef.current = currentKillers;
+  }, [state.players]);
+  
+  // Check for newly eliminated players and show popup
+  useEffect(() => {
+    const currentEliminated = new Set(
+      state.players.filter(p => p.isEliminated).map(p => p.id)
+    );
+    
+    // Check if there's a newly eliminated player
+    currentEliminated.forEach(eliminatedId => {
+      if (!previousEliminatedRef.current.has(eliminatedId)) {
+        // New elimination detected!
+        const eliminatedPlayer = state.players.find(p => p.id === eliminatedId);
+        if (eliminatedPlayer) {
+          setEliminatedPlayerInfo({
+            name: eliminatedPlayer.name,
+            color: eliminatedPlayer.colour
+          });
+          setShowEliminatedPopup(true);
+        }
+      }
+    });
+    
+    // Update the reference for next comparison
+    previousEliminatedRef.current = currentEliminated;
+  }, [state.players]);
   
   return (
     <Layout hideNav>
       <Container>
         <GameRestoredBanner show={showRestoredBanner} />
+        <KillerPopup 
+          show={showKillerPopup} 
+          onComplete={() => setShowKillerPopup(false)}
+        />
+        <EliminatedPopup
+          show={showEliminatedPopup}
+          playerName={eliminatedPlayerInfo?.name || ''}
+          playerColor={eliminatedPlayerInfo?.color || ''}
+          onComplete={() => {
+            setShowEliminatedPopup(false);
+            setEliminatedPlayerInfo(null);
+          }}
+        />
         
         <GameHeader>
           <PageTitle>Killer</PageTitle>
@@ -680,6 +743,9 @@ const KillerGameScreen: React.FC = () => {
                       : player.isEliminated 
                         ? 0 
                         : (hits / requiredHits) * 100;
+
+                    // Display "OUT" if hits are negative, otherwise show the number
+                    const displayHits = hits < 0 ? 'OUT' : `${hits} / ${requiredHits}`;
                     
                     return (
                       <PlayerRaceLane 
@@ -690,7 +756,7 @@ const KillerGameScreen: React.FC = () => {
                         <PlayerHeader>
                           <PlayerColor color={player.colour} />
                           <PlayerName>{player.name}</PlayerName>
-                          <PlayerProgress>{hits} / {requiredHits}</PlayerProgress>
+                          <PlayerProgress>{displayHits}</PlayerProgress>
                         </PlayerHeader>
                         <ProgressTrack>
                           <ProgressBar

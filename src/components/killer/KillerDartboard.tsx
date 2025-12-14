@@ -21,9 +21,10 @@ const DartboardContainer = styled.div`
 `;
 
 const BoardSvg = styled.svg`
-  max-width: 550px;
+  max-width: 50vh;
   width: 100%;
-  height: auto;
+  max-height: 50vh;
+  height: 100%;
   aspect-ratio: 1 / 1;
 `;
 
@@ -176,22 +177,6 @@ const KillerDartboard: React.FC<KillerDartboardProps> = ({ players, currentPlaye
   
   return (
     <DartboardContainer>
-      {/* Player segments info panel */}
-      <PlayerSegmentInfo>
-        {players.map(player => (
-          !player.isEliminated && (
-            <StyledPlayerSegmentItem 
-              key={player.id} 
-              color={player.colour}
-              isActive={player.id === currentPlayerId}
-            >
-              <PlayerDot color={player.colour} />
-              <span>{player.name}: {player.segment}</span>
-              {player.isKiller && <span> (Killer)</span>}
-            </StyledPlayerSegmentItem>
-          )
-        ))}
-      </PlayerSegmentInfo>
       
       <BoardSvg viewBox="0 0 550 550" xmlns="http://www.w3.org/2000/svg">
         {/* Board background */}
@@ -321,7 +306,7 @@ const KillerDartboard: React.FC<KillerDartboardProps> = ({ players, currentPlaye
           );
         })}
         
-        {/* Outer bullseye (green) */}
+        {/* Outer bullseye */}
         <circle 
           cx="275" 
           cy="275" 
@@ -332,7 +317,7 @@ const KillerDartboard: React.FC<KillerDartboardProps> = ({ players, currentPlaye
           className="cursor-pointer"
         />
         
-        {/* Inner bullseye (red) */}
+        {/* Inner bullseye */}
         <circle 
           cx="275" 
           cy="275" 
@@ -379,6 +364,23 @@ const KillerDartboard: React.FC<KillerDartboardProps> = ({ players, currentPlaye
           ))}
         </defs>
       </BoardSvg>
+
+      {/* Player segments info panel */}
+      <PlayerSegmentInfo>
+        {players.map(player => (
+          !player.isEliminated && (
+            <StyledPlayerSegmentItem 
+              key={player.id} 
+              color={player.colour}
+              isActive={player.id === currentPlayerId}
+            >
+              <PlayerDot color={player.colour} />
+              <span>{player.name}: {player.segment}</span>
+              {player.isKiller && <span> (Killer)</span>}
+            </StyledPlayerSegmentItem>
+          )
+        ))}
+      </PlayerSegmentInfo>
       
       <MultiplierSelector>
         <StyledMultiplierButton
