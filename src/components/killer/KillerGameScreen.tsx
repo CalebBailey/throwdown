@@ -603,12 +603,16 @@ const KillerGameScreen: React.FC = () => {
   
   const handleGoToSummary = () => navigate('/killer/summary');
   
-  // Check for winner
+  // Check for winner - delay to allow eliminated popup to finish
   useEffect(() => {
     if (state.gameStatus === 'complete' && state.winner && !showWinnerScreen) {
-      setShowWinnerScreen(true);
+      // Always delay winner screen to allow eliminated popup to finish
+      const timer = setTimeout(() => {
+        setShowWinnerScreen(true);
+      }, 2300); // Wait for eliminated popup to finish (2000ms) + buffer
+      return () => clearTimeout(timer);
     }
-  }, [state.gameStatus, state.winner]);
+  }, [state.gameStatus, state.winner, showWinnerScreen]);
   
   // Check for new killers and show popup
   useEffect(() => {
