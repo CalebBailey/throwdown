@@ -1,0 +1,34 @@
+# Ensure proper line endings
+* text=auto
+
+# JavaScript files
+*.js text eol=lf
+*.jsx text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.mjs text eol=lf
+
+# JSON files
+*.json text eol=lf
+
+# CSS files
+*.css text eol=lf
+
+# HTML files
+*.html text eol=lf
+
+# Image files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text eol=lf
+*.webp binary
+
+# Font files
+*.woff binary
+*.woff2 binary
+*.eot binary
+*.ttf binary
+*.otf binary
